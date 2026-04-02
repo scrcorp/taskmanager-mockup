@@ -236,12 +236,19 @@
       renderPendingPreviews(); updateSubmitState(); renderMemos(); updateBadge();
     });
 
-    // Capture
+    // Capture (viewport only, excluding feedback UI)
     document.getElementById('fbCapture').addEventListener('click', async () => {
       if (typeof html2canvas === 'undefined') { alert('Loading... try again.'); return; }
       const root = document.getElementById('feedbackRoot'); root.style.display = 'none';
       try {
-        const c = await html2canvas(document.body, { scale: 1, useCORS: true, logging: false, ignoreElements: el => el.id === 'feedbackRoot' });
+        const c = await html2canvas(document.body, {
+          scale: 1, useCORS: true, logging: false,
+          width: window.innerWidth,
+          height: window.innerHeight,
+          x: window.scrollX,
+          y: window.scrollY,
+          ignoreElements: el => el.id === 'feedbackRoot'
+        });
         pendingScreenshots.push({ original: c.toDataURL('image/jpeg', 0.7), drawing: null });
         renderPendingPreviews(); updateSubmitState();
       } catch (e) { alert('Failed: ' + e.message); }
@@ -696,21 +703,21 @@
   }
 
   function editorSave() {
-    // 1. Save drawing layer data
+    // 1. Save drawing layer
     saveCurrentDrawingLayer();
 
-    // 2. Generate merged screenshot from what's on screen right now
-    const img = document.getElementById('fbPreviewImg');
+    // 2. Generate merged image directly from screen elements
+    const previewImg = document.getElementById('fbPreviewImg');
     const drawCanvas = document.getElementById('fbDrawCanvas');
-    const mc = document.createElement('canvas');
-    mc.width = drawCanvas.width;
-    mc.height = drawCanvas.height;
-    const mctx = mc.getContext('2d');
-    mctx.drawImage(img, 0, 0, mc.width, mc.height);
+    const mergeCanvas = document.createElement('canvas');
+    mergeCanvas.width = drawCanvas.width;
+    mergeCanvas.height = drawCanvas.height;
+    const mctx = mergeCanvas.getContext('2d');
+    mctx.drawImage(previewImg, 0, 0, mergeCanvas.width, mergeCanvas.height);
     mctx.drawImage(drawCanvas, 0, 0);
-    const mergedDataUrl = mc.toDataURL('image/jpeg', 0.85);
+    const mergedUrl = mergeCanvas.toDataURL('image/jpeg', 0.8);
 
-    // 3. Update storage
+    // 3. Save
     if (editor.source === 'pending') {
       pendingScreenshots = editor.images.map((orig, i) => ({
         original: orig, drawing: editor.savedDrawings[i]
@@ -718,28 +725,47 @@
       renderPendingPreviews(); updateSubmitState();
     } else if (editor.memoId) {
       const memos = loadMemos();
-      const memo = memos.find(m => m.id === editor.memoId);
-      if (memo) {
+      const idx = memos.findIndex(m => m.id === editor.memoId);
+      if (idx !== -1) {
+        const memo = memos[idx];
         memo.originals = [...editor.images];
         memo.drawings = [...editor.savedDrawings];
-        memo.screenshots = editor.images.map((orig, i) => {
-          if (i === editor.index) return mergedDataUrl;
-          return editor.savedDrawings[i] ? mergeForExport(orig, editor.savedDrawings[i]) : orig;
-        });
+        // Build new screenshots array
+        const newScreenshots = [];
+        for (let i = 0; i < editor.images.length; i++) {
+          if (i === editor.index) {
+            newScreenshots.push(mergedUrl);
+          } else if (editor.savedDrawings[i]) {
+            // For other images with drawings, keep existing screenshot or original
+            newScreenshots.push(memo.screenshots?.[i] || editor.images[i]);
+          } else {
+            newScreenshots.push(editor.images[i]);
+          }
+        }
+        memo.screenshots = newScreenshots;
+        memos[idx] = memo;
         saveMemos(memos);
 
-        // 4. Force update thumbnail in DOM directly (belt and suspenders)
+        // 4. Force re-render and directly replace thumbnail
+        const content = document.getElementById('fbContent');
+        // Full re-render from fresh localStorage read
         renderMemos();
-        // Also directly update any visible img with this memo id
-        setTimeout(() => {
-          const memoEl = document.querySelector(`.fb-memo[data-id="${editor.memoId}"]`);
-          if (memoEl) {
-            const imgs = memoEl.querySelectorAll('.fb-memo-screenshot img');
-            if (imgs[editor.index]) {
-              imgs[editor.index].src = mergedDataUrl;
+
+        // Nuclear option: find all memo imgs and force-replace src
+        requestAnimationFrame(() => {
+          const allMemoEls = content.querySelectorAll('.fb-memo');
+          allMemoEls.forEach(el => {
+            const id = Number(el.dataset.id);
+            if (id === editor.memoId) {
+              const thumbImgs = el.querySelectorAll('img');
+              thumbImgs.forEach((thumbImg, i) => {
+                if (i === editor.index && mergedUrl) {
+                  thumbImg.src = mergedUrl;
+                }
+              });
             }
-          }
-        }, 50);
+          });
+        });
       }
     }
 
