@@ -35,7 +35,14 @@
   function loadMemos() {
     try { return JSON.parse(localStorage.getItem(mockupKey) || '[]'); } catch { return []; }
   }
-  function saveMemos(memos) { localStorage.setItem(mockupKey, JSON.stringify(memos)); }
+  function saveMemos(memos) {
+    try {
+      const data = JSON.stringify(memos);
+      localStorage.setItem(mockupKey, data);
+    } catch (e) {
+      alert('Failed to save! localStorage might be full.\n\nTry clearing old feedback or reducing screenshot count.\n\n' + e.message);
+    }
+  }
 
   function addMemo(text, screenshots) {
     const memos = loadMemos();
@@ -323,6 +330,7 @@
       if (e.key === 'Escape') tryCloseEditor();
       if (e.key === 'ArrowLeft') navEditor(-1);
       if (e.key === 'ArrowRight') navEditor(1);
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); editorSave(); }
       if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); editorUndo(); }
       if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) { e.preventDefault(); editorRedo(); }
     });
@@ -688,11 +696,21 @@
   }
 
   function editorSave() {
+    // 1. Save drawing layer data
     saveCurrentDrawingLayer();
 
-    // Merge current image directly from what's on screen (no async needed)
-    const currentMerged = mergeCurrentFromScreen();
+    // 2. Generate merged screenshot from what's on screen right now
+    const img = document.getElementById('fbPreviewImg');
+    const drawCanvas = document.getElementById('fbDrawCanvas');
+    const mc = document.createElement('canvas');
+    mc.width = drawCanvas.width;
+    mc.height = drawCanvas.height;
+    const mctx = mc.getContext('2d');
+    mctx.drawImage(img, 0, 0, mc.width, mc.height);
+    mctx.drawImage(drawCanvas, 0, 0);
+    const mergedDataUrl = mc.toDataURL('image/jpeg', 0.85);
 
+    // 3. Update storage
     if (editor.source === 'pending') {
       pendingScreenshots = editor.images.map((orig, i) => ({
         original: orig, drawing: editor.savedDrawings[i]
@@ -704,14 +722,24 @@
       if (memo) {
         memo.originals = [...editor.images];
         memo.drawings = [...editor.savedDrawings];
-        // Build screenshots: current index uses screen merge, others use stored data
         memo.screenshots = editor.images.map((orig, i) => {
-          if (i === editor.index) return currentMerged;
-          if (editor.savedDrawings[i]) return mergeForExport(orig, editor.savedDrawings[i]);
-          return orig;
+          if (i === editor.index) return mergedDataUrl;
+          return editor.savedDrawings[i] ? mergeForExport(orig, editor.savedDrawings[i]) : orig;
         });
         saveMemos(memos);
+
+        // 4. Force update thumbnail in DOM directly (belt and suspenders)
         renderMemos();
+        // Also directly update any visible img with this memo id
+        setTimeout(() => {
+          const memoEl = document.querySelector(`.fb-memo[data-id="${editor.memoId}"]`);
+          if (memoEl) {
+            const imgs = memoEl.querySelectorAll('.fb-memo-screenshot img');
+            if (imgs[editor.index]) {
+              imgs[editor.index].src = mergedDataUrl;
+            }
+          }
+        }, 50);
       }
     }
 
@@ -721,19 +749,6 @@
     const btn = document.getElementById('fbDrawSave');
     btn.textContent = 'Saved!';
     setTimeout(() => { btn.textContent = 'Save'; }, 800);
-  }
-
-  // Merge directly from the displayed img + canvas (guaranteed to work, no async)
-  function mergeCurrentFromScreen() {
-    const img = document.getElementById('fbPreviewImg');
-    const drawCanvas = document.getElementById('fbDrawCanvas');
-    const mc = document.createElement('canvas');
-    mc.width = drawCanvas.width;
-    mc.height = drawCanvas.height;
-    const ctx = mc.getContext('2d');
-    ctx.drawImage(img, 0, 0, mc.width, mc.height);
-    ctx.drawImage(drawCanvas, 0, 0);
-    return mc.toDataURL('image/jpeg', 0.85);
   }
 
   // Cancel = revert to last saved state
