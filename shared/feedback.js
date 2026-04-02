@@ -897,7 +897,7 @@
         original: orig,
         drawing: editor.savedDrawings[i],
         // Pre-merged for display: current image from screen, others keep existing
-        merged: i === editor.index && editor.savedDrawings[i] ? mergedNow : (pendingScreenshots[i]?.merged || null)
+        merged: i === editor.index ? (editor.savedDrawings[i] ? mergedNow : null) : (pendingScreenshots[i]?.merged || null)
       }));
       renderPendingPreviews(); updateSubmitState();
     } else if (editor.memoId) {
