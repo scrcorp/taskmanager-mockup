@@ -999,7 +999,6 @@
       <div style="position:relative;width:72px;height:72px;border-radius:6px;overflow:hidden;border:2px solid #6C5CE7;flex-shrink:0;">
         <img src="${p.drawing ? mergeForExport(p.original, p.drawing) : p.original}" style="width:100%;height:100%;object-fit:cover;cursor:pointer;" onclick="window._fbEditPending(${i})">
         <button onclick="event.stopPropagation();window._fbRemovePending(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:10px;line-height:1;">&times;</button>
-        ${p.drawing ? '<div style="position:absolute;bottom:2px;left:2px;background:#6C5CE7;color:white;font-size:8px;padding:1px 4px;border-radius:3px;">edited</div>' : ''}
       </div>
     `).join('');
   }
@@ -1041,7 +1040,6 @@
               ${displayImgs.map((src, i) => `
                 <div class="fb-memo-screenshot" onclick="window._fbEditMemo(${m.id},${i})" style="width:${imgCount===1?'100%':'calc(50% - 2px)'};cursor:pointer;position:relative;">
                   <img src="${src}" style="width:100%;display:block;border-radius:4px;">
-                  ${m.drawings?.[i] ? '<div style="position:absolute;top:4px;right:4px;background:#6C5CE7;color:white;font-size:9px;padding:1px 6px;border-radius:3px;">edited</div>' : ''}
                 </div>
               `).join('')}
             </div>
