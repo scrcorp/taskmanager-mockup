@@ -1,11 +1,12 @@
 /**
- * Mockup Feedback System v2
+ * Mockup Feedback System v3
+ * - Round-based feedback (multiple review sessions)
  * - Text memos per page (localStorage)
  * - Screenshot capture (html2canvas)
  * - Paste images (Ctrl+V) + file upload (multiple)
  * - Screenshot-only memos (no text required)
  * - Panel stays open across page navigation
- * - PDF export (jsPDF)
+ * - Per-round PDF export (jsPDF)
  * - Shared across pages within same mockup folder
  */
 
@@ -15,14 +16,14 @@
   const STORAGE_PREFIX = 'fb_';
   const PANEL_STATE_KEY = 'fb_panel_open';
   const TAB_STATE_KEY = 'fb_tab';
-  const mockupKey = getMockupKey();
+  const mockupBase = getMockupBase();
 
-  function getMockupKey() {
+  function getMockupBase() {
     const parts = location.pathname.split('/').filter(Boolean);
     for (const p of parts) {
-      if (/^\d{4}-\d{2}-\d{2}/.test(p)) return STORAGE_PREFIX + p;
+      if (/^\d{4}-\d{2}-\d{2}/.test(p)) return p;
     }
-    return STORAGE_PREFIX + parts.slice(0, 2).join('_');
+    return parts.slice(0, 2).join('_');
   }
 
   function getPageName() {
@@ -30,56 +31,104 @@
     return filename.replace('.html', '');
   }
 
-  // ── Storage ──
-  function loadMemos() {
-    try { return JSON.parse(localStorage.getItem(mockupKey) || '[]'); }
+  // ── Round Management ──
+  function getRoundsKey() { return STORAGE_PREFIX + mockupBase + '_rounds'; }
+  function getActiveRoundKey() { return STORAGE_PREFIX + mockupBase + '_active_round'; }
+  function getMemoKey(roundId) { return STORAGE_PREFIX + mockupBase + '_r' + roundId; }
+
+  function loadRounds() {
+    try { return JSON.parse(localStorage.getItem(getRoundsKey()) || '[]'); }
     catch { return []; }
   }
 
-  function saveMemos(memos) {
-    localStorage.setItem(mockupKey, JSON.stringify(memos));
+  function saveRounds(rounds) {
+    localStorage.setItem(getRoundsKey(), JSON.stringify(rounds));
+  }
+
+  function getActiveRoundId() {
+    const id = localStorage.getItem(getActiveRoundKey());
+    const rounds = loadRounds();
+    if (id && rounds.find(r => r.id === Number(id))) return Number(id);
+    // Auto-create first round if none
+    if (rounds.length === 0) {
+      const r = createRound('Round 1');
+      return r.id;
+    }
+    return rounds[rounds.length - 1].id;
+  }
+
+  function setActiveRoundId(id) {
+    localStorage.setItem(getActiveRoundKey(), String(id));
+  }
+
+  function createRound(name) {
+    const rounds = loadRounds();
+    const round = {
+      id: Date.now(),
+      name: name || ('Round ' + (rounds.length + 1)),
+      created: new Date().toISOString()
+    };
+    rounds.push(round);
+    saveRounds(rounds);
+    setActiveRoundId(round.id);
+    return round;
+  }
+
+  function deleteRound(roundId) {
+    let rounds = loadRounds();
+    rounds = rounds.filter(r => r.id !== roundId);
+    saveRounds(rounds);
+    localStorage.removeItem(getMemoKey(roundId));
+    // Switch to latest round or create new
+    if (rounds.length === 0) {
+      createRound('Round 1');
+    } else {
+      setActiveRoundId(rounds[rounds.length - 1].id);
+    }
+  }
+
+  // ── Memo Storage (per round) ──
+  function loadMemos(roundId) {
+    const key = getMemoKey(roundId || getActiveRoundId());
+    try { return JSON.parse(localStorage.getItem(key) || '[]'); }
+    catch { return []; }
+  }
+
+  function saveMemos(memos, roundId) {
+    localStorage.setItem(getMemoKey(roundId || getActiveRoundId()), JSON.stringify(memos));
   }
 
   function addMemo(text, screenshots) {
-    const memos = loadMemos();
+    const roundId = getActiveRoundId();
+    const memos = loadMemos(roundId);
     memos.push({
       id: Date.now(),
       page: getPageName(),
       text: text || '',
       screenshots: screenshots && screenshots.length > 0 ? screenshots : [],
-      // Legacy compat
-      screenshot: screenshots && screenshots.length > 0 ? screenshots[0] : null,
       time: new Date().toISOString()
     });
-    saveMemos(memos);
+    saveMemos(memos, roundId);
     return memos;
   }
 
   function deleteMemo(id) {
-    const memos = loadMemos().filter(m => m.id !== id);
-    saveMemos(memos);
+    const roundId = getActiveRoundId();
+    const memos = loadMemos(roundId).filter(m => m.id !== id);
+    saveMemos(memos, roundId);
     return memos;
   }
 
-  function clearAllMemos() {
-    localStorage.removeItem(mockupKey);
-  }
-
-  // Panel state persistence
-  function savePanelState(open) {
-    localStorage.setItem(PANEL_STATE_KEY, open ? '1' : '0');
-  }
-  function loadPanelState() {
-    return localStorage.getItem(PANEL_STATE_KEY) === '1';
-  }
-  function saveTabState(tab) {
-    localStorage.setItem(TAB_STATE_KEY, tab);
-  }
-  function loadTabState() {
-    return localStorage.getItem(TAB_STATE_KEY) || 'current';
-  }
+  // Panel state
+  function savePanelState(open) { localStorage.setItem(PANEL_STATE_KEY, open ? '1' : '0'); }
+  function loadPanelState() { return localStorage.getItem(PANEL_STATE_KEY) === '1'; }
+  function saveTabState(tab) { localStorage.setItem(TAB_STATE_KEY, tab); }
+  function loadTabState() { return localStorage.getItem(TAB_STATE_KEY) || 'current'; }
 
   // ── UI ──
+  let currentTab = 'current';
+  let pendingScreenshots = [];
+
   function init() {
     const h2cScript = document.createElement('script');
     h2cScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
@@ -89,10 +138,12 @@
     jsPdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
     document.head.appendChild(jsPdfScript);
 
+    // Ensure at least one round exists
+    getActiveRoundId();
+
     injectHTML();
     bindEvents();
 
-    // Restore panel state
     currentTab = loadTabState();
     document.querySelectorAll('.fb-tab').forEach(t => {
       t.classList.toggle('active', t.dataset.tab === currentTab);
@@ -101,6 +152,7 @@
       document.getElementById('fbPanel').classList.add('open');
     }
 
+    renderRoundSelector();
     renderMemos();
     updateBadge();
   }
@@ -117,23 +169,25 @@
       </button>
 
       <div class="fb-panel" id="fbPanel">
-        <div class="fb-header">
-          <span class="fb-header-title">Feedback</span>
-          <div class="fb-header-actions">
-            <button class="fb-header-btn danger" id="fbClearAll" title="Clear all">Clear</button>
-            <button class="fb-header-btn primary" id="fbExportPdf">Export PDF</button>
-          </div>
+        <!-- Round bar -->
+        <div class="fb-round-bar" id="fbRoundBar">
+          <select class="fb-round-select" id="fbRoundSelect"></select>
+          <button class="fb-round-btn" id="fbNewRound" title="New round">+ New</button>
+          <button class="fb-round-btn danger" id="fbDeleteRound" title="Delete this round">&times;</button>
+          <div style="flex:1;"></div>
+          <button class="fb-round-btn export" id="fbExportPdf" title="Export PDF">PDF</button>
         </div>
+
         <div class="fb-tabs">
           <button class="fb-tab active" data-tab="current">This Page</button>
           <button class="fb-tab" data-tab="all">All Pages</button>
         </div>
         <div class="fb-content" id="fbContent">
-          <div class="fb-empty">No feedback yet. Add a memo below.</div>
+          <div class="fb-empty">No feedback yet.</div>
         </div>
         <div class="fb-input-area">
           <textarea class="fb-textarea" id="fbTextarea" placeholder="Type feedback... (or just attach screenshots)"></textarea>
-          <div id="fbPendingPreviews" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;"></div>
+          <div id="fbPendingPreviews" style="display:none; flex-wrap: wrap; gap: 6px; margin-top: 6px;"></div>
           <div class="fb-input-actions">
             <button class="fb-btn-capture" id="fbCapture" title="Capture current page">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -142,14 +196,14 @@
               </svg>
               Capture
             </button>
-            <label class="fb-btn-capture" id="fbAttachLabel" title="Attach image files" style="cursor: pointer; margin: 0;">
+            <label class="fb-btn-capture" style="cursor:pointer;margin:0;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
               </svg>
               Attach
-              <input type="file" id="fbFileInput" accept="image/*" multiple style="display: none;">
+              <input type="file" id="fbFileInput" accept="image/*" multiple style="display:none;">
             </label>
-            <span style="font-size: 10px; color: #94A3B8; margin-left: 2px;" title="Paste with Ctrl+V / Cmd+V">Ctrl+V</span>
+            <span style="font-size:10px;color:#94A3B8;margin-left:2px;" title="Paste with Ctrl+V">Ctrl+V</span>
             <button class="fb-btn-submit" id="fbSubmit" disabled>Add</button>
           </div>
         </div>
@@ -158,13 +212,21 @@
       <div class="fb-preview-overlay" id="fbPreview">
         <img id="fbPreviewImg" src="">
       </div>
-      <div class="fb-capturing" id="fbCapturing"></div>
     `;
     document.body.appendChild(container);
   }
 
-  let currentTab = 'current';
-  let pendingScreenshots = [];
+  function renderRoundSelector() {
+    const select = document.getElementById('fbRoundSelect');
+    const rounds = loadRounds();
+    const activeId = getActiveRoundId();
+
+    select.innerHTML = rounds.map(r => {
+      const memoCount = loadMemos(r.id).length;
+      const date = new Date(r.created).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `<option value="${r.id}" ${r.id === activeId ? 'selected' : ''}>${r.name} (${memoCount}) — ${date}</option>`;
+    }).join('');
+  }
 
   function updateSubmitState() {
     const text = document.getElementById('fbTextarea').value.trim();
@@ -172,14 +234,14 @@
   }
 
   function bindEvents() {
-    // Toggle panel (persist state)
+    // Toggle panel
     document.getElementById('fbTrigger').addEventListener('click', () => {
       const panel = document.getElementById('fbPanel');
       panel.classList.toggle('open');
       savePanelState(panel.classList.contains('open'));
     });
 
-    // Tabs (persist state)
+    // Tabs
     document.querySelectorAll('.fb-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.fb-tab').forEach(t => t.classList.remove('active'));
@@ -190,10 +252,40 @@
       });
     });
 
+    // Round selector
+    document.getElementById('fbRoundSelect').addEventListener('change', (e) => {
+      setActiveRoundId(Number(e.target.value));
+      renderMemos();
+      updateBadge();
+    });
+
+    // New round
+    document.getElementById('fbNewRound').addEventListener('click', () => {
+      const rounds = loadRounds();
+      const name = prompt('Round name:', 'Round ' + (rounds.length + 1));
+      if (!name) return;
+      createRound(name);
+      renderRoundSelector();
+      renderMemos();
+      updateBadge();
+    });
+
+    // Delete round
+    document.getElementById('fbDeleteRound').addEventListener('click', () => {
+      const rounds = loadRounds();
+      const activeId = getActiveRoundId();
+      const round = rounds.find(r => r.id === activeId);
+      if (!confirm(`Delete "${round?.name || 'this round'}" and all its feedback?`)) return;
+      deleteRound(activeId);
+      renderRoundSelector();
+      renderMemos();
+      updateBadge();
+    });
+
     // Textarea
     document.getElementById('fbTextarea').addEventListener('input', updateSubmitState);
 
-    // Submit — text optional if screenshots exist
+    // Submit
     document.getElementById('fbSubmit').addEventListener('click', () => {
       const text = document.getElementById('fbTextarea').value.trim();
       if (!text && pendingScreenshots.length === 0) return;
@@ -202,14 +294,15 @@
       pendingScreenshots = [];
       renderPendingPreviews();
       updateSubmitState();
+      renderRoundSelector();
       renderMemos();
       updateBadge();
     });
 
-    // Capture screenshot
+    // Capture
     document.getElementById('fbCapture').addEventListener('click', async () => {
       if (typeof html2canvas === 'undefined') {
-        alert('Screenshot library is still loading. Please try again.');
+        alert('Screenshot library is still loading. Try again.');
         return;
       }
       const root = document.getElementById('feedbackRoot');
@@ -228,13 +321,13 @@
       root.style.display = '';
     });
 
-    // File attach (multiple)
+    // File attach
     document.getElementById('fbFileInput').addEventListener('change', (e) => {
       handleFiles(e.target.files);
       e.target.value = '';
     });
 
-    // Paste image (Ctrl+V / Cmd+V)
+    // Paste
     document.addEventListener('paste', (e) => {
       const items = e.clipboardData?.items;
       if (!items) return;
@@ -249,26 +342,15 @@
       if (hasImage) e.preventDefault();
     });
 
-    // Clear all
-    document.getElementById('fbClearAll').addEventListener('click', () => {
-      if (!confirm('Clear all feedback for this mockup?')) return;
-      clearAllMemos();
-      pendingScreenshots = [];
-      renderPendingPreviews();
-      updateSubmitState();
-      renderMemos();
-      updateBadge();
-    });
-
     // Export PDF
     document.getElementById('fbExportPdf').addEventListener('click', exportPdf);
 
-    // Preview overlay close
+    // Preview close
     document.getElementById('fbPreview').addEventListener('click', () => {
       document.getElementById('fbPreview').classList.remove('open');
     });
 
-    // Ctrl+Enter to submit
+    // Ctrl+Enter submit
     document.getElementById('fbTextarea').addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
         document.getElementById('fbSubmit').click();
@@ -278,16 +360,13 @@
 
   function handleFiles(files) {
     for (const file of files) {
-      if (file.type.startsWith('image/')) {
-        readFileAsDataURL(file);
-      }
+      if (file.type.startsWith('image/')) readFileAsDataURL(file);
     }
   }
 
   function readFileAsDataURL(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      // Compress if too large
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
@@ -314,9 +393,9 @@
     }
     container.style.display = 'flex';
     container.innerHTML = pendingScreenshots.map((src, i) => `
-      <div style="position: relative; width: 72px; height: 72px; border-radius: 6px; overflow: hidden; border: 2px solid #6C5CE7; flex-shrink: 0;">
-        <img src="${src}" style="width: 100%; height: 100%; object-fit: cover;">
-        <button onclick="window._fbRemovePending(${i})" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 10px; line-height: 1;">&times;</button>
+      <div style="position:relative;width:72px;height:72px;border-radius:6px;overflow:hidden;border:2px solid #6C5CE7;flex-shrink:0;">
+        <img src="${src}" style="width:100%;height:100%;object-fit:cover;">
+        <button onclick="window._fbRemovePending(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:10px;line-height:1;">&times;</button>
       </div>
     `).join('');
   }
@@ -329,7 +408,8 @@
 
   function renderMemos() {
     const content = document.getElementById('fbContent');
-    const memos = loadMemos();
+    const roundId = getActiveRoundId();
+    const memos = loadMemos(roundId);
     const page = getPageName();
 
     const filtered = currentTab === 'current'
@@ -337,14 +417,13 @@
       : memos;
 
     if (filtered.length === 0) {
-      content.innerHTML = '<div class="fb-empty">No feedback yet. Add a memo below.</div>';
+      content.innerHTML = '<div class="fb-empty">No feedback in this round yet.</div>';
       return;
     }
 
     const sorted = [...filtered].sort((a, b) => b.id - a.id);
 
     content.innerHTML = sorted.map(m => {
-      // Support both legacy (screenshot) and new (screenshots[])
       const imgs = m.screenshots && m.screenshots.length > 0
         ? m.screenshots
         : (m.screenshot ? [m.screenshot] : []);
@@ -353,17 +432,17 @@
         <div class="fb-memo" data-id="${m.id}">
           <div class="fb-memo-header">
             <span class="fb-memo-page">${m.page}</span>
-            <div style="display: flex; align-items: center; gap: 6px;">
+            <div style="display:flex;align-items:center;gap:6px;">
               <span class="fb-memo-time">${formatTime(m.time)}</span>
               <button class="fb-memo-delete" onclick="window._fbDelete(${m.id})" title="Delete">&times;</button>
             </div>
           </div>
           ${m.text ? `<div class="fb-memo-text">${escapeHtml(m.text)}</div>` : ''}
           ${imgs.length > 0 ? `
-            <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;">
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
               ${imgs.map((src, i) => `
-                <div class="fb-memo-screenshot" onclick="window._fbPreviewImg('${m.id}', ${i})" style="width: ${imgs.length === 1 ? '100%' : 'calc(50% - 2px)'}; cursor: pointer;">
-                  <img src="${src}" style="width: 100%; display: block; border-radius: 4px;">
+                <div class="fb-memo-screenshot" onclick="window._fbPreviewImg('${m.id}',${i})" style="width:${imgs.length === 1 ? '100%' : 'calc(50% - 2px)'};cursor:pointer;">
+                  <img src="${src}" style="width:100%;display:block;border-radius:4px;">
                 </div>
               `).join('')}
             </div>
@@ -374,7 +453,7 @@
   }
 
   function updateBadge() {
-    const count = loadMemos().length;
+    const count = loadMemos(getActiveRoundId()).length;
     const badge = document.getElementById('fbBadge');
     if (count > 0) {
       badge.textContent = count;
@@ -384,27 +463,31 @@
     }
   }
 
-  // ── PDF Export ──
+  // ── PDF Export (per round) ──
   async function exportPdf() {
     if (typeof window.jspdf === 'undefined') {
-      alert('PDF library is still loading. Please try again.');
+      alert('PDF library is still loading. Try again.');
+      return;
+    }
+
+    const roundId = getActiveRoundId();
+    const rounds = loadRounds();
+    const round = rounds.find(r => r.id === roundId);
+    const memos = loadMemos(roundId);
+
+    if (memos.length === 0) {
+      alert('No feedback in this round to export.');
       return;
     }
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
-    const memos = loadMemos();
-
-    if (memos.length === 0) {
-      alert('No feedback to export.');
-      return;
-    }
-
     const pageWidth = 210;
     const margin = 15;
     const contentWidth = pageWidth - margin * 2;
     let y = margin;
 
+    // Title
     doc.setFontSize(18);
     doc.setFont(undefined, 'bold');
     doc.text('Mockup Feedback Report', margin, y);
@@ -413,17 +496,17 @@
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100);
-    doc.text(`Mockup: ${mockupKey.replace(STORAGE_PREFIX, '')}`, margin, y);
-    y += 5;
-    doc.text(`Exported: ${new Date().toLocaleString()}`, margin, y);
-    y += 5;
-    doc.text(`Total memos: ${memos.length}`, margin, y);
-    y += 10;
+    doc.text(`Mockup: ${mockupBase}`, margin, y); y += 5;
+    doc.text(`Round: ${round?.name || 'Unknown'}`, margin, y); y += 5;
+    doc.text(`Created: ${round ? new Date(round.created).toLocaleString() : '--'}`, margin, y); y += 5;
+    doc.text(`Exported: ${new Date().toLocaleString()}`, margin, y); y += 5;
+    doc.text(`Total memos: ${memos.length}`, margin, y); y += 10;
 
     doc.setDrawColor(200);
     doc.line(margin, y, pageWidth - margin, y);
     y += 8;
 
+    // Group by page
     const grouped = {};
     memos.forEach(m => {
       if (!grouped[m.page]) grouped[m.page] = [];
@@ -462,9 +545,12 @@
 
         for (const src of imgs) {
           try {
-            const imgHeight = 50;
+            // Calculate aspect ratio
+            const imgEl = new Image();
+            let imgHeight = 50;
+            const imgWidth = contentWidth;
             if (y + imgHeight > 280) { doc.addPage(); y = margin; }
-            doc.addImage(src, 'JPEG', margin, y, contentWidth, imgHeight);
+            doc.addImage(src, 'JPEG', margin, y, imgWidth, imgHeight);
             y += imgHeight + 4;
           } catch (e) { /* skip */ }
         }
@@ -476,7 +562,8 @@
       y += 4;
     }
 
-    doc.save(mockupKey.replace(STORAGE_PREFIX, '') + '-feedback.pdf');
+    const filename = mockupBase + '-' + (round?.name || 'feedback').toLowerCase().replace(/\s+/g, '-') + '.pdf';
+    doc.save(filename);
   }
 
   // ── Helpers ──
@@ -494,16 +581,16 @@
 
   window._fbDelete = function (id) {
     deleteMemo(id);
+    renderRoundSelector();
     renderMemos();
     updateBadge();
   };
 
   window._fbPreviewImg = function (id, index) {
-    const memo = loadMemos().find(m => m.id === Number(id));
+    const memo = loadMemos(getActiveRoundId()).find(m => m.id === Number(id));
     if (!memo) return;
     const imgs = memo.screenshots && memo.screenshots.length > 0
-      ? memo.screenshots
-      : (memo.screenshot ? [memo.screenshot] : []);
+      ? memo.screenshots : (memo.screenshot ? [memo.screenshot] : []);
     if (imgs[index]) {
       document.getElementById('fbPreviewImg').src = imgs[index];
       document.getElementById('fbPreview').classList.add('open');
