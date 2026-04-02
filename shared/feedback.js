@@ -156,7 +156,38 @@
       </div>
 
       <div class="fb-preview-overlay" id="fbPreview">
-        <img id="fbPreviewImg" src="">
+        <button class="fb-preview-close" id="fbPreviewClose">&times;</button>
+        <div class="fb-preview-toolbar" id="fbPreviewToolbar">
+          <button class="fb-tool-btn active" data-tool="move" title="Move / View">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+            View
+          </button>
+          <div class="fb-tool-sep"></div>
+          <button class="fb-tool-btn" data-tool="pen" title="Draw">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Draw
+          </button>
+          <button class="fb-tool-btn" data-tool="arrow" title="Arrow">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            Arrow
+          </button>
+          <div class="fb-tool-sep"></div>
+          <span class="fb-color-dot active" data-color="#EF4444" style="background:#EF4444;" title="Red"></span>
+          <span class="fb-color-dot" data-color="#F59E0B" style="background:#F59E0B;" title="Yellow"></span>
+          <span class="fb-color-dot" data-color="#10B981" style="background:#10B981;" title="Green"></span>
+          <span class="fb-color-dot" data-color="#3B82F6" style="background:#3B82F6;" title="Blue"></span>
+          <span class="fb-color-dot" data-color="#FFFFFF" style="background:#FFFFFF;" title="White"></span>
+          <div class="fb-tool-sep"></div>
+          <button class="fb-tool-btn" id="fbDrawUndo" title="Undo">Undo</button>
+          <button class="fb-tool-btn" id="fbDrawSave" title="Save drawing" style="color:#00B894;">Save</button>
+        </div>
+        <button class="fb-preview-nav prev" id="fbPrevImg">&#8249;</button>
+        <button class="fb-preview-nav next" id="fbNextImg">&#8250;</button>
+        <div class="fb-preview-canvas-wrap" id="fbCanvasWrap">
+          <img id="fbPreviewImg" src="">
+          <canvas id="fbDrawCanvas"></canvas>
+        </div>
+        <div class="fb-preview-counter" id="fbPreviewCounter"></div>
       </div>
       <div class="fb-capturing" id="fbCapturing"></div>
     `;
@@ -263,9 +294,60 @@
     // Export PDF
     document.getElementById('fbExportPdf').addEventListener('click', exportPdf);
 
-    // Preview overlay close
-    document.getElementById('fbPreview').addEventListener('click', () => {
-      document.getElementById('fbPreview').classList.remove('open');
+    // Preview close
+    document.getElementById('fbPreviewClose').addEventListener('click', closePreview);
+    document.getElementById('fbPreview').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('fbPreview')) closePreview();
+    });
+
+    // Gallery nav
+    document.getElementById('fbPrevImg').addEventListener('click', (e) => { e.stopPropagation(); navigatePreview(-1); });
+    document.getElementById('fbNextImg').addEventListener('click', (e) => { e.stopPropagation(); navigatePreview(1); });
+
+    // Drawing tools
+    document.querySelectorAll('.fb-tool-btn[data-tool]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.fb-tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        drawState.tool = btn.dataset.tool;
+        const canvas = document.getElementById('fbDrawCanvas');
+        canvas.style.pointerEvents = drawState.tool === 'move' ? 'none' : 'auto';
+      });
+    });
+
+    // Color picker
+    document.querySelectorAll('.fb-color-dot').forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.fb-color-dot').forEach(d => d.classList.remove('active'));
+        dot.classList.add('active');
+        drawState.color = dot.dataset.color;
+      });
+    });
+
+    // Undo
+    document.getElementById('fbDrawUndo').addEventListener('click', (e) => {
+      e.stopPropagation();
+      drawUndo();
+    });
+
+    // Save drawing
+    document.getElementById('fbDrawSave').addEventListener('click', (e) => {
+      e.stopPropagation();
+      drawSave();
+    });
+
+    // Canvas drawing events
+    initDrawCanvas();
+
+    // Keyboard shortcuts in preview
+    document.addEventListener('keydown', (e) => {
+      if (!document.getElementById('fbPreview').classList.contains('open')) return;
+      if (e.key === 'Escape') closePreview();
+      if (e.key === 'ArrowLeft') navigatePreview(-1);
+      if (e.key === 'ArrowRight') navigatePreview(1);
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') { e.preventDefault(); drawUndo(); }
     });
 
     // Ctrl+Enter to submit
@@ -274,6 +356,208 @@
         document.getElementById('fbSubmit').click();
       }
     });
+  }
+
+  // ── Preview Gallery + Drawing ──
+  let previewState = { memoId: null, images: [], originals: [], index: 0, source: null };
+  let drawState = { tool: 'move', color: '#EF4444', drawing: false, history: [], lineWidth: 3 };
+
+  function openPreview(images, index, memoId, source) {
+    previewState = { memoId, images: [...images], originals: [...images], index: index || 0, source: source || 'memo' };
+    drawState.history = [];
+    drawState.tool = 'move';
+    document.querySelectorAll('.fb-tool-btn[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === 'move'));
+    showPreviewImage();
+    document.getElementById('fbPreview').classList.add('open');
+  }
+
+  function closePreview() {
+    document.getElementById('fbPreview').classList.remove('open');
+    drawState.history = [];
+  }
+
+  function showPreviewImage() {
+    const img = document.getElementById('fbPreviewImg');
+    const canvas = document.getElementById('fbDrawCanvas');
+    const { images, index } = previewState;
+
+    img.onload = () => {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.style.width = img.offsetWidth + 'px';
+      canvas.style.height = img.offsetHeight + 'px';
+      canvas.style.pointerEvents = drawState.tool === 'move' ? 'none' : 'auto';
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawState.history = [];
+    };
+    img.src = images[index];
+
+    // Counter
+    const counter = document.getElementById('fbPreviewCounter');
+    counter.textContent = images.length > 1 ? `${index + 1} / ${images.length}` : '';
+    counter.style.display = images.length > 1 ? 'block' : 'none';
+
+    // Nav buttons
+    document.getElementById('fbPrevImg').style.display = images.length > 1 ? 'flex' : 'none';
+    document.getElementById('fbNextImg').style.display = images.length > 1 ? 'flex' : 'none';
+    document.getElementById('fbPrevImg').disabled = index === 0;
+    document.getElementById('fbNextImg').disabled = index === images.length - 1;
+
+    // Show/hide save button based on source
+    document.getElementById('fbDrawSave').style.display = previewState.memoId ? 'inline-flex' : 'inline-flex';
+  }
+
+  function navigatePreview(dir) {
+    const { images, index } = previewState;
+    const newIdx = index + dir;
+    if (newIdx < 0 || newIdx >= images.length) return;
+    // Save current drawing before navigating
+    mergeDrawingToPreview();
+    previewState.index = newIdx;
+    showPreviewImage();
+  }
+
+  function mergeDrawingToPreview() {
+    if (drawState.history.length === 0) return;
+    const canvas = document.getElementById('fbDrawCanvas');
+    const img = document.getElementById('fbPreviewImg');
+    const merged = document.createElement('canvas');
+    merged.width = canvas.width;
+    merged.height = canvas.height;
+    const ctx = merged.getContext('2d');
+    ctx.drawImage(img, 0, 0, merged.width, merged.height);
+    ctx.drawImage(canvas, 0, 0);
+    previewState.images[previewState.index] = merged.toDataURL('image/jpeg', 0.85);
+  }
+
+  function initDrawCanvas() {
+    const canvas = document.getElementById('fbDrawCanvas');
+    let lastX, lastY, arrowStart;
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const touch = e.touches ? e.touches[0] : e;
+      return { x: (touch.clientX - rect.left) * scaleX, y: (touch.clientY - rect.top) * scaleY };
+    }
+
+    function startDraw(e) {
+      if (drawState.tool === 'move') return;
+      e.preventDefault();
+      e.stopPropagation();
+      drawState.drawing = true;
+      const pos = getPos(e);
+      lastX = pos.x;
+      lastY = pos.y;
+      arrowStart = { x: pos.x, y: pos.y };
+      // Save state for undo
+      drawState.history.push(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height));
+    }
+
+    function moveDraw(e) {
+      if (!drawState.drawing) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const pos = getPos(e);
+      const ctx = canvas.getContext('2d');
+
+      if (drawState.tool === 'pen') {
+        ctx.strokeStyle = drawState.color;
+        ctx.lineWidth = drawState.lineWidth * (canvas.width / canvas.getBoundingClientRect().width);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        lastX = pos.x;
+        lastY = pos.y;
+      }
+      // Arrow: preview line while dragging (redraw from history)
+      if (drawState.tool === 'arrow') {
+        const lastState = drawState.history[drawState.history.length - 1];
+        if (lastState) ctx.putImageData(lastState, 0, 0);
+        drawArrow(ctx, arrowStart.x, arrowStart.y, pos.x, pos.y);
+      }
+    }
+
+    function endDraw(e) {
+      if (!drawState.drawing) return;
+      drawState.drawing = false;
+    }
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', moveDraw);
+    canvas.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', moveDraw, { passive: false });
+    canvas.addEventListener('touchend', endDraw);
+  }
+
+  function drawArrow(ctx, fx, fy, tx, ty) {
+    const scale = canvas.width / canvas.getBoundingClientRect().width;
+    const headLen = 15 * scale;
+    const angle = Math.atan2(ty - fy, tx - fx);
+    ctx.strokeStyle = drawState.color;
+    ctx.lineWidth = drawState.lineWidth * scale;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(fx, fy);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(tx - headLen * Math.cos(angle - Math.PI / 6), ty - headLen * Math.sin(angle - Math.PI / 6));
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(tx - headLen * Math.cos(angle + Math.PI / 6), ty - headLen * Math.sin(angle + Math.PI / 6));
+    ctx.stroke();
+  }
+
+  function drawUndo() {
+    const canvas = document.getElementById('fbDrawCanvas');
+    const ctx = canvas.getContext('2d');
+    if (drawState.history.length > 0) {
+      const prev = drawState.history.pop();
+      ctx.putImageData(prev, 0, 0);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+
+  function drawSave() {
+    mergeDrawingToPreview();
+    const { memoId, images, index, source } = previewState;
+
+    if (source === 'pending') {
+      // Update pending screenshots
+      pendingScreenshots = [...images];
+      renderPendingPreviews();
+      updateSubmitState();
+    } else if (memoId) {
+      // Update memo screenshots
+      const memos = loadMemos();
+      const memo = memos.find(m => m.id === memoId);
+      if (memo) {
+        memo.screenshots = [...images];
+        memo.screenshot = images[0] || null;
+        saveMemos(memos);
+        renderMemos();
+      }
+    }
+
+    // Reset canvas
+    const canvas = document.getElementById('fbDrawCanvas');
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    drawState.history = [];
+
+    // Show saved indicator briefly
+    const saveBtn = document.getElementById('fbDrawSave');
+    const orig = saveBtn.textContent;
+    saveBtn.textContent = 'Saved!';
+    setTimeout(() => { saveBtn.textContent = orig; }, 1000);
   }
 
   function handleFiles(files) {
@@ -315,8 +599,8 @@
     container.style.display = 'flex';
     container.innerHTML = pendingScreenshots.map((src, i) => `
       <div style="position: relative; width: 72px; height: 72px; border-radius: 6px; overflow: hidden; border: 2px solid #6C5CE7; flex-shrink: 0;">
-        <img src="${src}" style="width: 100%; height: 100%; object-fit: cover;">
-        <button onclick="window._fbRemovePending(${i})" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 10px; line-height: 1;">&times;</button>
+        <img src="${src}" style="width: 100%; height: 100%; object-fit: cover; cursor: pointer;" onclick="window._fbPreviewPending(${i})">
+        <button onclick="event.stopPropagation(); window._fbRemovePending(${i})" style="position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 10px; line-height: 1;">&times;</button>
       </div>
     `).join('');
   }
@@ -504,9 +788,15 @@
     const imgs = memo.screenshots && memo.screenshots.length > 0
       ? memo.screenshots
       : (memo.screenshot ? [memo.screenshot] : []);
-    if (imgs[index]) {
-      document.getElementById('fbPreviewImg').src = imgs[index];
-      document.getElementById('fbPreview').classList.add('open');
+    if (imgs.length > 0) {
+      openPreview(imgs, index || 0, memo.id, 'memo');
+    }
+  };
+
+  // Also allow previewing pending screenshots
+  window._fbPreviewPending = function (index) {
+    if (pendingScreenshots.length > 0) {
+      openPreview(pendingScreenshots, index || 0, null, 'pending');
     }
   };
 
