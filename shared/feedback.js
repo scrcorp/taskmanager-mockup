@@ -137,14 +137,15 @@
           <div class="fb-tool-sep"></div>
           <label style="display:flex;align-items:center;gap:4px;color:#888;font-size:10px;" title="Brush size">
             Size
-            <input type="range" id="fbBrushSize" min="1" max="20" value="3" style="width:60px;height:14px;accent-color:#6C5CE7;">
-            <span id="fbBrushSizeLabel" style="min-width:16px;text-align:center;">3</span>
+            <input type="range" id="fbBrushSize" min="1" max="20" value="5" style="width:60px;height:14px;accent-color:#6C5CE7;">
+            <span id="fbBrushSizeLabel" style="min-width:16px;text-align:center;">5</span>
           </label>
           <div class="fb-tool-sep"></div>
           <button class="fb-tool-btn" id="fbDrawUndo">Undo</button>
           <button class="fb-tool-btn" id="fbDrawRedo">Redo</button>
           <div class="fb-tool-sep"></div>
-          <button class="fb-tool-btn" id="fbDrawReset" style="color:#94A3B8;">Reset</button>
+          <button class="fb-tool-btn" id="fbDrawCancel" style="color:#F59E0B;" title="Revert to last save">Cancel</button>
+          <button class="fb-tool-btn" id="fbDrawReset" style="color:#94A3B8;" title="Reset to original">Reset</button>
           <button class="fb-tool-btn" id="fbDrawSave" style="color:#00B894;">Save</button>
         </div>
         <button class="fb-preview-nav prev" id="fbPrevImg">&#8249;</button>
@@ -175,7 +176,7 @@
     // Tool state
     tool: 'pen',
     color: '#EF4444',
-    lineWidth: 3,
+    lineWidth: 5,
     drawing: false,
     // Zoom/pan
     zoom: 1,
@@ -208,13 +209,14 @@
     document.getElementById('fbTextarea').addEventListener('input', updateSubmitState);
 
     // Submit
-    document.getElementById('fbSubmit').addEventListener('click', () => {
+    document.getElementById('fbSubmit').addEventListener('click', async () => {
       const text = document.getElementById('fbTextarea').value.trim();
       if (!text && pendingScreenshots.length === 0) return;
-      // Merge originals + drawings for storage
-      const merged = pendingScreenshots.map(p => mergeForExport(p.original, p.drawing));
       const originals = pendingScreenshots.map(p => p.original);
       const drawings = pendingScreenshots.map(p => p.drawing);
+      const merged = await Promise.all(
+        pendingScreenshots.map(p => mergeAsync(p.original, p.drawing))
+      );
       const memos = loadMemos();
       memos.push({
         id: Date.now(), page: getPageName(), text,
@@ -295,6 +297,7 @@
 
     document.getElementById('fbDrawUndo').addEventListener('click', e => { e.stopPropagation(); editorUndo(); });
     document.getElementById('fbDrawRedo').addEventListener('click', e => { e.stopPropagation(); editorRedo(); });
+    document.getElementById('fbDrawCancel').addEventListener('click', e => { e.stopPropagation(); editorCancel(); });
     document.getElementById('fbDrawReset').addEventListener('click', e => { e.stopPropagation(); editorReset(); });
     document.getElementById('fbDrawSave').addEventListener('click', e => { e.stopPropagation(); editorSave(); });
 
@@ -305,27 +308,29 @@
       document.getElementById('fbBrushSizeLabel').textContent = e.target.value;
     });
 
-    // Brush cursor — size matches actual drawing size on canvas
-    const previewEl = document.getElementById('fbPreview');
-    previewEl.addEventListener('mousemove', e => {
+    // Brush cursor — follows mouse globally when editor is open
+    document.addEventListener('mousemove', e => {
       const cursor = document.getElementById('fbBrushCursor');
+      if (!cursor) return;
       if (!editor.open || editor.tool === 'view' || editor.tool === 'arrow' || editor.tool === 'rect' || editor.tool === 'circle') {
         cursor.style.display = 'none'; return;
       }
-      // Calculate display size to match what's actually drawn on canvas
+      // Check if mouse is over the canvas area
       const canvas = document.getElementById('fbDrawCanvas');
+      if (!canvas) { cursor.style.display = 'none'; return; }
       const rect = canvas.getBoundingClientRect();
-      const canvasScale = rect.width / canvas.width; // how much canvas is scaled down for display
+      const overCanvas = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+      if (!overCanvas) { cursor.style.display = 'none'; return; }
+
       const brushCanvasSize = editor.tool === 'eraser' ? editor.lineWidth * 4 : editor.lineWidth;
-      // Scale factor from canvas coords to screen: includes both canvas-to-display and zoom
-      const scale = canvas.width / rect.width; // this is already factored in drawing
-      const displaySize = (brushCanvasSize / scale) * editor.zoom * 2;
-      const finalSize = Math.max(displaySize, 6); // minimum visible size
+      // canvas pixels per screen pixel
+      const scale = canvas.width / rect.width;
+      const displaySize = Math.max((brushCanvasSize / scale) * 2, 6);
       cursor.style.display = 'block';
-      cursor.style.width = finalSize + 'px';
-      cursor.style.height = finalSize + 'px';
-      cursor.style.left = (e.clientX - finalSize / 2) + 'px';
-      cursor.style.top = (e.clientY - finalSize / 2) + 'px';
+      cursor.style.width = displaySize + 'px';
+      cursor.style.height = displaySize + 'px';
+      cursor.style.left = (e.clientX - displaySize / 2) + 'px';
+      cursor.style.top = (e.clientY - displaySize / 2) + 'px';
       if (editor.tool === 'eraser') {
         cursor.style.borderColor = 'rgba(255,255,255,0.6)';
         cursor.style.background = 'rgba(255,255,255,0.15)';
@@ -333,9 +338,6 @@
         cursor.style.borderColor = editor.color;
         cursor.style.background = 'none';
       }
-    });
-    previewEl.addEventListener('mouseleave', () => {
-      document.getElementById('fbBrushCursor').style.display = 'none';
     });
 
     // Canvas mouse/touch + wrap events for view mode pan
@@ -537,20 +539,49 @@
 
   function tryCloseEditor() {
     if (editor.dirty) {
-      // 3-choice: Save / Discard / Cancel
-      const choice = prompt('You have unsaved changes.\n\nType "save" to save and close,\n"discard" to discard changes,\nor press Cancel to stay.');
-      if (choice === null) return; // Cancel — stay in editor
-      const lower = choice.toLowerCase().trim();
-      if (lower === 'save' || lower === 's') {
-        editorSave();
-        closeEditor();
-      } else if (lower === 'discard' || lower === 'd' || lower === '') {
-        closeEditor();
-      }
-      // anything else — stay
+      showCloseModal();
       return;
     }
     closeEditor();
+  }
+
+  function showCloseModal() {
+    let modal = document.getElementById('fbCloseModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'fbCloseModal';
+      modal.style.cssText = 'position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;';
+      modal.innerHTML = `
+        <div style="background:#1E1E2E;border:1px solid #333;border-radius:12px;padding:24px;max-width:340px;width:90%;text-align:center;">
+          <div style="font-size:15px;font-weight:700;color:#eee;margin-bottom:8px;">Unsaved Changes</div>
+          <div style="font-size:13px;color:#888;margin-bottom:20px;">You have unsaved drawings. What would you like to do?</div>
+          <div style="display:flex;gap:8px;justify-content:center;">
+            <button id="fbCloseModalSave" style="padding:8px 18px;border-radius:8px;border:none;background:#00B894;color:white;font-size:13px;font-weight:600;cursor:pointer;">Save & Close</button>
+            <button id="fbCloseModalDiscard" style="padding:8px 18px;border-radius:8px;border:none;background:#EF4444;color:white;font-size:13px;font-weight:600;cursor:pointer;">Discard</button>
+            <button id="fbCloseModalCancel" style="padding:8px 18px;border-radius:8px;border:1px solid #444;background:#2a2a4a;color:#ccc;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+          </div>
+        </div>
+      `;
+      document.getElementById('feedbackRoot').appendChild(modal);
+      document.getElementById('fbCloseModalSave').addEventListener('click', async () => {
+        await editorSave();
+        hideCloseModal();
+        closeEditor();
+      });
+      document.getElementById('fbCloseModalDiscard').addEventListener('click', () => {
+        hideCloseModal();
+        closeEditor();
+      });
+      document.getElementById('fbCloseModalCancel').addEventListener('click', () => {
+        hideCloseModal();
+      });
+    }
+    modal.style.display = 'flex';
+  }
+
+  function hideCloseModal() {
+    const modal = document.getElementById('fbCloseModal');
+    if (modal) modal.style.display = 'none';
   }
 
   function closeEditor() {
@@ -649,7 +680,7 @@
     editor.dirty = false;
   }
 
-  function editorSave() {
+  async function editorSave() {
     saveCurrentDrawingLayer();
 
     if (editor.source === 'pending') {
@@ -663,35 +694,66 @@
       if (memo) {
         memo.originals = [...editor.images];
         memo.drawings = [...editor.savedDrawings];
-        memo.screenshots = editor.images.map((orig, i) => mergeForExport(orig, editor.savedDrawings[i]));
+        // Async merge for reliable thumbnail generation
+        const merged = await Promise.all(
+          editor.images.map((orig, i) => mergeAsync(orig, editor.savedDrawings[i]))
+        );
+        memo.screenshots = merged;
         saveMemos(memos);
-        renderMemos(); // Updates thumbnails in memo list
+        renderMemos();
       }
     }
 
-    // Save is the new baseline — clear undo/redo so future undo goes back to this save point
-    editor.undoStack = [];
-    editor.redoStack = [];
+    // Keep undo/redo — only clear on close
     editor.dirty = false;
 
-    // Visual feedback
     const btn = document.getElementById('fbDrawSave');
     btn.textContent = 'Saved!';
     setTimeout(() => { btn.textContent = 'Save'; }, 800);
   }
 
+  // Cancel = revert to last saved state (reload drawing from savedDrawings)
+  function editorCancel() {
+    if (!editor.dirty) return; // nothing to cancel
+    loadEditorImage(); // reloads from savedDrawings
+  }
+
   function mergeForExport(originalSrc, drawingSrc) {
+    // Synchronous: only works for data URLs (which load sync in most browsers)
     if (!drawingSrc) return originalSrc;
-    // Synchronous merge via offscreen canvas
     const c = document.createElement('canvas');
     const img1 = new Image(); img1.src = originalSrc;
-    // We need to wait, but since these are data URLs they load synchronously in most browsers
-    c.width = img1.width || 1200; c.height = img1.height || 800;
+    const img2 = new Image(); img2.src = drawingSrc;
+    // Data URLs load synchronously, but we need to ensure dimensions
+    c.width = img1.naturalWidth || img1.width || 1200;
+    c.height = img1.naturalHeight || img1.height || 800;
     const ctx = c.getContext('2d');
     ctx.drawImage(img1, 0, 0, c.width, c.height);
-    const img2 = new Image(); img2.src = drawingSrc;
     ctx.drawImage(img2, 0, 0, c.width, c.height);
     return c.toDataURL('image/jpeg', 0.85);
+  }
+
+  // Async version for reliable merging
+  function mergeAsync(originalSrc, drawingSrc) {
+    return new Promise(resolve => {
+      if (!drawingSrc) { resolve(originalSrc); return; }
+      const img1 = new Image();
+      img1.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = img1.naturalWidth; c.height = img1.naturalHeight;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img1, 0, 0);
+        const img2 = new Image();
+        img2.onload = () => {
+          ctx.drawImage(img2, 0, 0, c.width, c.height);
+          resolve(c.toDataURL('image/jpeg', 0.85));
+        };
+        img2.onerror = () => resolve(originalSrc);
+        img2.src = drawingSrc;
+      };
+      img1.onerror = () => resolve(originalSrc);
+      img1.src = originalSrc;
+    });
   }
 
   // ── File Handling ──
