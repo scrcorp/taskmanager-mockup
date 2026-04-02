@@ -70,6 +70,7 @@
   let pendingScreenshots = []; // [{original, drawing}]
 
   function init() {
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
     loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
     injectHTML();
     bindEvents();
@@ -109,6 +110,10 @@
           <textarea class="fb-textarea" id="fbTextarea" placeholder="Type feedback... (or just attach screenshots)"></textarea>
           <div id="fbPendingPreviews" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;"></div>
           <div class="fb-input-actions">
+            <button class="fb-btn-capture" id="fbCapture" title="Select area to capture">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              Capture
+            </button>
             <label class="fb-btn-capture" style="cursor:pointer;margin:0;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
               Attach<input type="file" id="fbFileInput" accept="image/*" multiple style="display:none;">
@@ -234,6 +239,11 @@
       document.getElementById('fbTextarea').value = '';
       pendingScreenshots = [];
       renderPendingPreviews(); updateSubmitState(); renderMemos(); updateBadge();
+    });
+
+    // Capture with region selection
+    document.getElementById('fbCapture').addEventListener('click', () => {
+      startRegionCapture();
     });
 
     // File attach
@@ -453,6 +463,101 @@
     canvas.addEventListener('touchstart', down, { passive: false });
     canvas.addEventListener('touchmove', move, { passive: false });
     canvas.addEventListener('touchend', up);
+  }
+
+  // ── Region capture ──
+  function startRegionCapture() {
+    if (typeof html2canvas === 'undefined') { alert('Loading... try again.'); return; }
+
+    // Hide feedback UI
+    const root = document.getElementById('feedbackRoot');
+    root.style.display = 'none';
+
+    // Create selection overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'fbCaptureOverlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;cursor:crosshair;background:rgba(0,0,0,0.2);';
+
+    const selBox = document.createElement('div');
+    selBox.style.cssText = 'position:fixed;border:2px solid #6C5CE7;background:rgba(108,92,231,0.08);display:none;z-index:99999;pointer-events:none;';
+    overlay.appendChild(selBox);
+
+    const hint = document.createElement('div');
+    hint.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);color:white;font-size:16px;font-weight:600;background:rgba(0,0,0,0.6);padding:12px 24px;border-radius:10px;z-index:99999;pointer-events:none;';
+    hint.textContent = 'Drag to select capture area (ESC to cancel)';
+    overlay.appendChild(hint);
+
+    document.body.appendChild(overlay);
+
+    let startX, startY, dragging = false;
+
+    overlay.addEventListener('mousedown', e => {
+      dragging = true;
+      startX = e.clientX; startY = e.clientY;
+      selBox.style.display = 'block';
+      hint.style.display = 'none';
+    });
+
+    overlay.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const x = Math.min(startX, e.clientX);
+      const y = Math.min(startY, e.clientY);
+      const w = Math.abs(e.clientX - startX);
+      const h = Math.abs(e.clientY - startY);
+      selBox.style.left = x + 'px';
+      selBox.style.top = y + 'px';
+      selBox.style.width = w + 'px';
+      selBox.style.height = h + 'px';
+    });
+
+    overlay.addEventListener('mouseup', async e => {
+      if (!dragging) return;
+      dragging = false;
+      const x = Math.min(startX, e.clientX);
+      const y = Math.min(startY, e.clientY);
+      const w = Math.abs(e.clientX - startX);
+      const h = Math.abs(e.clientY - startY);
+
+      overlay.remove();
+
+      if (w < 10 || h < 10) {
+        root.style.display = ''; return;
+      }
+
+      try {
+        const fullCanvas = await html2canvas(document.body, {
+          scale: 2, useCORS: true, logging: false,
+          ignoreElements: el => el.id === 'feedbackRoot' || el.id === 'fbCaptureOverlay'
+        });
+
+        // Crop to selected region
+        const crop = document.createElement('canvas');
+        const dpr = 2; // matches scale:2
+        crop.width = w * dpr;
+        crop.height = h * dpr;
+        const ctx = crop.getContext('2d');
+        ctx.drawImage(fullCanvas,
+          x * dpr, y * dpr, w * dpr, h * dpr,
+          0, 0, crop.width, crop.height
+        );
+
+        pendingScreenshots.push({ original: crop.toDataURL('image/jpeg', 0.85), drawing: null });
+        renderPendingPreviews(); updateSubmitState();
+      } catch (e) {
+        alert('Capture failed: ' + e.message);
+      }
+      root.style.display = '';
+    });
+
+    // ESC to cancel
+    const escHandler = e => {
+      if (e.key === 'Escape') {
+        overlay.remove();
+        root.style.display = '';
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
   }
 
   // ── Draggable trigger button ──
@@ -764,7 +869,18 @@
     // 1. Save drawing layer
     saveCurrentDrawingLayer();
 
-    // 2. Persist originals + drawings (thumbnails are computed on-the-fly by renderMemos)
+    // 2. Generate merged image RIGHT NOW from what's on screen
+    const previewImg = document.getElementById('fbPreviewImg');
+    const drawCanvas = document.getElementById('fbDrawCanvas');
+    const mc = document.createElement('canvas');
+    mc.width = drawCanvas.width;
+    mc.height = drawCanvas.height;
+    const mctx = mc.getContext('2d');
+    mctx.drawImage(previewImg, 0, 0, mc.width, mc.height);
+    mctx.drawImage(drawCanvas, 0, 0);
+    const mergedNow = mc.toDataURL('image/jpeg', 0.8);
+
+    // 3. Persist
     if (editor.source === 'pending') {
       pendingScreenshots = editor.images.map((orig, i) => ({
         original: orig, drawing: editor.savedDrawings[i]
@@ -777,8 +893,10 @@
         const memo = memos[idx];
         memo.originals = [...editor.images];
         memo.drawings = [...editor.savedDrawings];
-        // screenshots = originals (merged display is computed at render time)
-        memo.screenshots = [...editor.images];
+        // Store pre-merged screenshots so thumbnails work without async
+        memo.screenshots = editor.images.map((orig, i) =>
+          i === editor.index ? mergedNow : orig
+        );
         memos[idx] = memo;
         saveMemos(memos);
         renderMemos();
@@ -899,8 +1017,11 @@
     if (filtered.length === 0) { content.innerHTML = '<div class="fb-empty">No feedback yet.</div>'; return; }
 
     content.innerHTML = [...filtered].sort((a, b) => a.id - b.id).map(m => {
-      const originals = m.originals || m.screenshots || (m.screenshot ? [m.screenshot] : []);
-      const imgCount = originals.length;
+      // Use screenshots (pre-merged) if available, fall back to originals
+      const displayImgs = m.screenshots?.length > 0 ? m.screenshots
+        : m.originals?.length > 0 ? m.originals
+        : m.screenshot ? [m.screenshot] : [];
+      const imgCount = displayImgs.length;
       return `
         <div class="fb-memo" data-id="${m.id}">
           <div class="fb-memo-header">
@@ -913,9 +1034,9 @@
           ${m.text ? `<div class="fb-memo-text">${escapeHtml(m.text)}</div>` : ''}
           ${imgCount > 0 ? `
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
-              ${originals.map((orig, i) => `
+              ${displayImgs.map((src, i) => `
                 <div class="fb-memo-screenshot" onclick="window._fbEditMemo(${m.id},${i})" style="width:${imgCount===1?'100%':'calc(50% - 2px)'};cursor:pointer;position:relative;">
-                  <img data-memo="${m.id}" data-idx="${i}" src="${orig}" style="width:100%;display:block;border-radius:4px;">
+                  <img src="${src}" style="width:100%;display:block;border-radius:4px;">
                   ${m.drawings?.[i] ? '<div style="position:absolute;top:4px;right:4px;background:#6C5CE7;color:white;font-size:9px;padding:1px 6px;border-radius:3px;">edited</div>' : ''}
                 </div>
               `).join('')}
@@ -924,20 +1045,6 @@
         </div>
       `;
     }).join('');
-
-    // After initial render with originals, async-merge drawings on top for thumbnails
-    filtered.forEach(m => {
-      if (!m.drawings) return;
-      m.drawings.forEach((drawing, i) => {
-        if (!drawing) return;
-        const orig = (m.originals || m.screenshots)?.[i];
-        if (!orig) return;
-        mergeAsync(orig, drawing).then(merged => {
-          const img = content.querySelector(`img[data-memo="${m.id}"][data-idx="${i}"]`);
-          if (img) img.src = merged;
-        });
-      });
-    });
   }
 
   window._fbDelete = id => { deleteMemo(id); renderMemos(); updateBadge(); };
