@@ -54,16 +54,15 @@
   }
 
   function injectArchiveBanner() {
-    const currentPage = location.pathname.split('/').pop() || 'index.html';
     const banner = document.createElement('div');
-    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99998;background:#EF4444;color:white;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px;font-size:13px;font-weight:600;font-family:system-ui,sans-serif;';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99998;background:#1E1E2E;border-bottom:2px solid #6C5CE7;color:#ccc;display:flex;align-items:center;justify-content:center;gap:12px;padding:6px 16px;font-size:12px;font-weight:500;font-family:system-ui,sans-serif;';
     banner.innerHTML = `
-      <span>Viewing archived version: <code style="background:rgba(0,0,0,0.2);padding:2px 6px;border-radius:4px;">${archiveHash}</code></span>
-      <a href="${baseUrl}${currentPage}" style="color:white;background:rgba(0,0,0,0.2);padding:4px 12px;border-radius:6px;text-decoration:none;font-weight:700;">← Back to Latest</a>
+      <span style="color:#94A3B8;">Archived version</span>
+      <code style="background:rgba(108,92,231,0.2);color:#9F93F0;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;">${archiveHash}</code>
+      <a href="${baseUrl}index.html" style="color:#00B894;text-decoration:none;font-weight:600;margin-left:8px;">← Back to Latest</a>
     `;
     document.body.prepend(banner);
-    // Push body content down
-    document.body.style.paddingTop = (parseInt(document.body.style.paddingTop || '0') + 36) + 'px';
+    document.body.style.paddingTop = (parseInt(document.body.style.paddingTop || '0') + 32) + 'px';
   }
 
   function injectHistoryUI(manifest, currentVersion) {
@@ -78,19 +77,7 @@
     const wrapper = document.createElement('div');
     wrapper.style.cssText = 'position:relative;display:inline-flex;align-items:center;margin-left:8px;';
 
-    // Archive badge when viewing old version
-    if (isArchive) {
-      const badge = document.createElement('span');
-      badge.style.cssText = 'padding:4px 8px;border-radius:6px;background:rgba(239,68,68,0.2);color:#EF4444;font-size:11px;font-weight:600;margin-right:6px;';
-      badge.textContent = 'Viewing: ' + archiveHash;
-      wrapper.appendChild(badge);
-
-      const backLink = document.createElement('a');
-      backLink.href = baseUrl + currentPage;
-      backLink.style.cssText = 'font-size:11px;color:#00B894;text-decoration:none;font-weight:600;margin-right:8px;';
-      backLink.textContent = '← Back to Latest';
-      wrapper.appendChild(backLink);
-    }
+    // No duplicate "Back to Latest" here — the banner handles it
 
     // History button
     const btn = document.createElement('button');
@@ -109,7 +96,7 @@
 
     // ── Current version (always first) ──
     const currentItem = document.createElement('a');
-    currentItem.href = isArchive ? baseUrl + currentPage : '#';
+    currentItem.href = isArchive ? baseUrl + 'index.html' : '#';
     if (!isArchive) currentItem.onclick = e => e.preventDefault();
     const isViewingCurrent = !isArchive;
     currentItem.style.cssText = `display:flex;align-items:center;gap:8px;padding:10px 12px;text-decoration:none;border-bottom:1px solid #2a2a3a;transition:background 0.15s;${isViewingCurrent ? 'background:rgba(0,184,148,0.08);' : ''}`;
@@ -132,7 +119,7 @@
     sorted.forEach(entry => {
       const isViewing = isArchive && archiveHash === entry.hash;
       const item = document.createElement('a');
-      item.href = baseUrl + 'archive/' + entry.hash + '/' + currentPage;
+      item.href = baseUrl + 'archive/' + entry.hash + '/index.html';
       item.style.cssText = `display:flex;align-items:center;gap:8px;padding:10px 12px;text-decoration:none;border-bottom:1px solid #2a2a3a;transition:background 0.15s;${isViewing ? 'background:rgba(108,92,231,0.1);' : ''}`;
       item.innerHTML = `
         <code style="font-size:11px;color:#6C5CE7;background:rgba(108,92,231,0.15);padding:2px 6px;border-radius:4px;font-weight:600;">${entry.hash}</code>
