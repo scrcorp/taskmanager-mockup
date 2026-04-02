@@ -55,23 +55,25 @@
 
   function injectArchiveBanner() {
     const BANNER_H = 32;
+
+    // Find existing guide bar first, get its height
+    const guideBar = document.querySelector('[style*="position: fixed"][style*="top: 0"]') ||
+                     document.querySelector('[style*="position:fixed"][style*="top:0"]');
+    const guideBarH = guideBar ? guideBar.offsetHeight : 0;
+
+    // Move guide bar up to top:0 (it should already be there)
+    // Then place banner below it
     const banner = document.createElement('div');
-    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#1E1E2E;border-bottom:2px solid #6C5CE7;color:#ccc;display:flex;align-items:center;justify-content:center;gap:12px;padding:6px 16px;font-size:12px;font-weight:500;font-family:system-ui,sans-serif;height:' + BANNER_H + 'px;';
+    const bannerTop = guideBarH;
+    banner.style.cssText = 'position:fixed;left:0;right:0;z-index:998;background:#1E1E2E;border-bottom:2px solid #6C5CE7;color:#ccc;display:flex;align-items:center;justify-content:center;gap:12px;padding:6px 16px;font-size:12px;font-weight:500;font-family:system-ui,sans-serif;height:' + BANNER_H + 'px;top:' + bannerTop + 'px;';
     banner.innerHTML = `
       <span style="color:#94A3B8;">Archived version</span>
       <code style="background:rgba(108,92,231,0.2);color:#9F93F0;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:600;">${archiveHash}</code>
       <a href="${baseUrl}index.html" style="color:#00B894;text-decoration:none;font-weight:600;margin-left:8px;">← Back to Latest</a>
     `;
-    document.body.prepend(banner);
+    document.body.appendChild(banner);
 
-    // Push existing guide bar down below the banner
-    const guideBar = document.querySelector('[style*="position: fixed"][style*="top: 0"]') ||
-                     document.querySelector('[style*="position:fixed"][style*="top:0"]');
-    if (guideBar) {
-      guideBar.style.top = BANNER_H + 'px';
-    }
-
-    // Push body content down
+    // Push body content down for the banner
     document.body.style.paddingTop = (parseInt(document.body.style.paddingTop || '0') + BANNER_H) + 'px';
   }
 
