@@ -121,10 +121,12 @@
       <div class="fb-preview-overlay" id="fbPreview">
         <button class="fb-preview-close" id="fbPreviewClose">&times;</button>
         <div class="fb-preview-toolbar" id="fbPreviewToolbar">
-          <button class="fb-tool-btn" data-tool="view" title="Zoom & Pan">View</button>
+          <button class="fb-tool-btn" data-tool="view" title="Zoom & Pan (scroll to zoom, drag to pan)">View</button>
           <div class="fb-tool-sep"></div>
           <button class="fb-tool-btn active" data-tool="pen" title="Free draw">Draw</button>
           <button class="fb-tool-btn" data-tool="arrow" title="Arrow">Arrow</button>
+          <button class="fb-tool-btn" data-tool="rect" title="Rectangle">Rect</button>
+          <button class="fb-tool-btn" data-tool="circle" title="Circle">Circle</button>
           <button class="fb-tool-btn" data-tool="eraser" title="Eraser">Eraser</button>
           <div class="fb-tool-sep"></div>
           <span class="fb-color-dot active" data-color="#EF4444" style="background:#EF4444;"></span>
@@ -132,6 +134,12 @@
           <span class="fb-color-dot" data-color="#10B981" style="background:#10B981;"></span>
           <span class="fb-color-dot" data-color="#3B82F6" style="background:#3B82F6;"></span>
           <span class="fb-color-dot" data-color="#FFFFFF" style="background:#FFFFFF;"></span>
+          <div class="fb-tool-sep"></div>
+          <label style="display:flex;align-items:center;gap:4px;color:#888;font-size:10px;" title="Brush size">
+            Size
+            <input type="range" id="fbBrushSize" min="1" max="20" value="3" style="width:60px;height:14px;accent-color:#6C5CE7;">
+            <span id="fbBrushSizeLabel" style="min-width:16px;text-align:center;">3</span>
+          </label>
           <div class="fb-tool-sep"></div>
           <button class="fb-tool-btn" id="fbDrawUndo">Undo</button>
           <button class="fb-tool-btn" id="fbDrawRedo">Redo</button>
@@ -145,6 +153,7 @@
           <img id="fbPreviewImg" src="" draggable="false">
           <canvas id="fbDrawCanvas"></canvas>
         </div>
+        <div id="fbBrushCursor" style="display:none;position:fixed;pointer-events:none;border:2px solid rgba(255,255,255,0.8);border-radius:50%;z-index:10001;box-shadow:0 0 0 1px rgba(0,0,0,0.3);"></div>
         <div class="fb-preview-counter" id="fbPreviewCounter"></div>
       </div>
     `;
@@ -289,7 +298,40 @@
     document.getElementById('fbDrawReset').addEventListener('click', e => { e.stopPropagation(); editorReset(); });
     document.getElementById('fbDrawSave').addEventListener('click', e => { e.stopPropagation(); editorSave(); });
 
-    // Canvas mouse/touch
+    // Brush size
+    document.getElementById('fbBrushSize').addEventListener('input', e => {
+      e.stopPropagation();
+      editor.lineWidth = Number(e.target.value);
+      document.getElementById('fbBrushSizeLabel').textContent = e.target.value;
+    });
+
+    // Brush cursor
+    document.getElementById('fbPreview').addEventListener('mousemove', e => {
+      const cursor = document.getElementById('fbBrushCursor');
+      if (!editor.open || editor.tool === 'view' || editor.tool === 'arrow' || editor.tool === 'rect' || editor.tool === 'circle') {
+        cursor.style.display = 'none'; return;
+      }
+      const size = editor.tool === 'eraser' ? editor.lineWidth * 4 : editor.lineWidth;
+      // Adjust for zoom
+      const displaySize = size * editor.zoom * 2;
+      cursor.style.display = 'block';
+      cursor.style.width = displaySize + 'px';
+      cursor.style.height = displaySize + 'px';
+      cursor.style.left = (e.clientX - displaySize / 2) + 'px';
+      cursor.style.top = (e.clientY - displaySize / 2) + 'px';
+      if (editor.tool === 'eraser') {
+        cursor.style.borderColor = 'rgba(255,255,255,0.6)';
+        cursor.style.background = 'rgba(255,255,255,0.1)';
+      } else {
+        cursor.style.borderColor = editor.color;
+        cursor.style.background = 'none';
+      }
+    });
+    document.getElementById('fbPreview').addEventListener('mouseleave', () => {
+      document.getElementById('fbBrushCursor').style.display = 'none';
+    });
+
+    // Canvas mouse/touch + wrap events for view mode pan
     initCanvas();
 
     // Keyboard
@@ -315,6 +357,7 @@
   // ── Canvas Init ──
   function initCanvas() {
     const canvas = document.getElementById('fbDrawCanvas');
+    const wrap = document.getElementById('fbCanvasWrap');
     let lastX, lastY, startX, startY;
 
     function getPos(e) {
@@ -325,34 +368,53 @@
       return { x: (t.clientX - rect.left) * sx, y: (t.clientY - rect.top) * sy };
     }
 
+    // ── View mode: pan on the wrap/overlay ──
+    function viewDown(e) {
+      if (!editor.open || editor.tool !== 'view') return;
+      editor.isPanning = true;
+      const t = e.touches ? e.touches[0] : e;
+      editor.panStartX = t.clientX - editor.panX;
+      editor.panStartY = t.clientY - editor.panY;
+      wrap.style.cursor = 'grabbing';
+      e.preventDefault();
+    }
+    function viewMove(e) {
+      if (!editor.isPanning) return;
+      const t = e.touches ? e.touches[0] : e;
+      editor.panX = t.clientX - editor.panStartX;
+      editor.panY = t.clientY - editor.panStartY;
+      applyZoomPan();
+      e.preventDefault();
+    }
+    function viewUp() {
+      editor.isPanning = false;
+      if (editor.tool === 'view') wrap.style.cursor = 'grab';
+    }
+
+    // Attach pan events to the overlay (not canvas, since canvas has pointerEvents none in view mode)
+    const overlay = document.getElementById('fbPreview');
+    overlay.addEventListener('mousedown', viewDown);
+    overlay.addEventListener('mousemove', viewMove);
+    overlay.addEventListener('mouseup', viewUp);
+    overlay.addEventListener('touchstart', viewDown, { passive: false });
+    overlay.addEventListener('touchmove', viewMove, { passive: false });
+    overlay.addEventListener('touchend', viewUp);
+
+    // ── Drawing on canvas ──
     function down(e) {
-      if (editor.tool === 'view') {
-        editor.isPanning = true;
-        const t = e.touches ? e.touches[0] : e;
-        editor.panStartX = t.clientX - editor.panX;
-        editor.panStartY = t.clientY - editor.panY;
-        e.preventDefault(); return;
-      }
+      if (editor.tool === 'view') return;
       e.preventDefault(); e.stopPropagation();
       editor.drawing = true;
       const pos = getPos(e);
       lastX = pos.x; lastY = pos.y;
       startX = pos.x; startY = pos.y;
-      // Push current state to undo
       const ctx = canvas.getContext('2d');
       editor.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      editor.redoStack = []; // clear redo on new action
+      editor.redoStack = [];
       editor.dirty = true;
     }
 
     function move(e) {
-      if (editor.isPanning) {
-        const t = e.touches ? e.touches[0] : e;
-        editor.panX = t.clientX - editor.panStartX;
-        editor.panY = t.clientY - editor.panStartY;
-        applyZoomPan();
-        e.preventDefault(); return;
-      }
       if (!editor.drawing) return;
       e.preventDefault(); e.stopPropagation();
       const pos = getPos(e);
@@ -366,23 +428,40 @@
         ctx.lineCap = 'round'; ctx.lineJoin = 'round';
         ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
         lastX = pos.x; lastY = pos.y;
-      } else if (editor.tool === 'arrow') {
-        // Redraw from last undo state + arrow preview
-        const last = editor.undoStack[editor.undoStack.length - 1];
-        if (last) ctx.putImageData(last, 0, 0);
-        drawArrowShape(ctx, startX, startY, pos.x, pos.y, lw);
       } else if (editor.tool === 'eraser') {
         ctx.globalCompositeOperation = 'destination-out';
-        ctx.lineWidth = lw * 4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        const eraserSize = lw * 4;
+        ctx.lineWidth = eraserSize; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
         ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();
         ctx.globalCompositeOperation = 'source-over';
         lastX = pos.x; lastY = pos.y;
+      } else if (editor.tool === 'arrow' || editor.tool === 'rect' || editor.tool === 'circle') {
+        // Preview shape: restore last state then draw shape
+        const last = editor.undoStack[editor.undoStack.length - 1];
+        if (last) ctx.putImageData(last, 0, 0);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = editor.color; ctx.lineWidth = lw; ctx.lineCap = 'round';
+
+        if (editor.tool === 'arrow') {
+          drawArrowShape(ctx, startX, startY, pos.x, pos.y, lw);
+        } else if (editor.tool === 'rect') {
+          ctx.beginPath();
+          ctx.rect(startX, startY, pos.x - startX, pos.y - startY);
+          ctx.stroke();
+        } else if (editor.tool === 'circle') {
+          const rx = Math.abs(pos.x - startX) / 2;
+          const ry = Math.abs(pos.y - startY) / 2;
+          const cx = (startX + pos.x) / 2;
+          const cy = (startY + pos.y) / 2;
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
       }
     }
 
     function up() {
       editor.drawing = false;
-      editor.isPanning = false;
     }
 
     canvas.addEventListener('mousedown', down);
@@ -397,10 +476,7 @@
   function drawArrowShape(ctx, fx, fy, tx, ty, lw) {
     const headLen = Math.max(lw * 5, 15);
     const angle = Math.atan2(ty - fy, tx - fx);
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = editor.color; ctx.lineWidth = lw; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(tx, ty); ctx.stroke();
-    // Arrowhead
     ctx.beginPath();
     ctx.moveTo(tx, ty);
     ctx.lineTo(tx - headLen * Math.cos(angle - Math.PI / 6), ty - headLen * Math.sin(angle - Math.PI / 6));
@@ -413,13 +489,20 @@
 
   function updateCanvasCursor() {
     const canvas = document.getElementById('fbDrawCanvas');
+    const cursor = document.getElementById('fbBrushCursor');
     if (editor.tool === 'view') {
       canvas.style.pointerEvents = 'none';
       document.getElementById('fbCanvasWrap').style.cursor = 'grab';
+      if (cursor) cursor.style.display = 'none';
     } else {
       canvas.style.pointerEvents = 'auto';
-      document.getElementById('fbCanvasWrap').style.cursor = 'default';
-      canvas.style.cursor = editor.tool === 'eraser' ? 'cell' : 'crosshair';
+      document.getElementById('fbCanvasWrap').style.cursor = 'none'; // hide default, use custom
+      canvas.style.cursor = 'none';
+      // For arrow/rect/circle, use crosshair instead of brush cursor
+      if (editor.tool === 'arrow' || editor.tool === 'rect' || editor.tool === 'circle') {
+        canvas.style.cursor = 'crosshair';
+        if (cursor) cursor.style.display = 'none';
+      }
     }
   }
 
