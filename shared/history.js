@@ -119,7 +119,7 @@
     sorted.forEach(entry => {
       const isViewing = isArchive && archiveHash === entry.hash;
       const item = document.createElement('a');
-      item.href = baseUrl + 'archive/' + entry.hash + '/index.html';
+      item.href = baseUrl + 'archive/' + entry.hash + '/' + (entry.entry || 'index.html');
       item.style.cssText = `display:flex;align-items:center;gap:8px;padding:10px 12px;text-decoration:none;border-bottom:1px solid #2a2a3a;transition:background 0.15s;${isViewing ? 'background:rgba(108,92,231,0.1);' : ''}`;
       item.innerHTML = `
         <code style="font-size:11px;color:#6C5CE7;background:rgba(108,92,231,0.15);padding:2px 6px;border-radius:4px;font-weight:600;">${entry.hash}</code>

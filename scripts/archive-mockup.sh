@@ -61,7 +61,7 @@ if [ -f "$MANIFEST" ]; then
 import json, sys
 with open('$MANIFEST') as f:
     data = json.load(f)
-data.append({'hash': '$HASH', 'date': '$DATETIME', 'message': '''$MESSAGE'''})
+data.append({'hash': '$HASH', 'date': '$DATETIME', 'message': '''$MESSAGE''', 'entry': 'index.html'})
 with open('$TMP', 'w') as f:
     json.dump(data, f, indent=2)
 "
