@@ -22,6 +22,7 @@ fi
 # Get short commit hash
 HASH=$(git rev-parse --short HEAD 2>/dev/null || echo "$(date +%s)")
 DATE=$(date +%Y-%m-%d)
+DATETIME=$(date +%Y-%m-%dT%H:%M)
 ARCHIVE_DIR="$MOCKUP_DIR/archive/$HASH"
 MANIFEST="$MOCKUP_DIR/archive/manifest.json"
 
@@ -59,7 +60,7 @@ if [ -f "$MANIFEST" ]; then
 import json, sys
 with open('$MANIFEST') as f:
     data = json.load(f)
-data.append({'hash': '$HASH', 'date': '$DATE', 'message': '''$MESSAGE'''})
+data.append({'hash': '$HASH', 'date': '$DATETIME', 'message': '''$MESSAGE'''})
 with open('$TMP', 'w') as f:
     json.dump(data, f, indent=2)
 "
@@ -75,11 +76,11 @@ with open('$MANIFEST', 'w') as f:
 "
 fi
 
-# Write current version date
+# Write current version datetime
 CURRENT_JSON="$MOCKUP_DIR/archive/current.json"
 python3 -c "
 import json
-data = {'date': '$DATE'}
+data = {'date': '$DATETIME'}
 with open('$CURRENT_JSON', 'w') as f:
     json.dump(data, f, indent=2)
 "

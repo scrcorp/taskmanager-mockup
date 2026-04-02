@@ -116,15 +116,44 @@ Root `index.html` is the mockup directory. Features:
 
 ## Workflow
 
+### 새 목업 만들기
 1. Create mockup in `mockup/{date}-{target}-{feature}/`
 2. Add shared modules: `<link>` feedback.css + `<script>` feedback.js + history.js (before `</body>`)
 3. Add guide bar at top of each page
 4. Review locally (`open index.html`)
-5. Push to repo → GitHub Pages auto-deploys
+5. Push to main → GitHub Pages auto-deploys
 6. Share hub URL with client
-7. Client reviews + leaves feedback via memo panel
-8. Before updating: `./scripts/archive-mockup.sh {folder} "description"`
-9. Client approves → proceed to implementation
+
+### 피드백 반영 (수정 사이클)
+```bash
+# 1. 작업 브랜치 생성
+git checkout -b mockup/clock-buttons
+
+# 2. 수정 작업 (여러 커밋 OK)
+# ... 수정 ...
+git commit -m "WIP: button color"
+# ... 또 수정 ...
+git commit -m "WIP: layout fix"
+
+# 3. 퍼블리시 (아카이브 + squash merge + push)
+git checkout main
+./scripts/publish-mockup.sh 2026-04-02-app-clock "Button color change" mockup/clock-buttons
+```
+
+`publish-mockup.sh`가 하는 일:
+1. 현재 main 상태를 `archive/{hash}/`에 저장
+2. 작업 브랜치를 main에 squash merge (커밋 1개로)
+3. Push
+4. 작업 브랜치 삭제
+
+### 간단 수정 (브랜치 없이)
+```bash
+# 브랜치 없이 직접 수정할 때는 수동 아카이브
+./scripts/archive-mockup.sh 2026-04-02-app-clock "Before quick fix"
+# ... 수정 ...
+git add -A && git commit -m "fix: something"
+git push
+```
 
 ## Git
 
