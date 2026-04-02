@@ -75,6 +75,15 @@ with open('$MANIFEST', 'w') as f:
 "
 fi
 
+# Write current version info
+CURRENT_JSON="$MOCKUP_DIR/archive/current.json"
+python3 -c "
+import json
+data = {'hash': '$HASH', 'date': '$DATE'}
+with open('$CURRENT_JSON', 'w') as f:
+    json.dump(data, f, indent=2)
+"
+
 echo "✓ Archived to $ARCHIVE_DIR"
 echo "✓ Manifest updated: $(cat "$MANIFEST" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)))') versions"
 echo ""
