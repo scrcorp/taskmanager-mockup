@@ -266,7 +266,10 @@
 
     // Ctrl+Enter
     document.getElementById('fbTextarea').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) document.getElementById('fbSubmit').click();
+      if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        document.getElementById('fbSubmit').click();
+      }
     });
 
     // ── Editor events ──
@@ -535,8 +538,7 @@
     updateCanvasCursor();
     applyZoomPan();
     updateUndoRedoButtons();
-    // For memo images: Save becomes "Copy" (copies to pending, doesn't modify memo)
-    document.getElementById('fbDrawSave').textContent = source === 'memo' ? 'Copy' : 'Save';
+    document.getElementById('fbDrawSave').textContent = 'Save';
   }
 
   function tryCloseEditor() {
@@ -694,16 +696,18 @@
       }));
       renderPendingPreviews(); updateSubmitState();
     } else if (editor.memoId) {
-      // For already-submitted memos: save edited image as new pending screenshot
-      const canvas = document.getElementById('fbDrawCanvas');
-      const drawingData = editor.savedDrawings[editor.index];
-      if (drawingData) {
-        const merged = await mergeAsync(editor.images[editor.index], drawingData);
-        pendingScreenshots.push({ original: merged, drawing: null });
-        renderPendingPreviews(); updateSubmitState();
-        // Open the feedback panel so user can see the new pending
-        document.getElementById('fbPanel').classList.add('open');
-        savePanelState(true);
+      // In-place update: merge drawings into screenshots for thumbnail
+      const memos = loadMemos();
+      const memo = memos.find(m => m.id === editor.memoId);
+      if (memo) {
+        memo.originals = [...editor.images];
+        memo.drawings = [...editor.savedDrawings];
+        const merged = await Promise.all(
+          editor.images.map((orig, i) => mergeAsync(orig, editor.savedDrawings[i]))
+        );
+        memo.screenshots = merged;
+        saveMemos(memos);
+        renderMemos();
       }
     }
 
@@ -711,9 +715,8 @@
     updateUndoRedoButtons();
 
     const btn = document.getElementById('fbDrawSave');
-    const origText = editor.source === 'memo' ? 'Copied!' : 'Saved!';
-    btn.textContent = origText;
-    setTimeout(() => { btn.textContent = editor.source === 'memo' ? 'Copy' : 'Save'; }, 800);
+    btn.textContent = 'Saved!';
+    setTimeout(() => { btn.textContent = 'Save'; }, 800);
   }
 
   // Cancel = revert to last saved state
@@ -821,7 +824,7 @@
 
     if (filtered.length === 0) { content.innerHTML = '<div class="fb-empty">No feedback yet.</div>'; return; }
 
-    content.innerHTML = [...filtered].sort((a, b) => b.id - a.id).map(m => {
+    content.innerHTML = [...filtered].sort((a, b) => a.id - b.id).map(m => {
       const imgs = m.screenshots?.length > 0 ? m.screenshots : (m.screenshot ? [m.screenshot] : []);
       const hasDrawings = m.drawings?.some(d => d != null);
       return `
