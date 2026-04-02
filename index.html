@@ -78,13 +78,36 @@
     }
     .mockup-card:hover .card-arrow { transform: translateX(2px); color: var(--accent); }
 
-    /* Sub-pages bar */
-    .card-pages {
+    /* Pages toggle */
+    .pages-toggle {
       display: flex;
-      gap: 0;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 20px;
+      border-top: 1px solid var(--border);
+      background: #FAFBFC;
+      cursor: pointer;
+      user-select: none;
+    }
+    .pages-toggle:hover { background: #F0F1F5; }
+    .pages-toggle .toggle-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .pages-toggle .toggle-arrow {
+      font-size: 10px;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+    .pages-toggle.open .toggle-arrow { transform: rotate(180deg); }
+
+    .card-pages {
+      display: none;
       border-top: 1px solid var(--border);
       background: #FAFBFC;
     }
+    .card-pages.open { display: flex; }
     .page-link {
       flex: 1;
       padding: 9px 16px;
@@ -103,7 +126,7 @@
 <body>
   <div class="container">
     <h1>TaskManager Mockups</h1>
-    <p class="subtitle">Click card to open main page. Use bottom links for specific pages. All open in new tabs.</p>
+    <p class="subtitle">Click card to open. Expand "..." for individual pages.</p>
 
     <!-- ===== 2026-04-02 ===== -->
     <div class="date-group">
@@ -120,6 +143,10 @@
             </div>
             <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </a>
+          <div class="pages-toggle" onclick="togglePages(this)">
+            <span class="toggle-label">Individual pages</span>
+            <span class="toggle-arrow">&#9660;</span>
+          </div>
           <div class="card-pages">
             <a class="page-link" href="2026-04-02-app-clock/index.html" target="_blank">Clock Main</a>
             <a class="page-link" href="2026-04-02-app-clock/history.html" target="_blank">Attendance History</a>
@@ -132,10 +159,14 @@
             <span class="tag tag-admin">Admin</span>
             <div class="card-info">
               <div class="card-title">Attendance Management</div>
-              <div class="card-desc">Dashboard cards, anomaly filters, timeline comparison, corrections, weekly summary + pay data</div>
+              <div class="card-desc">Dashboard, anomaly filters, timeline comparison, corrections, weekly summary + pay data</div>
             </div>
             <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
           </a>
+          <div class="pages-toggle" onclick="togglePages(this)">
+            <span class="toggle-label">Individual pages</span>
+            <span class="toggle-arrow">&#9660;</span>
+          </div>
           <div class="card-pages">
             <a class="page-link" href="2026-04-02-admin-attendance/index.html" target="_blank">Dashboard</a>
             <a class="page-link" href="2026-04-02-admin-attendance/detail.html" target="_blank">Employee Detail</a>
@@ -147,8 +178,14 @@
     </div>
 
     <!-- Future dates will be added here -->
-    <!-- ===== 2026-04-XX ===== -->
 
   </div>
+
+  <script>
+    function togglePages(el) {
+      el.classList.toggle('open');
+      el.nextElementSibling.classList.toggle('open');
+    }
+  </script>
 </body>
 </html>
