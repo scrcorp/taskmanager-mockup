@@ -271,7 +271,7 @@
 
     // Ctrl+Enter
     document.getElementById('fbTextarea').addEventListener('keydown', e => {
-      if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) {
+      if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey) && !e.isComposing) {
         e.preventDefault();
         document.getElementById('fbSubmit').click();
       }
@@ -899,6 +899,15 @@
         );
         memos[idx] = memo;
         saveMemos(memos);
+
+        // DEBUG: verify save worked (REMOVE AFTER CONFIRMED)
+        const verify = loadMemos();
+        const saved = verify.find(m => m.id === editor.memoId);
+        const origUrl = editor.images[editor.index]?.substring(0, 30);
+        const mergedUrl = mergedNow?.substring(0, 30);
+        const savedUrl = saved?.screenshots?.[editor.index]?.substring(0, 30);
+        alert(`DEBUG SAVE:\ncanvas: ${mc.width}x${mc.height}\norig: ${origUrl}...\nmerged: ${mergedUrl}...\nsaved: ${savedUrl}...\nmatch: ${mergedUrl === savedUrl}`);
+
         renderMemos();
       }
     }
