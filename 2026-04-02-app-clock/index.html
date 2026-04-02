@@ -449,8 +449,7 @@
         be.style.display = 'flex'; // Break End
         co.style.display = 'flex'; // Clock Out
       } else if (currentState === 'stateBreakEnd') {
-        bs.style.display = 'flex'; // Break Start (another break)
-        co.style.display = 'flex'; // Clock Out
+        co.style.display = 'flex'; // Clock Out only
       } else if (currentState === 'stateClockedOut') {
         ci.style.display = 'flex'; // Clock In (next shift)
       }
