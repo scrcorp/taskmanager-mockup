@@ -104,23 +104,33 @@
 
     .card-pages {
       display: none;
+      flex-direction: column;
       border-top: 1px solid var(--border);
       background: #FAFBFC;
     }
     .card-pages.open { display: flex; }
     .page-link {
-      flex: 1;
-      padding: 9px 16px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
       text-decoration: none;
-      text-align: center;
-      border-right: 1px solid var(--border);
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
       transition: all 0.15s;
     }
-    .page-link:last-child { border-right: none; }
-    .page-link:hover { background: rgba(108,92,231,0.05); color: var(--accent); }
+    .page-link:last-child { border-bottom: none; }
+    .page-link:hover { background: rgba(108,92,231,0.04); }
+    .page-link .page-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      min-width: 100px;
+    }
+    .page-link .page-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
   </style>
 </head>
 <body>
@@ -148,8 +158,14 @@
             <span class="toggle-arrow">&#9660;</span>
           </div>
           <div class="card-pages">
-            <a class="page-link" href="2026-04-02-app-clock/index.html" target="_blank">Clock Main</a>
-            <a class="page-link" href="2026-04-02-app-clock/history.html" target="_blank">Attendance History</a>
+            <a class="page-link" href="2026-04-02-app-clock/index.html" target="_blank">
+              <span class="page-name">Clock Main</span>
+              <span class="page-desc">5 status states (not clocked / working / break / done / no schedule), QR scanner modal, recent records</span>
+            </a>
+            <a class="page-link" href="2026-04-02-app-clock/history.html" target="_blank">
+              <span class="page-name">History</span>
+              <span class="page-desc">Weekly attendance list with schedule comparison, anomaly badges, summary stats</span>
+            </a>
           </div>
         </div>
 
@@ -168,9 +184,18 @@
             <span class="toggle-arrow">&#9660;</span>
           </div>
           <div class="card-pages">
-            <a class="page-link" href="2026-04-02-admin-attendance/index.html" target="_blank">Dashboard</a>
-            <a class="page-link" href="2026-04-02-admin-attendance/detail.html" target="_blank">Employee Detail</a>
-            <a class="page-link" href="2026-04-02-admin-attendance/summary.html" target="_blank">Weekly Summary</a>
+            <a class="page-link" href="2026-04-02-admin-attendance/index.html" target="_blank">
+              <span class="page-name">Dashboard</span>
+              <span class="page-desc">Today's stats cards (scheduled/clocked/late/break/no-show), status filter tabs, attendance table</span>
+            </a>
+            <a class="page-link" href="2026-04-02-admin-attendance/detail.html" target="_blank">
+              <span class="page-name">Employee Detail</span>
+              <span class="page-desc">Schedule vs actual timeline bar, clock times, matched schedule info, anomaly detail, correction form + history</span>
+            </a>
+            <a class="page-link" href="2026-04-02-admin-attendance/summary.html" target="_blank">
+              <span class="page-name">Weekly Summary</span>
+              <span class="page-desc">Per-employee hours/anomalies/pay table, overtime alerts, export to Excel</span>
+            </a>
           </div>
         </div>
 
