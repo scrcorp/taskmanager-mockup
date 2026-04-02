@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance Summary - Admin Mockup</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <h1>TaskManager</h1>
+        <div class="sidebar-org">Tigers Plus Inc.</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Schedule</div>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Overview
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Manage
+          </a>
+          <a href="index.html" class="nav-link active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Attendance
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <a href="index.html" style="color: var(--color-text-secondary); text-decoration: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </a>
+          <div>
+            <h1 class="page-title">Weekly Summary</h1>
+            <p class="page-subtitle">Mar 31 - Apr 6, 2026 &middot; Main Branch</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="filter-group">
+            <select class="filter-select">
+              <option>Weekly</option>
+              <option>Monthly</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <select class="filter-select">
+              <option selected>Main Branch</option>
+              <option>Sub Branch</option>
+              <option>All Stores</option>
+            </select>
+          </div>
+          <button class="btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Export Excel
+          </button>
+        </div>
+      </div>
+
+      <!-- Overview Stats -->
+      <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="stat-card">
+          <div class="stat-label">Total Scheduled Hours</div>
+          <div class="stat-value">320h</div>
+          <div class="stat-change" style="color: var(--color-text-muted);">12 employees</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Total Actual Hours</div>
+          <div class="stat-value">308.5h</div>
+          <div class="stat-change" style="color: var(--color-success);">96.4% of scheduled</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Anomalies</div>
+          <div class="stat-value">5</div>
+          <div class="stat-change" style="color: var(--color-danger);">3 late, 1 early, 1 absent</div>
+        </div>
+        <div class="stat-card info">
+          <div class="stat-label">Est. Labor Cost</div>
+          <div class="stat-value">$5,707</div>
+          <div class="stat-change" style="color: var(--color-text-muted);">avg $18.50/hr</div>
+        </div>
+      </div>
+
+      <!-- Employee Weekly Table -->
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Days</th>
+              <th>Sched. Hours</th>
+              <th>Actual Hours</th>
+              <th>Break</th>
+              <th>Net Work</th>
+              <th>Late</th>
+              <th>Early</th>
+              <th>Absent</th>
+              <th>Rate</th>
+              <th>Est. Pay</th>
+              <th>OT Alert</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #6C5CE7;">JK</div>
+                  <div>
+                    <div class="employee-name">John Kim</div>
+                    <div class="employee-role">Kitchen</div>
+                  </div>
+                </div>
+              </td>
+              <td>5</td>
+              <td>40h</td>
+              <td>39h 30m</td>
+              <td>2h 30m</td>
+              <td><strong>37h 00m</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>$18.50</td>
+              <td class="pay-highlight">$684.50</td>
+              <td>--</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #00B894;">SL</div>
+                  <div>
+                    <div class="employee-name">Sarah Lee</div>
+                    <div class="employee-role">Front</div>
+                  </div>
+                </div>
+              </td>
+              <td>5</td>
+              <td>40h</td>
+              <td>38h 48m</td>
+              <td>2h 30m</td>
+              <td><strong>36h 18m</strong></td>
+              <td><span class="badge badge-danger">2</span></td>
+              <td>0</td>
+              <td>0</td>
+              <td>$17.00</td>
+              <td class="pay-highlight">$617.10</td>
+              <td>--</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #F0A500;">MP</div>
+                  <div>
+                    <div class="employee-name">Mike Park</div>
+                    <div class="employee-role">Kitchen</div>
+                  </div>
+                </div>
+              </td>
+              <td>5</td>
+              <td>40h</td>
+              <td>40h 30m</td>
+              <td>2h 30m</td>
+              <td><strong>38h 00m</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>$19.00</td>
+              <td class="pay-highlight">$722.00</td>
+              <td>--</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #3B82F6;">AC</div>
+                  <div>
+                    <div class="employee-name">Amy Choi</div>
+                    <div class="employee-role">Front</div>
+                  </div>
+                </div>
+              </td>
+              <td>6</td>
+              <td>48h</td>
+              <td>47h 30m</td>
+              <td>3h 00m</td>
+              <td><strong>44h 30m</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>$18.50</td>
+              <td class="pay-highlight">$823.25</td>
+              <td><span class="badge badge-danger">OT 4.5h</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #EF4444;">DY</div>
+                  <div>
+                    <div class="employee-name">David Yoon</div>
+                    <div class="employee-role">Grill</div>
+                  </div>
+                </div>
+              </td>
+              <td>4</td>
+              <td>40h</td>
+              <td>30h 00m</td>
+              <td>2h 00m</td>
+              <td><strong>28h 00m</strong></td>
+              <td><span class="badge badge-danger">1</span></td>
+              <td><span class="badge badge-warning">1</span></td>
+              <td><span class="badge badge-danger">1</span></td>
+              <td>$16.50</td>
+              <td class="pay-highlight">$462.00</td>
+              <td>--</td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #8B5CF6;">EJ</div>
+                  <div>
+                    <div class="employee-name">Emily Jung</div>
+                    <div class="employee-role">Kitchen</div>
+                  </div>
+                </div>
+              </td>
+              <td>5</td>
+              <td>40h</td>
+              <td>40h 00m</td>
+              <td>2h 30m</td>
+              <td><strong>37h 30m</strong></td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>$18.00</td>
+              <td class="pay-highlight">$675.00</td>
+              <td>--</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-footer">
+          <span>Showing 6 of 12 employees</span>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <span style="font-weight: 700;">Total Est. Pay: <span style="color: var(--color-accent); font-size: 16px;">$3,983.85</span></span>
+            <div class="pagination">
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overtime Alerts Section -->
+      <div style="margin-top: 24px;">
+        <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Overtime Alerts
+          <span class="badge badge-danger" style="font-size: 13px;">1 employee</span>
+        </h2>
+
+        <div class="detail-card">
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="avatar" style="background: #3B82F6; width: 40px; height: 40px; font-size: 15px;">AC</div>
+            <div style="flex: 1;">
+              <div style="font-weight: 700;">Amy Choi</div>
+              <div style="font-size: 13px; color: var(--color-text-secondary);">Front &middot; 6 days this week</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 20px; font-weight: 800; color: var(--color-danger);">44.5h</div>
+              <div style="font-size: 12px; color: var(--color-text-muted);">Threshold: 40h (Federal)</div>
+            </div>
+          </div>
+          <div style="margin-top: 12px; padding: 10px 14px; background: var(--color-danger-muted); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span style="font-size: 13px; color: var(--color-danger); font-weight: 600;">4.5 hours over federal weekly maximum (40h). Overtime pay rate applies.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

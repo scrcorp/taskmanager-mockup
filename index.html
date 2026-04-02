@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskManager Mockups</title>
+  <style>
+    :root {
+      --accent: #6C5CE7;
+      --bg: #F5F6FA;
+      --surface: #FFFFFF;
+      --border: #E2E4EA;
+      --text: #1A1D27;
+      --text-secondary: #64748B;
+      --text-muted: #94A3B8;
+      --radius: 12px;
+      --font: "DM Sans", system-ui, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); font-family: var(--font); color: var(--text); min-height: 100vh; }
+    .container { max-width: 800px; margin: 0 auto; padding: 48px 24px; }
+    h1 { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 32px; }
+    .mockup-list { display: flex; flex-direction: column; gap: 12px; }
+    .mockup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.15s;
+    }
+    .mockup-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(108,92,231,0.1); }
+    .tag {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .tag-app { background: #EBF3FD; color: #3B8DD9; }
+    .tag-admin { background: rgba(108,92,231,0.1); color: #6C5CE7; }
+    .card-info { flex: 1; }
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .card-desc { font-size: 13px; color: var(--text-secondary); }
+    .card-date { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+    .card-pages { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .card-pages a { color: var(--accent); text-decoration: none; margin-right: 8px; }
+    .card-pages a:hover { text-decoration: underline; }
+    .arrow { color: var(--text-muted); flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>TaskManager Mockups</h1>
+    <p class="subtitle">Click to preview. Share this page with clients for review.</p>
+
+    <div class="mockup-list">
+
+      <div class="mockup-card">
+        <span class="tag tag-app">App</span>
+        <div class="card-info">
+          <div class="card-title">Clock In/Out</div>
+          <div class="card-desc">QR scan, status display (5 states), timer, recent records</div>
+          <div class="card-pages">
+            <a href="2026-04-02-app-clock/index.html">Main</a>
+            <a href="2026-04-02-app-clock/history.html">History</a>
+          </div>
+        </div>
+        <span class="card-date">2026-04-02</span>
+      </div>
+
+      <div class="mockup-card">
+        <span class="tag tag-admin">Admin</span>
+        <div class="card-info">
+          <div class="card-title">Attendance Management</div>
+          <div class="card-desc">Dashboard, anomaly filters, detail with timeline, corrections, weekly summary + pay data</div>
+          <div class="card-pages">
+            <a href="2026-04-02-admin-attendance/index.html">Dashboard</a>
+            <a href="2026-04-02-admin-attendance/detail.html">Detail</a>
+            <a href="2026-04-02-admin-attendance/summary.html">Summary</a>
+          </div>
+        </div>
+        <span class="card-date">2026-04-02</span>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

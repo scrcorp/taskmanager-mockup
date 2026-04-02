@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attendance - Admin Mockup</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <h1>TaskManager</h1>
+        <div class="sidebar-org">Tigers Plus Inc.</div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Schedule</div>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            Overview
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Manage
+          </a>
+          <a href="index.html" class="nav-link active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Attendance
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Management</div>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Employees
+          </a>
+          <a href="#" class="nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            Stores
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Attendance</h1>
+          <p class="page-subtitle">Today, Apr 2, 2026 &middot; Main Branch</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn" onclick="location.href='summary.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Summary
+          </button>
+          <button class="btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Export
+          </button>
+          <button class="btn btn-primary" onclick="alert('Detect no-show employees for today')">
+            Detect No-Shows
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Scheduled</div>
+          <div class="stat-value">12</div>
+          <div class="stat-change" style="color: var(--color-text-muted);">employees today</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Clocked In</div>
+          <div class="stat-value">10</div>
+          <div class="stat-change" style="color: var(--color-success);">83% attendance</div>
+        </div>
+        <div class="stat-card danger">
+          <div class="stat-label">Late</div>
+          <div class="stat-value">1</div>
+          <div class="stat-change" style="color: var(--color-danger);">12 min avg</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-label">On Break</div>
+          <div class="stat-value">2</div>
+          <div class="stat-change" style="color: var(--color-text-muted);">right now</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">No Show</div>
+          <div class="stat-value">1</div>
+          <div class="stat-change" style="color: var(--color-danger);">unexcused</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="filter-tabs">
+          <button class="filter-tab active">All <span class="count">14</span></button>
+          <button class="filter-tab">Clocked In <span class="count">8</span></button>
+          <button class="filter-tab">On Break <span class="count">2</span></button>
+          <button class="filter-tab">Clocked Out <span class="count">2</span></button>
+          <button class="filter-tab" style="color: var(--color-danger);">Late <span class="count">1</span></button>
+          <button class="filter-tab" style="color: var(--color-text-muted);">No Show <span class="count">1</span></button>
+        </div>
+
+        <div style="flex: 1;"></div>
+
+        <div class="filter-group">
+          <label class="filter-label">Store</label>
+          <select class="filter-select">
+            <option>All Stores</option>
+            <option selected>Main Branch</option>
+            <option>Sub Branch</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Date</label>
+          <input type="date" class="filter-input" value="2026-04-02">
+        </div>
+      </div>
+
+      <!-- Data Table -->
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Employee</th>
+              <th>Schedule</th>
+              <th>Clock In</th>
+              <th>Break</th>
+              <th>Clock Out</th>
+              <th>Net Work</th>
+              <th>Status</th>
+              <th>Anomaly</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #6C5CE7;">JK</div>
+                  <div>
+                    <div class="employee-name">John Kim</div>
+                    <div class="employee-role">Kitchen</div>
+                  </div>
+                </div>
+              </td>
+              <td>6:00 - 14:00</td>
+              <td>6:00 AM</td>
+              <td>10:00 - 10:30</td>
+              <td style="color: var(--color-text-muted);">--:--</td>
+              <td><strong>4h 32m</strong></td>
+              <td><span class="badge badge-success">Working</span></td>
+              <td>--</td>
+              <td><a href="detail.html" class="action-link">View</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #00B894;">SL</div>
+                  <div>
+                    <div class="employee-name">Sarah Lee</div>
+                    <div class="employee-role">Front</div>
+                  </div>
+                </div>
+              </td>
+              <td>6:00 - 14:00</td>
+              <td style="color: var(--color-danger);">6:12 AM</td>
+              <td style="color: var(--color-text-muted);">--</td>
+              <td style="color: var(--color-text-muted);">--:--</td>
+              <td><strong>4h 20m</strong></td>
+              <td><span class="badge badge-success">Working</span></td>
+              <td><span class="badge badge-danger">Late 12m</span></td>
+              <td><a href="detail.html" class="action-link">View</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #F0A500;">MP</div>
+                  <div>
+                    <div class="employee-name">Mike Park</div>
+                    <div class="employee-role">Kitchen</div>
+                  </div>
+                </div>
+              </td>
+              <td>6:00 - 14:00</td>
+              <td>6:01 AM</td>
+              <td style="color: var(--color-warning);">10:30 - now</td>
+              <td style="color: var(--color-text-muted);">--:--</td>
+              <td><strong>4h 10m</strong></td>
+              <td><span class="badge badge-warning">On Break</span></td>
+              <td>--</td>
+              <td><a href="detail.html" class="action-link">View</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #3B82F6;">AC</div>
+                  <div>
+                    <div class="employee-name">Amy Choi</div>
+                    <div class="employee-role">Front</div>
+                  </div>
+                </div>
+              </td>
+              <td>6:00 - 14:00</td>
+              <td>5:58 AM</td>
+              <td>10:00 - 10:30</td>
+              <td>2:00 PM</td>
+              <td><strong>7h 32m</strong></td>
+              <td><span class="badge badge-info">Done</span></td>
+              <td><span class="badge badge-success">On time</span></td>
+              <td><a href="detail.html" class="action-link">View</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #EF4444;">DY</div>
+                  <div>
+                    <div class="employee-name">David Yoon</div>
+                    <div class="employee-role">Grill</div>
+                  </div>
+                </div>
+              </td>
+              <td>6:00 - 14:00</td>
+              <td style="color: var(--color-text-muted);">--:--</td>
+              <td style="color: var(--color-text-muted);">--</td>
+              <td style="color: var(--color-text-muted);">--:--</td>
+              <td style="color: var(--color-text-muted);">--</td>
+              <td><span class="badge badge-muted">No Show</span></td>
+              <td><span class="badge badge-danger">Absent</span></td>
+              <td><a href="detail.html" class="action-link">View</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #8B5CF6;">EJ</div>
+                  <div>
+                    <div class="employee-name">Emily Jung</div>
+                    <div class="employee-role">Kitchen</div>
+                  </div>
+                </div>
+              </td>
+              <td>14:00 - 22:00</td>
+              <td style="color: var(--color-text-muted);">--:--</td>
+              <td style="color: var(--color-text-muted);">--</td>
+              <td style="color: var(--color-text-muted);">--:--</td>
+              <td style="color: var(--color-text-muted);">--</td>
+              <td><span class="badge badge-muted">Upcoming</span></td>
+              <td>--</td>
+              <td><a href="#" class="action-link" style="color: var(--color-text-muted);">--</a></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="employee-cell">
+                  <div class="avatar" style="background: #059669;">RH</div>
+                  <div>
+                    <div class="employee-name">Ryan Han</div>
+                    <div class="employee-role">Front</div>
+                  </div>
+                </div>
+              </td>
+              <td style="color: var(--color-text-muted);">No schedule</td>
+              <td>9:15 AM</td>
+              <td style="color: var(--color-text-muted);">--</td>
+              <td style="color: var(--color-text-muted);">--:--</td>
+              <td><strong>1h 17m</strong></td>
+              <td><span class="badge badge-success">Working</span></td>
+              <td><span class="badge badge-info">Unsched.</span></td>
+              <td><a href="detail.html" class="action-link">View</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-footer">
+          <span>Showing 1-7 of 14 records</span>
+          <div class="pagination">
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

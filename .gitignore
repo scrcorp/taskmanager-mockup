@@ -1,0 +1,17 @@
+# Only track date-prefixed folders + root files
+# Ignore legacy (non-dated) mockup folders
+admin-inventory/
+admin-inventory.zip
+admin-schedule/
+app-inventory/
+app-inventory.zip
+app-register-store/
+app-schedule/
+checklist-review/
+email-verification/
+inactive-users/
+password-management/
+
+# General
+.DS_Store
+*.zip
