@@ -394,6 +394,21 @@
         </div>
       </div>
 
+      <!-- Break Warning Modal -->
+      <div id="breakWarningModal" style="display:none;position:absolute;inset:0;z-index:200;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:24px;">
+        <div style="background:#1E1E2E;border:1px solid #333;border-radius:20px;padding:28px 24px;max-width:300px;width:100%;text-align:center;">
+          <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,107,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B6B" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div style="color:white;font-size:17px;font-weight:700;margin-bottom:8px;">Clock Out During Break</div>
+          <div style="color:rgba(255,255,255,0.6);font-size:14px;line-height:1.5;margin-bottom:24px;">Your break will be automatically ended at the same time as Clock Out.</div>
+          <div style="display:flex;gap:10px;">
+            <button onclick="hideBreakWarningModal()" style="flex:1;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:white;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--font-family);">Cancel</button>
+            <button onclick="hideBreakWarningModal();selectedAction='Clock Out';goScanStep(3);document.getElementById('confirmAction').textContent='Clock Out';document.getElementById('confirmStatus').textContent='Ending shift';document.getElementById('confirmStatus').style.color='var(--color-danger)';" style="flex:1;padding:12px;border-radius:12px;border:none;background:var(--color-danger);color:white;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font-family);">Clock Out</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -461,6 +476,12 @@
       document.querySelectorAll('.scan-step').forEach(s => s.classList.remove('active'));
       document.getElementById('scanStep' + n).classList.add('active');
     }
+    function showBreakWarningModal() {
+      document.getElementById('breakWarningModal').style.display = 'flex';
+    }
+    function hideBreakWarningModal() {
+      document.getElementById('breakWarningModal').style.display = 'none';
+    }
     function scanSuccess() {
       updateScanButtons();
       goScanStep(2);
@@ -468,7 +489,8 @@
     function selectAction(action) {
       // Warn if clocking out during break
       if (action === 'Clock Out' && currentState === 'stateOnBreak') {
-        if (!confirm('You are currently on break.\n\nClock Out will automatically end your break.\nAre you sure?')) return;
+        showBreakWarningModal();
+        return;
       }
       selectedAction = action;
       document.getElementById('confirmAction').textContent = action;
