@@ -49,8 +49,9 @@ if [ -d "$MOCKUP_DIR/scripts" ]; then
   cp -r "$MOCKUP_DIR/scripts" "$ARCHIVE_DIR/scripts"
 fi
 
-# Fix shared references in archived files (../shared → ../../shared)
-find "$ARCHIVE_DIR" -name "*.html" -exec sed -i '' 's|"\.\./shared/|"../../shared/|g' {} \;
+# Fix shared references in archived files (../shared → ../../../shared)
+# Archive is 2 levels deeper than mockup folder: archive/{hash}/
+find "$ARCHIVE_DIR" -name "*.html" -exec sed -i '' 's|"\.\./shared/|"../../../shared/|g' {} \;
 
 # Update manifest.json
 if [ -f "$MANIFEST" ]; then
