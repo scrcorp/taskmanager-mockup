@@ -154,7 +154,6 @@
           <button class="fb-tool-btn" id="fbDrawCancel" style="color:#F59E0B;" title="Revert to last save">Cancel</button>
           <button class="fb-tool-btn" id="fbDrawReset" style="color:#94A3B8;" title="Reset to original">Reset</button>
           <button class="fb-tool-btn" id="fbDrawSave" style="color:#00B894;">Save</button>
-          <button class="fb-tool-btn" id="fbDrawCopyPending" style="color:#3B82F6;display:none;" title="Copy to pending attachments">+ Pending</button>
         </div>
         <button class="fb-preview-nav prev" id="fbPrevImg">&#8249;</button>
         <button class="fb-preview-nav next" id="fbNextImg">&#8250;</button>
@@ -309,24 +308,6 @@
     document.getElementById('fbDrawCancel').addEventListener('click', e => { e.stopPropagation(); editorCancel(); });
     document.getElementById('fbDrawReset').addEventListener('click', e => { e.stopPropagation(); editorReset(); });
     document.getElementById('fbDrawSave').addEventListener('click', e => { e.stopPropagation(); editorSave(); });
-    document.getElementById('fbDrawCopyPending').addEventListener('click', e => {
-      e.stopPropagation();
-      // Copy current view (original + drawing) to pending
-      const previewImg = document.getElementById('fbPreviewImg');
-      const drawCanvas = document.getElementById('fbDrawCanvas');
-      const mc = document.createElement('canvas');
-      mc.width = drawCanvas.width; mc.height = drawCanvas.height;
-      const mctx = mc.getContext('2d');
-      mctx.drawImage(previewImg, 0, 0, mc.width, mc.height);
-      mctx.drawImage(drawCanvas, 0, 0);
-      pendingScreenshots.push({ original: mc.toDataURL('image/jpeg', 0.8), drawing: null, merged: null });
-      renderPendingPreviews(); updateSubmitState();
-      document.getElementById('fbPanel').classList.add('open');
-      savePanelState(true);
-      const btn = document.getElementById('fbDrawCopyPending');
-      btn.textContent = 'Added!';
-      setTimeout(() => { btn.textContent = '+ Pending'; }, 800);
-    });
 
     // Brush size
     document.getElementById('fbBrushSize').addEventListener('input', e => {
@@ -747,8 +728,6 @@
     applyZoomPan();
     updateUndoRedoButtons();
     document.getElementById('fbDrawSave').textContent = 'Save';
-    // Show "Add to Pending" only for memo images
-    document.getElementById('fbDrawCopyPending').style.display = source === 'memo' ? 'inline-flex' : 'none';
   }
 
   function tryCloseEditor() {
@@ -1074,8 +1053,9 @@
           ${imgCount > 0 ? `
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
               ${displayImgs.map((src, i) => `
-                <div class="fb-memo-screenshot" onclick="window._fbEditMemo(${m.id},${i})" style="width:${imgCount===1?'100%':'calc(50% - 2px)'};cursor:pointer;position:relative;">
+                <div class="fb-memo-screenshot fb-img-hover-wrap" onclick="window._fbEditMemo(${m.id},${i})" style="width:${imgCount===1?'100%':'calc(50% - 2px)'};cursor:pointer;position:relative;">
                   <img src="${src}" style="width:100%;display:block;border-radius:4px;">
+                  <button class="fb-copy-pending-btn" onclick="event.stopPropagation();window._fbCopyToPending(${m.id},${i})" title="Add to pending">+</button>
                 </div>
               `).join('')}
             </div>
@@ -1092,6 +1072,14 @@
     const originals = memo.originals?.length > 0 ? memo.originals : memo.screenshots || [];
     const drawings = memo.drawings || originals.map(() => null);
     openEditor(originals, drawings, index, id, 'memo');
+  };
+  window._fbCopyToPending = (id, index) => {
+    const memo = loadMemos().find(m => m.id === id);
+    if (!memo) return;
+    const src = memo.screenshots?.[index] || memo.originals?.[index];
+    if (!src) return;
+    pendingScreenshots.push({ original: src, drawing: null, merged: null });
+    renderPendingPreviews(); updateSubmitState();
   };
 
   function updateBadge() {
