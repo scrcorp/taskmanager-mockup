@@ -2,13 +2,13 @@
   {
     "hash": "c94abe2",
     "date": "2026-04-02",
-    "message": "Initial version - 5 states clock UI",
+    "message": "Initial version - original 5-state mockup",
     "entry": "index.html"
   },
   {
-    "hash": "39dc897",
-    "date": "2026-04-02T15:30",
-    "message": "Before Time Clock redesign - last version with old layout",
+    "hash": "835edcb",
+    "date": "2026-04-02T16:00",
+    "message": "Time Clock redesign - 4 action buttons, QR flow, timer cards",
     "entry": "index.html"
   }
 ]
