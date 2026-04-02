@@ -32,13 +32,17 @@
   }
 
   async function init() {
+    // If viewing an archive, always show "Back to Latest" banner (no manifest needed)
+    if (isArchive) {
+      injectArchiveBanner();
+    }
+
     try {
       const resp = await fetch(manifestUrl);
       if (!resp.ok) return;
       const manifest = await resp.json();
       if (!manifest || manifest.length === 0) return;
 
-      // Try to load current version info
       let currentVersion = null;
       try {
         const curResp = await fetch(baseUrl + 'archive/current.json');
@@ -47,6 +51,19 @@
 
       injectHistoryUI(manifest, currentVersion);
     } catch (e) {}
+  }
+
+  function injectArchiveBanner() {
+    const currentPage = location.pathname.split('/').pop() || 'index.html';
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99998;background:#EF4444;color:white;display:flex;align-items:center;justify-content:center;gap:12px;padding:8px 16px;font-size:13px;font-weight:600;font-family:system-ui,sans-serif;';
+    banner.innerHTML = `
+      <span>Viewing archived version: <code style="background:rgba(0,0,0,0.2);padding:2px 6px;border-radius:4px;">${archiveHash}</code></span>
+      <a href="${baseUrl}${currentPage}" style="color:white;background:rgba(0,0,0,0.2);padding:4px 12px;border-radius:6px;text-decoration:none;font-weight:700;">← Back to Latest</a>
+    `;
+    document.body.prepend(banner);
+    // Push body content down
+    document.body.style.paddingTop = (parseInt(document.body.style.paddingTop || '0') + 36) + 'px';
   }
 
   function injectHistoryUI(manifest, currentVersion) {
