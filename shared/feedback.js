@@ -727,7 +727,7 @@
     updateCanvasCursor();
     applyZoomPan();
     updateUndoRedoButtons();
-    document.getElementById('fbDrawSave').textContent = 'Save';
+    document.getElementById('fbDrawSave').textContent = source === 'memo' ? 'Copy' : 'Save';
   }
 
   function tryCloseEditor() {
@@ -898,37 +898,21 @@
       }));
       renderPendingPreviews(); updateSubmitState();
     } else if (editor.memoId) {
-      const memos = loadMemos();
-      const idx = memos.findIndex(m => m.id === editor.memoId);
-      if (idx !== -1) {
-        const memo = memos[idx];
-        memo.originals = [...editor.images];
-        memo.drawings = [...editor.savedDrawings];
-        // Store pre-merged screenshots so thumbnails work without async
-        memo.screenshots = editor.images.map((orig, i) =>
-          i === editor.index ? mergedNow : orig
-        );
-        memos[idx] = memo;
-        saveMemos(memos);
-
-        // DEBUG: verify save worked (REMOVE AFTER CONFIRMED)
-        const verify = loadMemos();
-        const saved = verify.find(m => m.id === editor.memoId);
-        const origUrl = editor.images[editor.index]?.substring(0, 30);
-        const mergedUrl = mergedNow?.substring(0, 30);
-        const savedUrl = saved?.screenshots?.[editor.index]?.substring(0, 30);
-        alert(`DEBUG SAVE:\ncanvas: ${mc.width}x${mc.height}\norig: ${origUrl}...\nmerged: ${mergedUrl}...\nsaved: ${savedUrl}...\nmatch: ${mergedUrl === savedUrl}`);
-
-        renderMemos();
-      }
+      // Memo images are read-only. Copy edited version to pending.
+      pendingScreenshots.push({ original: mergedNow, drawing: null });
+      renderPendingPreviews(); updateSubmitState();
+      // Open feedback panel so user sees the new pending
+      document.getElementById('fbPanel').classList.add('open');
+      savePanelState(true);
     }
 
     editor.dirty = false;
     updateUndoRedoButtons();
 
     const btn = document.getElementById('fbDrawSave');
-    btn.textContent = 'Saved!';
-    setTimeout(() => { btn.textContent = 'Save'; }, 800);
+    const isMemo = editor.source === 'memo';
+    btn.textContent = isMemo ? 'Copied!' : 'Saved!';
+    setTimeout(() => { btn.textContent = isMemo ? 'Copy' : 'Save'; }, 800);
   }
 
   // Cancel = revert to last saved state
