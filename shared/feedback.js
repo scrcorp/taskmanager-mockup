@@ -70,7 +70,6 @@
   let pendingScreenshots = []; // [{original, drawing}]
 
   function init() {
-    loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
     loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
     injectHTML();
     bindEvents();
@@ -110,10 +109,6 @@
           <textarea class="fb-textarea" id="fbTextarea" placeholder="Type feedback... (or just attach screenshots)"></textarea>
           <div id="fbPendingPreviews" style="display:none;flex-wrap:wrap;gap:6px;margin-top:6px;"></div>
           <div class="fb-input-actions">
-            <button class="fb-btn-capture" id="fbCapture">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-              Capture
-            </button>
             <label class="fb-btn-capture" style="cursor:pointer;margin:0;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
               Attach<input type="file" id="fbFileInput" accept="image/*" multiple style="display:none;">
@@ -198,11 +193,16 @@
 
   // ── Bind Events ──
   function bindEvents() {
-    // Panel toggle
-    document.getElementById('fbTrigger').addEventListener('click', () => {
+    // Panel toggle (only on click, not drag)
+    const trigger = document.getElementById('fbTrigger');
+    trigger.addEventListener('click', () => {
+      if (trigger._wasDragged) { trigger._wasDragged = false; return; }
       const p = document.getElementById('fbPanel'); p.classList.toggle('open');
       savePanelState(p.classList.contains('open'));
     });
+
+    // Draggable trigger button
+    initDraggableTrigger();
 
     // Tabs
     document.querySelectorAll('.fb-tab').forEach(tab => {
@@ -234,23 +234,6 @@
       document.getElementById('fbTextarea').value = '';
       pendingScreenshots = [];
       renderPendingPreviews(); updateSubmitState(); renderMemos(); updateBadge();
-    });
-
-    // Capture main content element (app-frame or layout), excluding feedback UI and background
-    document.getElementById('fbCapture').addEventListener('click', async () => {
-      if (typeof html2canvas === 'undefined') { alert('Loading... try again.'); return; }
-      const root = document.getElementById('feedbackRoot'); root.style.display = 'none';
-      try {
-        // Find the main content element: .app-frame for app mockups, .layout for admin mockups
-        const target = document.querySelector('.app-frame') || document.querySelector('.layout') || document.body;
-        const c = await html2canvas(target, {
-          scale: 2, useCORS: true, logging: false,
-          ignoreElements: el => el.id === 'feedbackRoot'
-        });
-        pendingScreenshots.push({ original: c.toDataURL('image/jpeg', 0.7), drawing: null });
-        renderPendingPreviews(); updateSubmitState();
-      } catch (e) { alert('Failed: ' + e.message); }
-      root.style.display = '';
     });
 
     // File attach
@@ -470,6 +453,83 @@
     canvas.addEventListener('touchstart', down, { passive: false });
     canvas.addEventListener('touchmove', move, { passive: false });
     canvas.addEventListener('touchend', up);
+  }
+
+  // ── Draggable trigger button ──
+  const TRIGGER_POS_KEY = 'fb_trigger_pos';
+
+  function initDraggableTrigger() {
+    const trigger = document.getElementById('fbTrigger');
+    const panel = document.getElementById('fbPanel');
+    let isDragging = false, startX, startY, origX, origY, moved = false;
+
+    // Restore saved position
+    const saved = localStorage.getItem(TRIGGER_POS_KEY);
+    if (saved) {
+      try {
+        const pos = JSON.parse(saved);
+        trigger.style.right = 'auto';
+        trigger.style.bottom = 'auto';
+        trigger.style.left = Math.min(pos.x, window.innerWidth - 56) + 'px';
+        trigger.style.top = Math.min(pos.y, window.innerHeight - 56) + 'px';
+        updatePanelPosition(pos.x, pos.y);
+      } catch {}
+    }
+
+    trigger.addEventListener('mousedown', e => { startDrag(e.clientX, e.clientY); });
+    trigger.addEventListener('touchstart', e => { const t = e.touches[0]; startDrag(t.clientX, t.clientY); }, { passive: true });
+
+    document.addEventListener('mousemove', e => { moveDrag(e.clientX, e.clientY); });
+    document.addEventListener('touchmove', e => { const t = e.touches[0]; moveDrag(t.clientX, t.clientY); });
+
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+
+    function startDrag(cx, cy) {
+      isDragging = true; moved = false;
+      startX = cx; startY = cy;
+      const rect = trigger.getBoundingClientRect();
+      origX = rect.left; origY = rect.top;
+    }
+
+    function moveDrag(cx, cy) {
+      if (!isDragging) return;
+      const dx = cx - startX, dy = cy - startY;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+      if (!moved) return;
+      const x = Math.max(0, Math.min(window.innerWidth - 56, origX + dx));
+      const y = Math.max(0, Math.min(window.innerHeight - 56, origY + dy));
+      trigger.style.right = 'auto';
+      trigger.style.bottom = 'auto';
+      trigger.style.left = x + 'px';
+      trigger.style.top = y + 'px';
+      updatePanelPosition(x, y);
+    }
+
+    function endDrag() {
+      if (!isDragging) return;
+      isDragging = false;
+      if (moved) {
+        trigger._wasDragged = true;
+        const rect = trigger.getBoundingClientRect();
+        localStorage.setItem(TRIGGER_POS_KEY, JSON.stringify({ x: rect.left, y: rect.top }));
+      }
+    }
+
+    function updatePanelPosition(x, y) {
+      // Position panel near the trigger
+      const pw = 380, ph = 520;
+      let px = x - pw - 8;
+      let py = y - ph + 48;
+      if (px < 8) px = x + 56;
+      if (py < 8) py = 8;
+      if (py + ph > window.innerHeight - 8) py = window.innerHeight - ph - 8;
+      if (px + pw > window.innerWidth - 8) px = window.innerWidth - pw - 8;
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+      panel.style.left = px + 'px';
+      panel.style.top = py + 'px';
+    }
   }
 
   function updateBrushCursorPos(e) {
@@ -830,16 +890,6 @@
   };
 
   // ── Render Memos ──
-  function getMemoDisplaySrc(memo, index) {
-    // Always compute display image from originals + drawings (source of truth)
-    const original = memo.originals?.[index];
-    const drawing = memo.drawings?.[index];
-    if (original && drawing) return mergeForExport(original, drawing);
-    if (original) return original;
-    // Fallback for legacy memos without originals
-    return memo.screenshots?.[index] || '';
-  }
-
   function renderMemos() {
     const content = document.getElementById('fbContent');
     const memos = loadMemos();
@@ -849,8 +899,8 @@
     if (filtered.length === 0) { content.innerHTML = '<div class="fb-empty">No feedback yet.</div>'; return; }
 
     content.innerHTML = [...filtered].sort((a, b) => a.id - b.id).map(m => {
-      const imgCount = m.originals?.length || m.screenshots?.length || (m.screenshot ? 1 : 0);
-      const hasDrawings = m.drawings?.some(d => d != null);
+      const originals = m.originals || m.screenshots || (m.screenshot ? [m.screenshot] : []);
+      const imgCount = originals.length;
       return `
         <div class="fb-memo" data-id="${m.id}">
           <div class="fb-memo-header">
@@ -863,31 +913,28 @@
           ${m.text ? `<div class="fb-memo-text">${escapeHtml(m.text)}</div>` : ''}
           ${imgCount > 0 ? `
             <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">
-              ${Array.from({length: imgCount}, (_, i) => {
-                const src = getMemoDisplaySrc(m, i);
-                return `
+              ${originals.map((orig, i) => `
                 <div class="fb-memo-screenshot" onclick="window._fbEditMemo(${m.id},${i})" style="width:${imgCount===1?'100%':'calc(50% - 2px)'};cursor:pointer;position:relative;">
-                  <img src="${src}" style="width:100%;display:block;border-radius:4px;">
+                  <img data-memo="${m.id}" data-idx="${i}" src="${orig}" style="width:100%;display:block;border-radius:4px;">
                   ${m.drawings?.[i] ? '<div style="position:absolute;top:4px;right:4px;background:#6C5CE7;color:white;font-size:9px;padding:1px 6px;border-radius:3px;">edited</div>' : ''}
                 </div>
-              `;
-              }).join('')}
+              `).join('')}
             </div>
           ` : ''}
         </div>
       `;
     }).join('');
 
-    // Async merge for thumbnails with drawings (handles browsers where data URL Images don't load sync)
+    // After initial render with originals, async-merge drawings on top for thumbnails
     filtered.forEach(m => {
-      if (!m.drawings?.some(d => d != null)) return;
-      const memoEl = content.querySelector(`.fb-memo[data-id="${m.id}"]`);
-      if (!memoEl) return;
-      const thumbImgs = memoEl.querySelectorAll('.fb-memo-screenshot img');
+      if (!m.drawings) return;
       m.drawings.forEach((drawing, i) => {
-        if (!drawing || !m.originals?.[i]) return;
-        mergeAsync(m.originals[i], drawing).then(merged => {
-          if (thumbImgs[i]) thumbImgs[i].src = merged;
+        if (!drawing) return;
+        const orig = (m.originals || m.screenshots)?.[i];
+        if (!orig) return;
+        mergeAsync(orig, drawing).then(merged => {
+          const img = content.querySelector(`img[data-memo="${m.id}"][data-idx="${i}"]`);
+          if (img) img.src = merged;
         });
       });
     });
