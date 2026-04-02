@@ -209,13 +209,13 @@
     document.getElementById('fbTextarea').addEventListener('input', updateSubmitState);
 
     // Submit
-    document.getElementById('fbSubmit').addEventListener('click', async () => {
+    document.getElementById('fbSubmit').addEventListener('click', () => {
       const text = document.getElementById('fbTextarea').value.trim();
       if (!text && pendingScreenshots.length === 0) return;
       const originals = pendingScreenshots.map(p => p.original);
       const drawings = pendingScreenshots.map(p => p.drawing);
-      const merged = await Promise.all(
-        pendingScreenshots.map(p => mergeAsync(p.original, p.drawing))
+      const merged = pendingScreenshots.map(p =>
+        p.drawing ? mergeForExport(p.original, p.drawing) : p.original
       );
       const memos = loadMemos();
       memos.push({
@@ -687,8 +687,11 @@
     updateUndoRedoButtons();
   }
 
-  async function editorSave() {
+  function editorSave() {
     saveCurrentDrawingLayer();
+
+    // Merge current image directly from what's on screen (no async needed)
+    const currentMerged = mergeCurrentFromScreen();
 
     if (editor.source === 'pending') {
       pendingScreenshots = editor.images.map((orig, i) => ({
@@ -696,16 +699,17 @@
       }));
       renderPendingPreviews(); updateSubmitState();
     } else if (editor.memoId) {
-      // In-place update: merge drawings into screenshots for thumbnail
       const memos = loadMemos();
       const memo = memos.find(m => m.id === editor.memoId);
       if (memo) {
         memo.originals = [...editor.images];
         memo.drawings = [...editor.savedDrawings];
-        const merged = await Promise.all(
-          editor.images.map((orig, i) => mergeAsync(orig, editor.savedDrawings[i]))
-        );
-        memo.screenshots = merged;
+        // Build screenshots: current index uses screen merge, others use stored data
+        memo.screenshots = editor.images.map((orig, i) => {
+          if (i === editor.index) return currentMerged;
+          if (editor.savedDrawings[i]) return mergeForExport(orig, editor.savedDrawings[i]);
+          return orig;
+        });
         saveMemos(memos);
         renderMemos();
       }
@@ -717,6 +721,19 @@
     const btn = document.getElementById('fbDrawSave');
     btn.textContent = 'Saved!';
     setTimeout(() => { btn.textContent = 'Save'; }, 800);
+  }
+
+  // Merge directly from the displayed img + canvas (guaranteed to work, no async)
+  function mergeCurrentFromScreen() {
+    const img = document.getElementById('fbPreviewImg');
+    const drawCanvas = document.getElementById('fbDrawCanvas');
+    const mc = document.createElement('canvas');
+    mc.width = drawCanvas.width;
+    mc.height = drawCanvas.height;
+    const ctx = mc.getContext('2d');
+    ctx.drawImage(img, 0, 0, mc.width, mc.height);
+    ctx.drawImage(drawCanvas, 0, 0);
+    return mc.toDataURL('image/jpeg', 0.85);
   }
 
   // Cancel = revert to last saved state
