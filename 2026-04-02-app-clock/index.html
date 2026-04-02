@@ -6,7 +6,7 @@
   <title>Clock In/Out - Staff App Mockup</title>
   <link rel="stylesheet" href="styles/main.css">
 </head>
-<body>
+<body style="padding-top: 56px;">
   <div class="app-frame">
     <!-- Status Bar -->
     <div class="status-bar">
@@ -347,14 +347,16 @@
     </div>
   </div>
 
-  <!-- State Switcher (for demo) -->
-  <div style="position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 6px; z-index: 999;">
-    <div style="font-size: 12px; color: #888; text-align: center; margin-bottom: 4px;">Demo States</div>
-    <button onclick="showState('stateNotClocked', 'clock-in', 'Scan QR to Clock In')" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #555; background: #2a2a4a; color: #ccc; cursor: pointer; font-size: 12px;">1. Not Clocked</button>
-    <button onclick="showState('stateClockedIn', 'break-start', 'Scan QR to Start Break')" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #555; background: #2a2a4a; color: #ccc; cursor: pointer; font-size: 12px;">2. Working</button>
-    <button onclick="showState('stateOnBreak', 'break-end', 'Scan QR to End Break')" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #555; background: #2a2a4a; color: #ccc; cursor: pointer; font-size: 12px;">3. On Break</button>
-    <button onclick="showState('stateClockedOut', 'disabled', 'Shift Complete')" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #555; background: #2a2a4a; color: #ccc; cursor: pointer; font-size: 12px;">4. Clocked Out</button>
-    <button onclick="showState('stateNoSchedule', 'clock-in', 'Scan QR to Clock In')" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #555; background: #2a2a4a; color: #ccc; cursor: pointer; font-size: 12px;">5. No Schedule</button>
+  <!-- Guide Bar (top, always visible) -->
+  <div style="position: fixed; top: 0; left: 0; right: 0; z-index: 999; background: #1E1E2E; border-bottom: 1px solid #333; padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+    <span style="font-size: 12px; color: #888; font-weight: 600; margin-right: 4px;">States:</span>
+    <button onclick="showState('stateNotClocked', 'clock-in', 'Scan QR to Clock In')" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #444; background: #2a2a4a; color: #ddd; cursor: pointer; font-size: 11px; font-weight: 600;">Not Clocked</button>
+    <button onclick="showState('stateClockedIn', 'break-start', 'Scan QR to Start Break')" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #444; background: #2a2a4a; color: #00B894; cursor: pointer; font-size: 11px; font-weight: 600;">Working</button>
+    <button onclick="showState('stateOnBreak', 'break-end', 'Scan QR to End Break')" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #444; background: #2a2a4a; color: #F39C12; cursor: pointer; font-size: 11px; font-weight: 600;">On Break</button>
+    <button onclick="showState('stateClockedOut', 'disabled', 'Shift Complete')" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #444; background: #2a2a4a; color: #3B8DD9; cursor: pointer; font-size: 11px; font-weight: 600;">Clocked Out</button>
+    <button onclick="showState('stateNoSchedule', 'clock-in', 'Scan QR to Clock In')" style="padding: 5px 10px; border-radius: 6px; border: 1px solid #444; background: #2a2a4a; color: #888; cursor: pointer; font-size: 11px; font-weight: 600;">No Schedule</button>
+    <span style="color: #444; margin: 0 4px;">|</span>
+    <a href="history.html" target="_blank" style="font-size: 11px; color: #6C5CE7; text-decoration: none; font-weight: 600;">History Page &rarr;</a>
   </div>
 
   <script>

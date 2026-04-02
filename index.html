@@ -18,23 +18,43 @@
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: var(--bg); font-family: var(--font); color: var(--text); min-height: 100vh; }
-    .container { max-width: 800px; margin: 0 auto; padding: 48px 24px; }
+    .container { max-width: 860px; margin: 0 auto; padding: 48px 24px; }
     h1 { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
-    .subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 32px; }
-    .mockup-list { display: flex; flex-direction: column; gap: 12px; }
+    .subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 36px; }
+
+    /* Date Group */
+    .date-group { margin-bottom: 32px; }
+    .date-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      padding-left: 4px;
+    }
+    .mockup-list { display: flex; flex-direction: column; gap: 10px; }
+
+    /* Card */
     .mockup-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px 24px;
-      text-decoration: none;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 16px;
+      overflow: hidden;
       transition: all 0.15s;
     }
-    .mockup-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(108,92,231,0.1); }
+    .mockup-card:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(108,92,231,0.08); }
+
+    .card-main {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      text-decoration: none;
+      color: var(--text);
+      cursor: pointer;
+    }
+
     .tag {
       padding: 4px 10px;
       border-radius: 999px;
@@ -46,51 +66,89 @@
     }
     .tag-app { background: #EBF3FD; color: #3B8DD9; }
     .tag-admin { background: rgba(108,92,231,0.1); color: #6C5CE7; }
+
     .card-info { flex: 1; }
-    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
-    .card-desc { font-size: 13px; color: var(--text-secondary); }
-    .card-date { font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
-    .card-pages { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-    .card-pages a { color: var(--accent); text-decoration: none; margin-right: 8px; }
-    .card-pages a:hover { text-decoration: underline; }
-    .arrow { color: var(--text-muted); flex-shrink: 0; }
+    .card-title { font-size: 15px; font-weight: 700; }
+    .card-desc { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+    .card-arrow {
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: transform 0.15s;
+    }
+    .mockup-card:hover .card-arrow { transform: translateX(2px); color: var(--accent); }
+
+    /* Sub-pages bar */
+    .card-pages {
+      display: flex;
+      gap: 0;
+      border-top: 1px solid var(--border);
+      background: #FAFBFC;
+    }
+    .page-link {
+      flex: 1;
+      padding: 9px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      text-align: center;
+      border-right: 1px solid var(--border);
+      transition: all 0.15s;
+    }
+    .page-link:last-child { border-right: none; }
+    .page-link:hover { background: rgba(108,92,231,0.05); color: var(--accent); }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>TaskManager Mockups</h1>
-    <p class="subtitle">Click to preview. Share this page with clients for review.</p>
+    <p class="subtitle">Click card to open main page. Use bottom links for specific pages. All open in new tabs.</p>
 
-    <div class="mockup-list">
+    <!-- ===== 2026-04-02 ===== -->
+    <div class="date-group">
+      <div class="date-label">Apr 2, 2026</div>
+      <div class="mockup-list">
 
-      <div class="mockup-card">
-        <span class="tag tag-app">App</span>
-        <div class="card-info">
-          <div class="card-title">Clock In/Out</div>
-          <div class="card-desc">QR scan, status display (5 states), timer, recent records</div>
+        <!-- App Clock -->
+        <div class="mockup-card">
+          <a class="card-main" href="2026-04-02-app-clock/index.html" target="_blank">
+            <span class="tag tag-app">App</span>
+            <div class="card-info">
+              <div class="card-title">Clock In/Out</div>
+              <div class="card-desc">QR scan, 5 status states, timer, schedule match, recent records</div>
+            </div>
+            <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </a>
           <div class="card-pages">
-            <a href="2026-04-02-app-clock/index.html">Main</a>
-            <a href="2026-04-02-app-clock/history.html">History</a>
+            <a class="page-link" href="2026-04-02-app-clock/index.html" target="_blank">Clock Main</a>
+            <a class="page-link" href="2026-04-02-app-clock/history.html" target="_blank">Attendance History</a>
           </div>
         </div>
-        <span class="card-date">2026-04-02</span>
-      </div>
 
-      <div class="mockup-card">
-        <span class="tag tag-admin">Admin</span>
-        <div class="card-info">
-          <div class="card-title">Attendance Management</div>
-          <div class="card-desc">Dashboard, anomaly filters, detail with timeline, corrections, weekly summary + pay data</div>
+        <!-- Admin Attendance -->
+        <div class="mockup-card">
+          <a class="card-main" href="2026-04-02-admin-attendance/index.html" target="_blank">
+            <span class="tag tag-admin">Admin</span>
+            <div class="card-info">
+              <div class="card-title">Attendance Management</div>
+              <div class="card-desc">Dashboard cards, anomaly filters, timeline comparison, corrections, weekly summary + pay data</div>
+            </div>
+            <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+          </a>
           <div class="card-pages">
-            <a href="2026-04-02-admin-attendance/index.html">Dashboard</a>
-            <a href="2026-04-02-admin-attendance/detail.html">Detail</a>
-            <a href="2026-04-02-admin-attendance/summary.html">Summary</a>
+            <a class="page-link" href="2026-04-02-admin-attendance/index.html" target="_blank">Dashboard</a>
+            <a class="page-link" href="2026-04-02-admin-attendance/detail.html" target="_blank">Employee Detail</a>
+            <a class="page-link" href="2026-04-02-admin-attendance/summary.html" target="_blank">Weekly Summary</a>
           </div>
         </div>
-        <span class="card-date">2026-04-02</span>
-      </div>
 
+      </div>
     </div>
+
+    <!-- Future dates will be added here -->
+    <!-- ===== 2026-04-XX ===== -->
+
   </div>
 </body>
 </html>
