@@ -154,6 +154,7 @@
           <button class="fb-tool-btn" id="fbDrawCancel" style="color:#F59E0B;" title="Revert to last save">Cancel</button>
           <button class="fb-tool-btn" id="fbDrawReset" style="color:#94A3B8;" title="Reset to original">Reset</button>
           <button class="fb-tool-btn" id="fbDrawSave" style="color:#00B894;">Save</button>
+          <button class="fb-tool-btn" id="fbDrawCopyPending" style="color:#3B82F6;display:none;" title="Copy to pending attachments">+ Pending</button>
         </div>
         <button class="fb-preview-nav prev" id="fbPrevImg">&#8249;</button>
         <button class="fb-preview-nav next" id="fbNextImg">&#8250;</button>
@@ -308,6 +309,24 @@
     document.getElementById('fbDrawCancel').addEventListener('click', e => { e.stopPropagation(); editorCancel(); });
     document.getElementById('fbDrawReset').addEventListener('click', e => { e.stopPropagation(); editorReset(); });
     document.getElementById('fbDrawSave').addEventListener('click', e => { e.stopPropagation(); editorSave(); });
+    document.getElementById('fbDrawCopyPending').addEventListener('click', e => {
+      e.stopPropagation();
+      // Copy current view (original + drawing) to pending
+      const previewImg = document.getElementById('fbPreviewImg');
+      const drawCanvas = document.getElementById('fbDrawCanvas');
+      const mc = document.createElement('canvas');
+      mc.width = drawCanvas.width; mc.height = drawCanvas.height;
+      const mctx = mc.getContext('2d');
+      mctx.drawImage(previewImg, 0, 0, mc.width, mc.height);
+      mctx.drawImage(drawCanvas, 0, 0);
+      pendingScreenshots.push({ original: mc.toDataURL('image/jpeg', 0.8), drawing: null, merged: null });
+      renderPendingPreviews(); updateSubmitState();
+      document.getElementById('fbPanel').classList.add('open');
+      savePanelState(true);
+      const btn = document.getElementById('fbDrawCopyPending');
+      btn.textContent = 'Added!';
+      setTimeout(() => { btn.textContent = '+ Pending'; }, 800);
+    });
 
     // Brush size
     document.getElementById('fbBrushSize').addEventListener('input', e => {
@@ -727,7 +746,9 @@
     updateCanvasCursor();
     applyZoomPan();
     updateUndoRedoButtons();
-    document.getElementById('fbDrawSave').textContent = source === 'memo' ? 'Copy' : 'Save';
+    document.getElementById('fbDrawSave').textContent = 'Save';
+    // Show "Add to Pending" only for memo images
+    document.getElementById('fbDrawCopyPending').style.display = source === 'memo' ? 'inline-flex' : 'none';
   }
 
   function tryCloseEditor() {
@@ -901,21 +922,28 @@
       }));
       renderPendingPreviews(); updateSubmitState();
     } else if (editor.memoId) {
-      // Memo images are read-only. Copy edited version to pending.
-      pendingScreenshots.push({ original: mergedNow, drawing: null });
-      renderPendingPreviews(); updateSubmitState();
-      // Open feedback panel so user sees the new pending
-      document.getElementById('fbPanel').classList.add('open');
-      savePanelState(true);
+      // In-place update memo
+      const memos = loadMemos();
+      const idx = memos.findIndex(m => m.id === editor.memoId);
+      if (idx !== -1) {
+        const memo = memos[idx];
+        memo.originals = [...editor.images];
+        memo.drawings = [...editor.savedDrawings];
+        memo.screenshots = editor.images.map((orig, i) =>
+          i === editor.index ? mergedNow : (memo.screenshots?.[i] || orig)
+        );
+        memos[idx] = memo;
+        saveMemos(memos);
+        renderMemos();
+      }
     }
 
     editor.dirty = false;
     updateUndoRedoButtons();
 
     const btn = document.getElementById('fbDrawSave');
-    const isMemo = editor.source === 'memo';
-    btn.textContent = isMemo ? 'Copied!' : 'Saved!';
-    setTimeout(() => { btn.textContent = isMemo ? 'Copy' : 'Save'; }, 800);
+    btn.textContent = 'Saved!';
+    setTimeout(() => { btn.textContent = 'Save'; }, 800);
   }
 
   // Cancel = revert to last saved state
