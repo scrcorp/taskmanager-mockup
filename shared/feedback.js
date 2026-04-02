@@ -394,21 +394,25 @@
       if (editor.tool === 'view') return;
       e.preventDefault(); e.stopPropagation();
       editor.drawing = true;
+      editor._moved = false;
       const pos = getPos(e);
       lastX = pos.x; lastY = pos.y;
       startX = pos.x; startY = pos.y;
-      const ctx = canvas.getContext('2d');
-      editor.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      editor.redoStack = [];
-      editor.dirty = true;
-      updateUndoRedoButtons();
     }
 
     function move(e) {
-      // Always update brush cursor position (even if not drawing)
       updateBrushCursorPos(e);
       if (!editor.drawing) return;
       e.preventDefault();
+      // First move: save state for undo
+      if (!editor._moved) {
+        editor._moved = true;
+        const ctx = canvas.getContext('2d');
+        editor.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+        editor.redoStack = [];
+        editor.dirty = true;
+        updateUndoRedoButtons();
+      }
       const pos = getPos(e);
       const ctx = canvas.getContext('2d');
       const scale = canvas.width / canvas.getBoundingClientRect().width;
@@ -455,6 +459,11 @@
     function up() {
       editor.drawing = false;
     }
+
+    // Also handle click without move on canvas (mousedown + mouseup without move)
+    canvas.addEventListener('click', e => {
+      // If no move happened, no state was pushed, so nothing to clean up
+    });
 
     canvas.addEventListener('mousedown', down);
     canvas.addEventListener('mousemove', move);
