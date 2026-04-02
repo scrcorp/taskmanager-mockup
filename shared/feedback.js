@@ -885,9 +885,13 @@
   }
 
   function editorReset() {
-    if (!confirm('Reset to original? All drawings on this image will be cleared.')) return;
     const canvas = document.getElementById('fbDrawCanvas');
     const ctx = canvas.getContext('2d');
+    // Check if canvas has any content
+    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const hasContent = data.data.some((v, i) => i % 4 === 3 && v > 0);
+    if (!hasContent) return; // Nothing to reset
+    if (!confirm('Reset to original? All drawings on this image will be cleared.')) return;
     // Push current state so reset is undoable
     editor.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
     editor.redoStack = [];
