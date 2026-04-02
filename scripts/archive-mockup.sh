@@ -75,11 +75,11 @@ with open('$MANIFEST', 'w') as f:
 "
 fi
 
-# Write current version info
+# Write current version date
 CURRENT_JSON="$MOCKUP_DIR/archive/current.json"
 python3 -c "
 import json
-data = {'hash': '$HASH', 'date': '$DATE'}
+data = {'date': '$DATE'}
 with open('$CURRENT_JSON', 'w') as f:
     json.dump(data, f, indent=2)
 "

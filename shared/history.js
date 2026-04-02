@@ -96,13 +96,12 @@
     if (!isArchive) currentItem.onclick = e => e.preventDefault();
     const isViewingCurrent = !isArchive;
     currentItem.style.cssText = `display:flex;align-items:center;gap:8px;padding:10px 12px;text-decoration:none;border-bottom:1px solid #2a2a3a;transition:background 0.15s;${isViewingCurrent ? 'background:rgba(0,184,148,0.08);' : ''}`;
-    const curHash = currentVersion?.hash || '';
     const curDate = currentVersion?.date || '';
     currentItem.innerHTML = `
       <span style="font-size:11px;color:#00B894;background:rgba(0,184,148,0.15);padding:2px 8px;border-radius:4px;font-weight:700;">LATEST</span>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:12px;color:#eee;font-weight:600;">Current version${curHash ? ' <code style="font-size:10px;color:#888;background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;margin-left:4px;">' + curHash + '</code>' : ''}</div>
-        <div style="font-size:10px;color:#666;">${curDate || 'Live'}</div>
+        <div style="font-size:12px;color:#eee;font-weight:600;">Current version</div>
+        <div style="font-size:10px;color:#666;">${curDate ? 'Updated ' + curDate : 'Live'}</div>
       </div>
       ${isViewingCurrent ? '<span style="font-size:10px;color:#00B894;">● viewing</span>' : ''}
     `;
