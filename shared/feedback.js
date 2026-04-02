@@ -568,17 +568,24 @@
     const panel = document.getElementById('fbPanel');
     let isDragging = false, startX, startY, origX, origY, moved = false;
 
-    // Restore saved position
+    // Restore saved position or use default (bottom-right)
     const saved = localStorage.getItem(TRIGGER_POS_KEY);
     if (saved) {
       try {
         const pos = JSON.parse(saved);
+        const x = Math.min(pos.x, window.innerWidth - 56);
+        const y = Math.min(pos.y, window.innerHeight - 56);
         trigger.style.right = 'auto';
         trigger.style.bottom = 'auto';
-        trigger.style.left = Math.min(pos.x, window.innerWidth - 56) + 'px';
-        trigger.style.top = Math.min(pos.y, window.innerHeight - 56) + 'px';
-        updatePanelPosition(pos.x, pos.y);
+        trigger.style.left = x + 'px';
+        trigger.style.top = y + 'px';
+        updatePanelPosition(x, y);
       } catch {}
+    } else {
+      // Default position: bottom-right
+      const x = window.innerWidth - 68;
+      const y = window.innerHeight - 68;
+      updatePanelPosition(x, y);
     }
 
     trigger.addEventListener('mousedown', e => { startDrag(e.clientX, e.clientY); });
@@ -622,14 +629,18 @@
     }
 
     function updatePanelPosition(x, y) {
-      // Position panel near the trigger
-      const pw = 380, ph = 520;
-      let px = x - pw - 8;
-      let py = y - ph + 48;
-      if (px < 8) px = x + 56;
-      if (py < 8) py = 8;
-      if (py + ph > window.innerHeight - 8) py = window.innerHeight - ph - 8;
+      const pw = 420, ph = 600;
+      // Try to place panel so its bottom-right aligns with trigger's top-right
+      let px = x + 48 - pw; // right-align with trigger
+      let py = y - ph - 8;  // above trigger
+      // If no room above, place below
+      if (py < 8) py = y + 56;
+      // If no room on left, shift right
+      if (px < 8) px = 8;
+      // If goes off right, shift left
       if (px + pw > window.innerWidth - 8) px = window.innerWidth - pw - 8;
+      // If goes off bottom, shift up
+      if (py + ph > window.innerHeight - 8) py = window.innerHeight - ph - 8;
       panel.style.right = 'auto';
       panel.style.bottom = 'auto';
       panel.style.left = px + 'px';
