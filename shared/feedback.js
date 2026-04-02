@@ -308,37 +308,8 @@
       document.getElementById('fbBrushSizeLabel').textContent = e.target.value;
     });
 
-    // Brush cursor — follows mouse globally when editor is open
-    document.addEventListener('mousemove', e => {
-      const cursor = document.getElementById('fbBrushCursor');
-      if (!cursor) return;
-      if (!editor.open || editor.tool === 'view' || editor.tool === 'arrow' || editor.tool === 'rect' || editor.tool === 'circle') {
-        cursor.style.display = 'none'; return;
-      }
-      // Check if mouse is over the canvas area
-      const canvas = document.getElementById('fbDrawCanvas');
-      if (!canvas) { cursor.style.display = 'none'; return; }
-      const rect = canvas.getBoundingClientRect();
-      const overCanvas = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
-      if (!overCanvas) { cursor.style.display = 'none'; return; }
-
-      const brushCanvasSize = editor.tool === 'eraser' ? editor.lineWidth * 4 : editor.lineWidth;
-      // canvas pixels per screen pixel
-      const scale = canvas.width / rect.width;
-      const displaySize = Math.max((brushCanvasSize / scale) * 2, 6);
-      cursor.style.display = 'block';
-      cursor.style.width = displaySize + 'px';
-      cursor.style.height = displaySize + 'px';
-      cursor.style.left = (e.clientX - displaySize / 2) + 'px';
-      cursor.style.top = (e.clientY - displaySize / 2) + 'px';
-      if (editor.tool === 'eraser') {
-        cursor.style.borderColor = 'rgba(255,255,255,0.6)';
-        cursor.style.background = 'rgba(255,255,255,0.15)';
-      } else {
-        cursor.style.borderColor = editor.color;
-        cursor.style.background = 'none';
-      }
-    });
+    // Brush cursor
+    document.addEventListener('mousemove', e => updateBrushCursorPos(e));
 
     // Canvas mouse/touch + wrap events for view mode pan
     initCanvas();
@@ -421,11 +392,14 @@
       editor.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
       editor.redoStack = [];
       editor.dirty = true;
+      updateUndoRedoButtons();
     }
 
     function move(e) {
+      // Always update brush cursor position (even if not drawing)
+      updateBrushCursorPos(e);
       if (!editor.drawing) return;
-      e.preventDefault(); e.stopPropagation();
+      e.preventDefault();
       const pos = getPos(e);
       const ctx = canvas.getContext('2d');
       const scale = canvas.width / canvas.getBoundingClientRect().width;
@@ -482,6 +456,31 @@
     canvas.addEventListener('touchend', up);
   }
 
+  function updateBrushCursorPos(e) {
+    const cursor = document.getElementById('fbBrushCursor');
+    if (!cursor) return;
+    if (!editor.open || editor.tool === 'view' || editor.tool === 'arrow' || editor.tool === 'rect' || editor.tool === 'circle') {
+      cursor.style.display = 'none'; return;
+    }
+    const canvas = document.getElementById('fbDrawCanvas');
+    if (!canvas) { cursor.style.display = 'none'; return; }
+    const rect = canvas.getBoundingClientRect();
+    const cx = e.clientX, cy = e.clientY;
+    if (cx < rect.left || cx > rect.right || cy < rect.top || cy > rect.bottom) {
+      cursor.style.display = 'none'; return;
+    }
+    const brushPx = editor.tool === 'eraser' ? editor.lineWidth * 4 : editor.lineWidth;
+    const scale = canvas.width / rect.width;
+    const displaySize = Math.max((brushPx / scale) * 2, 6);
+    cursor.style.display = 'block';
+    cursor.style.width = displaySize + 'px';
+    cursor.style.height = displaySize + 'px';
+    cursor.style.left = (cx - displaySize / 2) + 'px';
+    cursor.style.top = (cy - displaySize / 2) + 'px';
+    cursor.style.borderColor = editor.tool === 'eraser' ? 'rgba(255,255,255,0.6)' : editor.color;
+    cursor.style.background = editor.tool === 'eraser' ? 'rgba(255,255,255,0.15)' : 'none';
+  }
+
   function drawArrowShape(ctx, fx, fy, tx, ty, lw) {
     const headLen = Math.max(lw * 5, 15);
     const angle = Math.atan2(ty - fy, tx - fx);
@@ -535,6 +534,9 @@
     document.getElementById('fbPreview').classList.add('open');
     updateCanvasCursor();
     applyZoomPan();
+    updateUndoRedoButtons();
+    // For memo images: Save becomes "Copy" (copies to pending, doesn't modify memo)
+    document.getElementById('fbDrawSave').textContent = source === 'memo' ? 'Copy' : 'Save';
   }
 
   function tryCloseEditor() {
@@ -651,33 +653,36 @@
 
   // ── Editor Actions ──
   function editorUndo() {
+    if (editor.undoStack.length === 0) return;
     const canvas = document.getElementById('fbDrawCanvas');
     const ctx = canvas.getContext('2d');
-    if (editor.undoStack.length > 0) {
-      editor.redoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      ctx.putImageData(editor.undoStack.pop(), 0, 0);
-      editor.dirty = editor.undoStack.length > 0;
-    }
-    // If undo stack is empty, we're at save point — no more undo
+    editor.redoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    ctx.putImageData(editor.undoStack.pop(), 0, 0);
+    editor.dirty = true;
+    updateUndoRedoButtons();
   }
 
   function editorRedo() {
+    if (editor.redoStack.length === 0) return;
     const canvas = document.getElementById('fbDrawCanvas');
     const ctx = canvas.getContext('2d');
-    if (editor.redoStack.length > 0) {
-      editor.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-      ctx.putImageData(editor.redoStack.pop(), 0, 0);
-      editor.dirty = true;
-    }
+    editor.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    ctx.putImageData(editor.redoStack.pop(), 0, 0);
+    editor.dirty = true;
+    updateUndoRedoButtons();
   }
 
   function editorReset() {
     if (!confirm('Reset to original? All drawings on this image will be cleared.')) return;
     const canvas = document.getElementById('fbDrawCanvas');
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-    editor.undoStack = []; editor.redoStack = [];
-    editor.savedDrawings[editor.index] = null;
-    editor.dirty = false;
+    const ctx = canvas.getContext('2d');
+    // Push current state so reset is undoable
+    editor.undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    editor.redoStack = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Don't modify savedDrawings — that only happens on Save
+    editor.dirty = true;
+    updateUndoRedoButtons();
   }
 
   async function editorSave() {
@@ -689,33 +694,42 @@
       }));
       renderPendingPreviews(); updateSubmitState();
     } else if (editor.memoId) {
-      const memos = loadMemos();
-      const memo = memos.find(m => m.id === editor.memoId);
-      if (memo) {
-        memo.originals = [...editor.images];
-        memo.drawings = [...editor.savedDrawings];
-        // Async merge for reliable thumbnail generation
-        const merged = await Promise.all(
-          editor.images.map((orig, i) => mergeAsync(orig, editor.savedDrawings[i]))
-        );
-        memo.screenshots = merged;
-        saveMemos(memos);
-        renderMemos();
+      // For already-submitted memos: save edited image as new pending screenshot
+      const canvas = document.getElementById('fbDrawCanvas');
+      const drawingData = editor.savedDrawings[editor.index];
+      if (drawingData) {
+        const merged = await mergeAsync(editor.images[editor.index], drawingData);
+        pendingScreenshots.push({ original: merged, drawing: null });
+        renderPendingPreviews(); updateSubmitState();
+        // Open the feedback panel so user can see the new pending
+        document.getElementById('fbPanel').classList.add('open');
+        savePanelState(true);
       }
     }
 
-    // Keep undo/redo — only clear on close
     editor.dirty = false;
+    updateUndoRedoButtons();
 
     const btn = document.getElementById('fbDrawSave');
-    btn.textContent = 'Saved!';
-    setTimeout(() => { btn.textContent = 'Save'; }, 800);
+    const origText = editor.source === 'memo' ? 'Copied!' : 'Saved!';
+    btn.textContent = origText;
+    setTimeout(() => { btn.textContent = editor.source === 'memo' ? 'Copy' : 'Save'; }, 800);
   }
 
-  // Cancel = revert to last saved state (reload drawing from savedDrawings)
+  // Cancel = revert to last saved state
   function editorCancel() {
-    if (!editor.dirty) return; // nothing to cancel
-    loadEditorImage(); // reloads from savedDrawings
+    if (!editor.dirty) return;
+    loadEditorImage();
+    updateUndoRedoButtons();
+  }
+
+  function updateUndoRedoButtons() {
+    const undoBtn = document.getElementById('fbDrawUndo');
+    const redoBtn = document.getElementById('fbDrawRedo');
+    undoBtn.disabled = editor.undoStack.length === 0;
+    undoBtn.style.opacity = editor.undoStack.length === 0 ? '0.3' : '1';
+    redoBtn.disabled = editor.redoStack.length === 0;
+    redoBtn.style.opacity = editor.redoStack.length === 0 ? '0.3' : '1';
   }
 
   function mergeForExport(originalSrc, drawingSrc) {
