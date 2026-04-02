@@ -295,6 +295,9 @@
   user-select: none;
   -webkit-user-drag: none;
 }
+.fb-preview-canvas-wrap {
+  transition: transform 0.1s ease-out;
+}
 .fb-preview-canvas-wrap canvas {
   position: absolute;
   top: 0;
