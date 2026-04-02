@@ -466,6 +466,10 @@
       goScanStep(2);
     }
     function selectAction(action) {
+      // Warn if clocking out during break
+      if (action === 'Clock Out' && currentState === 'stateOnBreak') {
+        if (!confirm('You are currently on break.\n\nClock Out will automatically end your break.\nAre you sure?')) return;
+      }
       selectedAction = action;
       document.getElementById('confirmAction').textContent = action;
       const status = document.getElementById('confirmStatus');
