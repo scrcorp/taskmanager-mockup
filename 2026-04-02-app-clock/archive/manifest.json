@@ -4,5 +4,11 @@
     "date": "2026-04-02",
     "message": "Initial version - 5 states clock UI",
     "entry": "index.html"
+  },
+  {
+    "hash": "5b58633",
+    "date": "2026-04-02T17:21",
+    "message": "Time Clock redesign - 6 states, QR flow, contextual buttons",
+    "entry": "index.html"
   }
 ]
