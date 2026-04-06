@@ -103,6 +103,20 @@ button { font-family: var(--font-sans); }
   font-size: 13px;
 }
 
+.guide-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.guide-bar-title {
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .guide-bar .page-tabs {
   display: flex;
   align-items: center;
@@ -268,10 +282,7 @@ button { font-family: var(--font-sans); }
 .nav-children {
   margin-left: 24px;
   margin-top: 2px;
-  display: none;
 }
-
-.nav-group.open .nav-children { display: block; }
 
 .nav-child {
   display: flex;
