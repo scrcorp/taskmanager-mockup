@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TaskManager Admin — Schedule Redesign</title>
+  <title>TaskManager Admin — Schedule</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles/main.css">
@@ -11,6 +11,97 @@
     /* ============================================
        SCHEDULE-SPECIFIC STYLES
        ============================================ */
+
+    /* View Toggle (Weekly/Daily) */
+    .view-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 3px;
+      background: var(--color-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--color-border);
+    }
+    .view-toggle-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: var(--font-sans);
+      color: var(--color-text-secondary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .view-toggle-btn:hover {
+      color: var(--color-text);
+      background: var(--color-surface-hover);
+    }
+    .view-toggle-btn.active {
+      background: var(--color-accent);
+      color: #FFFFFF;
+      font-weight: 600;
+    }
+
+    /* Role Switcher (guide bar) */
+    .role-switcher {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      border: none;
+      font-family: var(--font-sans);
+      transition: all 0.15s;
+      position: relative;
+    }
+    .role-switcher:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #FFFFFF;
+    }
+    .role-switcher .role-label {
+      font-weight: 600;
+      color: #FFFFFF;
+    }
+    .role-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      min-width: 140px;
+      padding: 4px;
+      display: none;
+      z-index: 110;
+    }
+    .role-dropdown.open { display: block; }
+    .role-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--color-text);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font-sans);
+      transition: background 0.1s;
+    }
+    .role-dropdown-item:hover { background: var(--color-surface-hover); }
+    .role-dropdown-item.active { color: var(--color-accent); font-weight: 600; }
 
     /* Week Navigator */
     .week-nav {
@@ -34,6 +125,43 @@
     .week-nav-btn:hover {
       background: var(--color-surface-hover);
       color: var(--color-text);
+    }
+
+    /* Summary Bar (top dashboard) */
+    .summary-bar {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .summary-bar .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .summary-bar .summary-item strong {
+      color: var(--color-text);
+      font-weight: 700;
+    }
+    .summary-bar .summary-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--color-border);
+    }
+    .summary-gm-only {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding-left: 12px;
+      border-left: 2px solid var(--color-warning-muted);
+      margin-left: 4px;
     }
 
     /* Filter Bar */
@@ -111,10 +239,19 @@
       margin-left: auto;
     }
 
+    /* Store Hours Label */
+    .store-hours-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
     /* Team Size Summary */
     .team-size-row {
       display: grid;
-      grid-template-columns: 200px repeat(7, 1fr) 80px;
+      grid-template-columns: 200px repeat(7, 1fr) 100px;
       gap: 0;
       margin-bottom: 2px;
       padding: 8px 0;
@@ -152,12 +289,12 @@
     }
     .schedule-grid-header {
       display: grid;
-      grid-template-columns: 200px repeat(7, 1fr) 80px;
+      grid-template-columns: 200px repeat(7, 1fr) 100px;
       background: var(--color-bg);
       border-bottom: 1px solid var(--color-border);
     }
     .schedule-grid-header .col-header {
-      padding: 12px 8px;
+      padding: 10px 8px;
       font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
@@ -206,24 +343,16 @@
     }
     .col-header.day-sat .day-name { color: var(--color-accent); }
     .col-header.day-sun .day-name { color: var(--color-danger); }
-    .col-header .sort-icon {
+    .col-header .day-cost {
       font-size: 10px;
-      opacity: 0.3;
-      transition: opacity 0.15s;
-    }
-    .col-header:hover .sort-icon { opacity: 0.6; }
-    .col-header.sorted .sort-icon {
-      opacity: 1;
-      color: var(--color-accent);
-    }
-    .col-header.sorted {
-      background: rgba(108, 92, 231, 0.06);
+      font-weight: 600;
+      color: var(--color-success);
     }
 
     /* Schedule Rows */
     .schedule-row {
       display: grid;
-      grid-template-columns: 200px repeat(7, 1fr) 80px;
+      grid-template-columns: 200px repeat(7, 1fr) 100px;
       border-bottom: 1px solid var(--color-border);
       transition: background 0.1s;
     }
@@ -251,6 +380,11 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .staff-cell .staff-role-rate {
+      font-size: 10px;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
     .staff-cell .role-badge {
       display: inline-flex;
       align-items: center;
@@ -275,7 +409,7 @@
       justify-content: center;
       border-right: 1px solid rgba(226, 228, 234, 0.5);
       position: relative;
-      min-height: 64px;
+      min-height: 72px;
     }
     .day-cell:hover .empty-add {
       opacity: 1;
@@ -332,86 +466,115 @@
       right: 4px;
       font-size: 9px;
     }
+    .schedule-block .block-cost {
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 2px;
+      opacity: 0.8;
+    }
 
     /* Work Hour Alert Colors */
-    .wh-green {
+    .wh-normal {
       border-left-color: var(--color-success);
-      background: rgba(0, 184, 148, 0.08);
+    }
+    .wh-caution {
+      border-left-color: var(--color-warning);
+    }
+    .wh-overtime {
+      border-left-color: var(--color-danger);
+    }
+
+    /* Status: Approved — solid colored bg + checkmark */
+    .status-approved.wh-normal {
+      background: rgba(0, 184, 148, 0.1);
       color: #065F46;
     }
-    .wh-orange {
-      border-left-color: var(--color-warning);
-      background: rgba(240, 165, 0, 0.08);
+    .status-approved.wh-caution {
+      background: rgba(240, 165, 0, 0.1);
       color: #78350F;
     }
-    .wh-red {
-      border-left-color: var(--color-danger);
-      background: rgba(239, 68, 68, 0.08);
+    .status-approved.wh-overtime {
+      background: rgba(239, 68, 68, 0.1);
       color: #991B1B;
     }
 
-    /* Schedule Status */
-    .status-approved {
-      /* solid — default */
-    }
+    /* Status: Pending — striped/hatched pattern + amber border + clock icon */
     .status-pending {
-      border-style: dashed;
-      border-width: 1.5px;
-      border-left-width: 3px;
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 4px,
-        rgba(0, 0, 0, 0.02) 4px,
-        rgba(0, 0, 0, 0.02) 8px
-      );
+      border: 2px solid var(--color-warning) !important;
+      border-left-width: 3px !important;
+      position: relative;
     }
+    .status-pending.wh-normal {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(0, 184, 148, 0.1),
+        rgba(0, 184, 148, 0.1) 4px,
+        rgba(0, 184, 148, 0.02) 4px,
+        rgba(0, 184, 148, 0.02) 8px
+      );
+      color: #065F46;
+    }
+    .status-pending.wh-caution {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(240, 165, 0, 0.12),
+        rgba(240, 165, 0, 0.12) 4px,
+        rgba(240, 165, 0, 0.03) 4px,
+        rgba(240, 165, 0, 0.03) 8px
+      );
+      color: #78350F;
+    }
+    .status-pending.wh-overtime {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(239, 68, 68, 0.12),
+        rgba(239, 68, 68, 0.12) 4px,
+        rgba(239, 68, 68, 0.03) 4px,
+        rgba(239, 68, 68, 0.03) 8px
+      );
+      color: #991B1B;
+    }
+    .pending-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-warning);
+      margin-top: 2px;
+    }
+
+    /* Status: Draft — ghost/very faint */
     .status-draft {
-      opacity: 0.55;
-      border-left-style: dotted;
+      background: rgba(148, 163, 184, 0.06) !important;
+      border: 1px dashed var(--color-border) !important;
+      border-left-width: 3px !important;
+      color: var(--color-text-muted) !important;
+      opacity: 0.6;
     }
 
     /* Weekly Total Column */
     .total-cell {
-      padding: 12px 8px;
+      padding: 10px 8px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       font-weight: 700;
       font-size: 13px;
       font-variant-numeric: tabular-nums;
+      gap: 2px;
+    }
+    .total-cell .total-cost {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.8;
     }
     .total-green { color: var(--color-success); }
     .total-orange { color: var(--color-warning); }
     .total-red { color: var(--color-danger); }
-
-    /* Bottom Summary */
-    .summary-bar {
-      background: var(--color-card);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      font-size: 13px;
-      color: var(--color-text-secondary);
-      margin-bottom: 24px;
-    }
-    .summary-bar .summary-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .summary-bar .summary-item strong {
-      color: var(--color-text);
-      font-weight: 700;
-    }
-    .summary-bar .summary-divider {
-      width: 1px;
-      height: 20px;
-      background: var(--color-border);
-    }
 
     /* Context Menu */
     .context-menu {
@@ -573,155 +736,177 @@
     /* ============================================
        DAILY VIEW STYLES
        ============================================ */
-    .daily-view-container {
-      display: flex;
-      gap: 20px;
-    }
-    .daily-timeline-area {
-      flex: 1;
-      min-width: 0;
-    }
-    .daily-right-panel {
-      width: 260px;
-      flex-shrink: 0;
-    }
-
-    .timeline-grid {
+    .daily-table-wrapper {
       background: var(--color-card);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
       overflow: hidden;
-      position: relative;
+      margin-bottom: 16px;
     }
-    .timeline-row {
-      display: flex;
-      border-bottom: 1px solid rgba(226, 228, 234, 0.5);
-      min-height: 52px;
-      position: relative;
+    .daily-table {
+      width: 100%;
+      border-collapse: collapse;
     }
-    .timeline-row:last-child { border-bottom: none; }
-    .timeline-label {
-      width: 70px;
-      flex-shrink: 0;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--color-text-muted);
-      border-right: 1px solid var(--color-border);
-      display: flex;
-      align-items: flex-start;
-      font-variant-numeric: tabular-nums;
+    .daily-table thead tr {
+      background: var(--color-bg);
     }
-    .timeline-content {
-      flex: 1;
-      position: relative;
-      min-height: 52px;
-    }
-    .timeline-block {
-      position: absolute;
-      top: 4px;
-      bottom: 4px;
-      border-radius: var(--radius-sm);
-      padding: 6px 10px;
+    .daily-table th {
+      padding: 10px 16px;
       font-size: 11px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 1px;
-      cursor: pointer;
-      border-left: 3px solid transparent;
-      transition: all 0.15s;
-      z-index: 1;
-      overflow: hidden;
-    }
-    .timeline-block:hover {
-      box-shadow: var(--shadow-md);
-      z-index: 2;
-    }
-    .timeline-block .tb-name {
-      font-weight: 700;
-      font-size: 12px;
-    }
-    .timeline-block .tb-info {
-      font-size: 10px;
-      opacity: 0.8;
-      font-weight: 500;
-    }
-    .timeline-block .tb-badge {
-      position: absolute;
-      top: 4px;
-      right: 6px;
-      font-size: 9px;
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      text-align: left;
+      white-space: nowrap;
+      border-bottom: 1px solid var(--color-border);
     }
-
-    /* Headcount Chart */
-    .headcount-card {
-      background: var(--color-card);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: 16px;
-    }
-    .headcount-card h4 {
+    .daily-table td {
+      padding: 14px 16px;
       font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 12px;
       color: var(--color-text);
+      vertical-align: middle;
+      border-top: 1px solid var(--color-border);
     }
-    .headcount-row {
+    .daily-table tbody tr:first-child td { border-top: none; }
+    .daily-table tbody tr { transition: background 0.1s; }
+    .daily-table tbody tr:hover { background: var(--color-surface-hover); }
+
+    /* Mini timeline bar */
+    .mini-timeline {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-      font-size: 12px;
-      color: var(--color-text-secondary);
-    }
-    .headcount-row .hc-label {
-      width: 48px;
-      font-weight: 600;
-      font-variant-numeric: tabular-nums;
-      text-align: right;
-      flex-shrink: 0;
-    }
-    .headcount-row .hc-bar-wrap {
-      flex: 1;
-      height: 18px;
+      height: 20px;
       background: var(--color-bg);
       border-radius: var(--radius-sm);
       overflow: hidden;
+      position: relative;
+      min-width: 200px;
     }
-    .headcount-row .hc-bar {
-      height: 100%;
-      background: var(--color-accent);
-      border-radius: var(--radius-sm);
-      transition: width 0.3s ease;
+    .mini-timeline-bar {
+      position: absolute;
+      top: 2px;
+      bottom: 2px;
+      border-radius: 3px;
+      transition: all 0.2s;
+    }
+    .mini-timeline-bar.approved { background: var(--color-accent); opacity: 0.7; }
+    .mini-timeline-bar.pending {
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--color-warning),
+        var(--color-warning) 3px,
+        rgba(240, 165, 0, 0.4) 3px,
+        rgba(240, 165, 0, 0.4) 6px
+      );
       opacity: 0.7;
     }
-    .headcount-row .hc-num {
-      width: 20px;
+    .mini-timeline-bar.draft { background: var(--color-text-muted); opacity: 0.2; }
+
+    /* Team Size by Hour (daily) */
+    .team-size-hourly {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+    }
+    .team-size-hourly-title {
+      font-size: 12px;
       font-weight: 700;
-      color: var(--color-text);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+    .hourly-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 60px;
+    }
+    .hourly-bar-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+    .hourly-bar {
+      width: 100%;
+      border-radius: 3px 3px 0 0;
+      background: var(--color-accent);
+      opacity: 0.6;
+      min-height: 4px;
+      transition: height 0.3s ease;
+    }
+    .hourly-bar-num {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
       font-variant-numeric: tabular-nums;
     }
+    .hourly-labels {
+      display: flex;
+      gap: 3px;
+      margin-top: 4px;
+    }
+    .hourly-label {
+      flex: 1;
+      text-align: center;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Daily status badge */
+    .status-badge-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .status-badge-sm.approved { background: var(--color-success-muted); color: var(--color-success); }
+    .status-badge-sm.pending { background: var(--color-warning-muted); color: var(--color-warning); }
+    .status-badge-sm.draft { background: var(--color-bg); color: var(--color-text-muted); }
 
     /* View sections */
     .view-section { display: none; }
     .view-section.active { display: block; }
+
+    /* GM-only content visibility */
+    body.role-sv .gm-only { display: none !important; }
   </style>
 </head>
-<body>
+<body class="role-gm">
 
 <!-- GUIDE BAR -->
 <div class="guide-bar">
   <div class="guide-bar-inner">
-    <span class="guide-bar-title">Schedule — Redesign</span>
+    <span class="guide-bar-title">Schedule</span>
     <div class="page-tabs">
-      <button class="page-tab active" id="tab-weekly" onclick="switchView('weekly')">Weekly View</button>
-      <button class="page-tab" id="tab-daily" onclick="switchView('daily')">Daily View</button>
+      <button class="page-tab active">Schedule</button>
       <a class="page-tab" href="schedule-settings.html">Settings</a>
     </div>
-    <span class="hint">Try: Click day headers, sort columns, filter staff</span>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
+      <div style="position:relative;">
+        <button class="role-switcher" onclick="toggleRoleDropdown(event)">
+          Viewing as: <span class="role-label" id="role-label-display">GM</span> &#9662;
+        </button>
+        <div class="role-dropdown" id="role-dropdown">
+          <button class="role-dropdown-item active" id="role-opt-gm" onclick="switchRole('gm')">&#128188; GM (General Manager)</button>
+          <button class="role-dropdown-item" id="role-opt-sv" onclick="switchRole('sv')">&#128101; SV (Supervisor)</button>
+        </div>
+      </div>
+      <span class="hint">Try: Click day headers, toggle Weekly/Daily, switch GM/SV role</span>
+    </div>
   </div>
 </div>
 
@@ -742,17 +927,17 @@
 
   <nav class="sidebar-nav">
     <div class="sidebar-section-label">MAIN</div>
-    <a class="nav-item" href="index.html">
+    <a class="nav-item">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="7" height="7" rx="1"/><rect x="11" y="2" width="7" height="7" rx="1"/><rect x="2" y="11" width="7" height="7" rx="1"/><rect x="11" y="11" width="7" height="7" rx="1"/></svg>
       Dashboard
     </a>
 
     <div class="sidebar-section-label">OPERATIONS</div>
-    <a class="nav-item" href="index.html">
+    <a class="nav-item">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10V17H17V10"/><path d="M1 5L3 2H17L19 5"/><line x1="1" y1="5" x2="19" y2="5"/><path d="M7 17V12H13V17"/></svg>
       Stores
     </a>
-    <a class="nav-item" href="index.html">
+    <a class="nav-item">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16v-1a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v1"/><circle cx="9" cy="7" r="3"/><path d="M17 16v-1a3 3 0 0 0-2-2.83"/><path d="M13 4.17a3 3 0 0 1 0 5.66"/></svg>
       Staff
     </a>
@@ -765,7 +950,6 @@
       </a>
       <div class="nav-children" id="sub-schedules">
         <a class="nav-child active" href="schedule.html">Calendar</a>
-        <a class="nav-child" href="index.html">List View</a>
         <a class="nav-child" href="schedule-settings.html">Settings</a>
       </div>
     </div>
@@ -833,11 +1017,15 @@
         </div>
       </div>
       <div class="page-header-right">
+        <div class="view-toggle">
+          <button class="view-toggle-btn active" id="toggle-weekly" onclick="switchView('weekly')">Weekly</button>
+          <button class="view-toggle-btn" id="toggle-daily" onclick="switchView('daily')">Daily</button>
+        </div>
         <div class="week-nav">
           <button class="week-nav-btn" title="Previous week">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 12 6 8 10 4"/></svg>
           </button>
-          <span style="font-size:13px;font-weight:600;color:var(--color-text);min-width:80px;text-align:center;">Mar 30 - Apr 5</span>
+          <span style="font-size:13px;font-weight:600;color:var(--color-text);min-width:100px;text-align:center;">Mar 30 &ndash; Apr 5</span>
           <button class="week-nav-btn" title="Next week">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 10 8 6 12"/></svg>
           </button>
@@ -846,6 +1034,24 @@
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
           Add Schedule
         </button>
+      </div>
+    </div>
+
+    <!-- Summary Bar (TOP) -->
+    <div class="summary-bar">
+      <div class="summary-item">Staff: <strong>6</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Scheduled: <strong>5</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Unscheduled: <strong>1</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Pending: <strong style="color:var(--color-warning);">3</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Avg Hours: <strong>23h</strong></div>
+      <div class="summary-gm-only gm-only">
+        <div class="summary-item">Daily Labor: <strong style="color:var(--color-success);">$1,850</strong></div>
+        <div class="summary-divider"></div>
+        <div class="summary-item">Weekly Labor: <strong style="color:var(--color-success);">$8,425</strong></div>
       </div>
     </div>
 
@@ -877,6 +1083,11 @@
       </button>
     </div>
 
+    <!-- Store Hours -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 4px;">
+      <span class="store-hours-label">Store hours: 6:00 AM &ndash; 10:00 PM</span>
+    </div>
+
     <!-- Team Size Summary -->
     <div class="team-size-row">
       <div class="team-label">Team Size</div>
@@ -897,61 +1108,62 @@
         <div class="col-header" style="cursor:default;">
           <span class="day-name">Employee</span>
         </div>
-        <div class="col-header" onclick="switchView('daily')">
+        <div class="col-header" onclick="switchDay('2026-03-30')">
           <span class="day-name">Mon</span>
           <span class="day-date">3/30</span>
-          <span class="sort-icon">&#8645;</span>
+          <span class="day-cost gm-only">$450</span>
         </div>
-        <div class="col-header" onclick="switchView('daily')">
+        <div class="col-header" onclick="switchDay('2026-03-31')">
           <span class="day-name">Tue</span>
           <span class="day-date">3/31</span>
-          <span class="sort-icon">&#8645;</span>
+          <span class="day-cost gm-only">$375</span>
         </div>
-        <div class="col-header" onclick="switchView('daily')">
+        <div class="col-header" onclick="switchDay('2026-04-01')">
           <span class="day-name">Wed</span>
           <span class="day-date">4/1</span>
-          <span class="sort-icon">&#8645;</span>
+          <span class="day-cost gm-only">$525</span>
         </div>
-        <div class="col-header sorted" onclick="toggleSort(this)">
+        <div class="col-header" onclick="switchDay('2026-04-02')">
           <span class="day-name">Thu</span>
           <span class="day-date">4/2</span>
-          <span class="sort-icon">&#9650;</span>
+          <span class="day-cost gm-only">$400</span>
         </div>
-        <div class="col-header" onclick="switchView('daily')">
+        <div class="col-header" onclick="switchDay('2026-04-03')">
           <span class="day-name">Fri</span>
           <span class="day-date">4/3</span>
-          <span class="sort-icon">&#8645;</span>
+          <span class="day-cost gm-only">$475</span>
         </div>
-        <div class="col-header day-sat" onclick="switchView('daily')">
+        <div class="col-header day-sat" onclick="switchDay('2026-04-04')">
           <span class="day-name">Sat</span>
           <span class="day-date">4/4</span>
-          <span class="sort-icon">&#8645;</span>
+          <span class="day-cost gm-only">$325</span>
         </div>
-        <div class="col-header day-sun" onclick="switchView('daily')">
+        <div class="col-header day-sun" onclick="switchDay('2026-04-05')">
           <span class="day-name">Sun</span>
           <span class="day-date">4/5</span>
-          <span class="sort-icon">&#8645;</span>
+          <span class="day-cost gm-only">$125</span>
         </div>
         <div class="col-header" style="cursor:default;">
           <span class="day-name">Total</span>
         </div>
       </div>
 
-      <!-- Row 1: Sarah Kim (GM) — has context menu demo -->
+      <!-- Row 1: Sarah Kim (GM) $25/hr -->
       <div class="schedule-row">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:#FEF3C7;color:#92400E;">SK</div>
           <div class="staff-info">
             <span class="staff-name">Sarah Kim</span>
-            <span class="role-badge gm">GM</span>
+            <span class="staff-role-rate"><span class="role-badge gm">GM</span> <span class="gm-only">&middot; $25/hr</span></span>
           </div>
         </div>
-        <!-- Mon: 08-17 Morning, 9h = red, Approved — with context menu -->
+        <!-- Mon: 08-17 Morning, 9h, Approved — with context menu -->
         <div class="day-cell" style="position:relative;">
-          <div class="schedule-block wh-red status-approved" id="block-sarah-mon" onclick="toggleContextMenu(event)">
+          <div class="schedule-block wh-overtime status-approved" id="block-sarah-mon" onclick="toggleContextMenu(event)">
             <span class="block-time">08-17</span>
             <span class="block-shift">Morning</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$225</span>
           </div>
           <!-- Context Menu (visible for demo) -->
           <div class="context-menu open" id="ctx-menu" style="top:auto;bottom:-4px;left:6px;transform:translateY(100%);">
@@ -975,20 +1187,22 @@
         </div>
         <!-- Tue: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Wed: 08-17 9h red -->
+        <!-- Wed: 08-17 9h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-red status-approved">
+          <div class="schedule-block wh-overtime status-approved">
             <span class="block-time">08-17</span>
             <span class="block-shift">Day</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$225</span>
           </div>
         </div>
-        <!-- Thu: 08-17 9h red, Approved — shown first because sorted -->
+        <!-- Thu: 08-17 9h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-red status-approved">
+          <div class="schedule-block wh-overtime status-approved">
             <span class="block-time">08-17</span>
             <span class="block-shift">Day</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$225</span>
           </div>
         </div>
         <!-- Fri: empty -->
@@ -997,211 +1211,241 @@
         <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Sun: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Total: 27h, green ≤30 -->
-        <div class="total-cell total-green">27h</div>
+        <!-- Total -->
+        <div class="total-cell total-green">
+          <span>27h</span>
+          <span class="total-cost gm-only">$675</span>
+        </div>
       </div>
 
-      <!-- Row 2: Mike Lee (SV) -->
+      <!-- Row 2: Mike Lee (SV) $20/hr -->
       <div class="schedule-row">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:#E0E7FF;color:#3730A3;">ML</div>
           <div class="staff-info">
             <span class="staff-name">Mike Lee</span>
-            <span class="role-badge sv">SV</span>
+            <span class="staff-role-rate"><span class="role-badge sv">SV</span> <span class="gm-only">&middot; $20/hr</span></span>
           </div>
         </div>
-        <!-- Mon: 13-22 Afternoon, 9h red -->
+        <!-- Mon: 13-22 Afternoon, 9h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-red status-approved">
+          <div class="schedule-block wh-overtime status-approved">
             <span class="block-time">13-22</span>
             <span class="block-shift">Afternoon</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$180</span>
           </div>
         </div>
-        <!-- Tue: 08-17 9h red, Pending -->
+        <!-- Tue: 08-17 9h PENDING -->
         <div class="day-cell">
-          <div class="schedule-block wh-red status-pending">
+          <div class="schedule-block wh-overtime status-pending">
             <span class="block-time">08-17</span>
             <span class="block-shift">Day</span>
-            <span class="block-status" style="color:var(--color-warning);">&#9679;</span>
+            <span class="pending-label">&#9200; PENDING</span>
+            <span class="block-cost gm-only">$180</span>
           </div>
         </div>
         <!-- Wed: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Thu: empty — sorted: empty goes last -->
+        <!-- Thu: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Fri: 08-17 9h red -->
+        <!-- Fri: 08-17 9h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-red status-approved">
+          <div class="schedule-block wh-overtime status-approved">
             <span class="block-time">08-17</span>
             <span class="block-shift">Day</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$180</span>
           </div>
         </div>
         <!-- Sat: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Sun: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <div class="total-cell total-green">27h</div>
+        <div class="total-cell total-green">
+          <span>27h</span>
+          <span class="total-cost gm-only">$540</span>
+        </div>
       </div>
 
-      <!-- Row 3: James Park (Staff) -->
+      <!-- Row 3: James Park (Staff) $15/hr -->
       <div class="schedule-row">
         <div class="staff-cell">
           <div class="avatar avatar-sm">JP</div>
           <div class="staff-info">
             <span class="staff-name">James Park</span>
-            <span class="role-badge staff">Staff</span>
+            <span class="staff-role-rate"><span class="role-badge staff">Staff</span> <span class="gm-only">&middot; $15/hr</span></span>
           </div>
         </div>
         <!-- Mon: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Tue: 08-13 5h green -->
+        <!-- Tue: 08-13 5h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-green status-approved">
+          <div class="schedule-block wh-normal status-approved">
             <span class="block-time">08-13</span>
             <span class="block-shift">Day</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$75</span>
           </div>
         </div>
-        <!-- Wed: 06-14 Open, 8h red -->
+        <!-- Wed: 06-14 Open, 8h PENDING -->
         <div class="day-cell">
-          <div class="schedule-block wh-red status-pending">
+          <div class="schedule-block wh-overtime status-pending">
             <span class="block-time">06-14</span>
             <span class="block-shift">Open</span>
-            <span class="block-status" style="color:var(--color-warning);">&#9679;</span>
+            <span class="pending-label">&#9200; PENDING</span>
+            <span class="block-cost gm-only">$120</span>
           </div>
         </div>
         <!-- Thu: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Fri: 13-22 9h red -->
+        <!-- Fri: 13-22 9h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-red status-approved">
+          <div class="schedule-block wh-overtime status-approved">
             <span class="block-time">13-22</span>
             <span class="block-shift">Afternoon</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$135</span>
           </div>
         </div>
-        <!-- Sat: 06-16 10h red -->
+        <!-- Sat: 06-16 10h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-red status-approved">
+          <div class="schedule-block wh-overtime status-approved">
             <span class="block-time">06-16</span>
             <span class="block-shift">Open</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$150</span>
           </div>
         </div>
         <!-- Sun: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <div class="total-cell total-orange">32h</div>
+        <div class="total-cell total-orange">
+          <span>32h</span>
+          <span class="total-cost gm-only">$480</span>
+        </div>
       </div>
 
-      <!-- Row 4: Emily Chen (Staff) -->
+      <!-- Row 4: Emily Chen (Staff) $15/hr -->
       <div class="schedule-row">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:#DCFCE7;color:#166534;">EC</div>
           <div class="staff-info">
             <span class="staff-name">Emily Chen</span>
-            <span class="role-badge staff">Staff</span>
+            <span class="staff-role-rate"><span class="role-badge staff">Staff</span> <span class="gm-only">&middot; $15/hr</span></span>
           </div>
         </div>
-        <!-- Mon: 06-11 5h green -->
+        <!-- Mon: 06-11 5h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-green status-approved">
+          <div class="schedule-block wh-normal status-approved">
             <span class="block-time">06-11</span>
             <span class="block-shift">Open</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$75</span>
           </div>
         </div>
         <!-- Tue: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Wed: 10-15 5h green -->
+        <!-- Wed: 10-15 5h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-green status-approved">
+          <div class="schedule-block wh-normal status-approved">
             <span class="block-time">10-15</span>
             <span class="block-shift">Day</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$75</span>
           </div>
         </div>
-        <!-- Thu: 06-11 5h green, Approved -->
+        <!-- Thu: 06-11 5h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-green status-approved">
+          <div class="schedule-block wh-normal status-approved">
             <span class="block-time">06-11</span>
             <span class="block-shift">Open</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$75</span>
           </div>
         </div>
         <!-- Fri: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Sat: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Sun: 08-13 5h green -->
+        <!-- Sun: 08-13 5h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-green status-approved">
+          <div class="schedule-block wh-normal status-approved">
             <span class="block-time">08-13</span>
             <span class="block-shift">Morning</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$75</span>
           </div>
         </div>
-        <div class="total-cell total-green">20h</div>
+        <div class="total-cell total-green">
+          <span>20h</span>
+          <span class="total-cost gm-only">$300</span>
+        </div>
       </div>
 
-      <!-- Row 5: Chris Han (Staff) -->
+      <!-- Row 5: Chris Han (Staff) $14/hr -->
       <div class="schedule-row">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:#FEE2E2;color:#991B1B;">CH</div>
           <div class="staff-info">
             <span class="staff-name">Chris Han</span>
-            <span class="role-badge staff">Staff</span>
+            <span class="staff-role-rate"><span class="role-badge staff">Staff</span> <span class="gm-only">&middot; $14/hr</span></span>
           </div>
         </div>
         <!-- Mon: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Tue: 14-19 5h green -->
+        <!-- Tue: 14-19 5h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-green status-approved">
+          <div class="schedule-block wh-normal status-approved">
             <span class="block-time">14-19</span>
             <span class="block-shift">Afternoon</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$70</span>
           </div>
         </div>
         <!-- Wed: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Thu: 16-22 Close, 6h orange, Pending -->
+        <!-- Thu: 16-22 Close, 6h PENDING -->
         <div class="day-cell">
-          <div class="schedule-block wh-orange status-pending">
+          <div class="schedule-block wh-caution status-pending">
             <span class="block-time">16-22</span>
             <span class="block-shift">Close</span>
-            <span class="block-status" style="color:var(--color-warning);">&#9679;</span>
+            <span class="pending-label">&#9200; PENDING</span>
+            <span class="block-cost gm-only">$84</span>
           </div>
         </div>
-        <!-- Fri: 14-19 5h green -->
+        <!-- Fri: 14-19 5h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-green status-approved">
+          <div class="schedule-block wh-normal status-approved">
             <span class="block-time">14-19</span>
             <span class="block-shift">Afternoon</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$70</span>
           </div>
         </div>
-        <!-- Sat: 15-22 7h orange -->
+        <!-- Sat: 15-22 7h Approved -->
         <div class="day-cell">
-          <div class="schedule-block wh-orange status-approved">
+          <div class="schedule-block wh-caution status-approved">
             <span class="block-time">15-22</span>
             <span class="block-shift">Close</span>
             <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$98</span>
           </div>
         </div>
         <!-- Sun: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <div class="total-cell total-green">23h</div>
+        <div class="total-cell total-green">
+          <span>23h</span>
+          <span class="total-cost gm-only">$322</span>
+        </div>
       </div>
 
-      <!-- Row 6: Alex Yun (Staff) -->
+      <!-- Row 6: Alex Yun (Staff) $14/hr -->
       <div class="schedule-row">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:var(--color-bg);color:var(--color-text-muted);">AY</div>
           <div class="staff-info">
             <span class="staff-name">Alex Yun</span>
-            <span class="role-badge staff">Staff</span>
+            <span class="staff-role-rate"><span class="role-badge staff">Staff</span> <span class="gm-only">&middot; $14/hr</span></span>
           </div>
         </div>
         <!-- Mon-Sat: all empty -->
@@ -1211,29 +1455,18 @@
         <div class="day-cell"><button class="empty-add">+</button></div>
         <div class="day-cell"><button class="empty-add">+</button></div>
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Sun: 08-17 9h red, draft -->
+        <!-- Sun: 08-17 9h draft -->
         <div class="day-cell">
-          <div class="schedule-block wh-red status-draft">
+          <div class="schedule-block wh-overtime status-draft">
             <span class="block-time">08-17</span>
             <span class="block-shift">Day</span>
-            <span class="block-status" style="color:var(--color-text-muted);">&#9998;</span>
           </div>
         </div>
-        <div class="total-cell total-green">9h</div>
+        <div class="total-cell total-green">
+          <span>9h</span>
+          <span class="total-cost gm-only">$126</span>
+        </div>
       </div>
-    </div>
-
-    <!-- Bottom Summary -->
-    <div class="summary-bar">
-      <div class="summary-item">Total Staff: <strong>6</strong></div>
-      <div class="summary-divider"></div>
-      <div class="summary-item">Scheduled: <strong>5</strong></div>
-      <div class="summary-divider"></div>
-      <div class="summary-item">Unscheduled: <strong>1</strong></div>
-      <div class="summary-divider"></div>
-      <div class="summary-item">Pending Approval: <strong style="color:var(--color-warning);">3</strong></div>
-      <div class="summary-divider"></div>
-      <div class="summary-item">Weekly Avg: <strong>23h</strong></div>
     </div>
 
   </div><!-- /view-weekly -->
@@ -1245,21 +1478,21 @@
     <!-- Header -->
     <div class="page-header">
       <div class="page-header-left">
-        <button class="page-back" onclick="switchView('weekly')">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 12 6 8 10 4"/></svg>
-          Back to Week
-        </button>
         <div>
-          <div class="page-title">Wednesday, April 1, 2026</div>
-          <div class="page-subtitle">Main Street &mdash; Daily View</div>
+          <div class="page-title">Schedules</div>
+          <div class="page-subtitle" id="daily-subtitle">Main Street &mdash; Wednesday, April 1, 2026</div>
         </div>
       </div>
       <div class="page-header-right">
+        <div class="view-toggle">
+          <button class="view-toggle-btn" id="toggle-weekly-d" onclick="switchView('weekly')">Weekly</button>
+          <button class="view-toggle-btn active" id="toggle-daily-d" onclick="switchView('daily')">Daily</button>
+        </div>
         <div class="week-nav">
           <button class="week-nav-btn" title="Previous day">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 12 6 8 10 4"/></svg>
           </button>
-          <span style="font-size:13px;font-weight:600;color:var(--color-text);min-width:60px;text-align:center;">Apr 1</span>
+          <span style="font-size:13px;font-weight:600;color:var(--color-text);min-width:60px;text-align:center;" id="daily-nav-label">Apr 1</span>
           <button class="week-nav-btn" title="Next day">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 10 8 6 12"/></svg>
           </button>
@@ -1271,229 +1504,179 @@
       </div>
     </div>
 
-    <div class="daily-view-container">
-      <!-- Timeline -->
-      <div class="daily-timeline-area">
-        <div class="timeline-grid">
-          <!-- 06:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">06:00</div>
-            <div class="timeline-content">
-              <!-- Emily Chen 06-11 (5h, green) - spans 5 rows -->
-              <div class="timeline-block wh-green status-approved" style="left:0;width:28%;height:calc(52px * 5 - 8px);">
-                <span class="tb-name">Emily Chen</span>
-                <span class="tb-info">06:00-11:00 &middot; Open &middot; 5h</span>
-                <span class="tb-badge">&#10003;</span>
-              </div>
-              <!-- James Park 06-14 (8h, red, pending) - spans 8 rows -->
-              <div class="timeline-block wh-red status-pending" style="left:30%;width:32%;height:calc(52px * 8 - 8px);">
-                <span class="tb-name">James Park</span>
-                <span class="tb-info">06:00-14:00 &middot; Open &middot; 8h</span>
-                <span class="tb-badge" style="color:var(--color-warning);">&#9679; Pending</span>
-              </div>
-            </div>
-          </div>
-          <!-- 07:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">07:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 08:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">08:00</div>
-            <div class="timeline-content">
-              <!-- Sarah Kim 08-17 (9h, red) - spans 9 rows -->
-              <div class="timeline-block wh-red status-approved" style="left:64%;width:34%;height:calc(52px * 9 - 8px);">
-                <span class="tb-name">Sarah Kim</span>
-                <span class="tb-info">08:00-17:00 &middot; Day &middot; 9h</span>
-                <span class="tb-badge">&#10003; GM</span>
-              </div>
-            </div>
-          </div>
-          <!-- 09:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">09:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 10:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">10:00</div>
-            <div class="timeline-content">
-              <!-- Emily's 10-15 block (this is Wed schedule from the table for Emily) -->
-              <!-- Actually Emily has 10-15 on Wed. Let me use a separate block approach -->
-            </div>
-          </div>
-          <!-- 11:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">11:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 12:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">12:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 13:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">13:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 14:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">14:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 15:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">15:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 16:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">16:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 17:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">17:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 18:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">18:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 19:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">19:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 20:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">20:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 21:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">21:00</div>
-            <div class="timeline-content"></div>
-          </div>
-          <!-- 22:00 -->
-          <div class="timeline-row">
-            <div class="timeline-label">22:00</div>
-            <div class="timeline-content"></div>
-          </div>
-        </div>
-
-        <!-- Daily Summary -->
-        <div class="summary-bar" style="margin-top:16px;">
-          <div class="summary-item">Staff on Duty: <strong>3</strong></div>
-          <div class="summary-divider"></div>
-          <div class="summary-item">Approved: <strong style="color:var(--color-success);">2</strong></div>
-          <div class="summary-divider"></div>
-          <div class="summary-item">Pending: <strong style="color:var(--color-warning);">1</strong></div>
-          <div class="summary-divider"></div>
-          <div class="summary-item">Peak Coverage: <strong>3 staff (08:00-11:00)</strong></div>
-        </div>
+    <!-- Daily Summary Bar (TOP) -->
+    <div class="summary-bar">
+      <div class="summary-item">Staff: <strong>4</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">On Shift: <strong>3</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Pending: <strong style="color:var(--color-warning);">1</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Total Hours: <strong>29h</strong></div>
+      <div class="summary-gm-only gm-only">
+        <div class="summary-item">Total Labor: <strong style="color:var(--color-success);">$625</strong></div>
       </div>
+    </div>
 
-      <!-- Right Panel: Headcount -->
-      <div class="daily-right-panel">
-        <div class="headcount-card">
-          <h4>Headcount by Hour</h4>
-          <div class="headcount-row">
-            <span class="hc-label">06-07</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
-            <span class="hc-num">2</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">07-08</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
-            <span class="hc-num">2</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">08-09</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:75%;"></div></div>
-            <span class="hc-num">3</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">09-10</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:75%;"></div></div>
-            <span class="hc-num">3</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">10-11</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:75%;"></div></div>
-            <span class="hc-num">3</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">11-12</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
-            <span class="hc-num">2</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">12-13</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
-            <span class="hc-num">2</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">13-14</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
-            <span class="hc-num">2</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">14-15</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:25%;"></div></div>
-            <span class="hc-num">1</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">15-16</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:25%;"></div></div>
-            <span class="hc-num">1</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">16-17</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:25%;"></div></div>
-            <span class="hc-num">1</span>
-          </div>
-          <div class="headcount-row">
-            <span class="hc-label">17-22</span>
-            <div class="hc-bar-wrap"><div class="hc-bar" style="width:0%;background:var(--color-border);"></div></div>
-            <span class="hc-num">0</span>
-          </div>
-        </div>
+    <!-- Store Hours -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 4px;">
+      <span class="store-hours-label">Store hours: 6:00 AM &ndash; 10:00 PM</span>
+    </div>
 
-        <!-- Day staff list -->
-        <div class="card" style="margin-top:12px;padding:16px;">
-          <h4 style="font-size:13px;font-weight:700;margin-bottom:12px;">Staff on Duty</h4>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div class="avatar avatar-sm" style="background:#DCFCE7;color:#166534;width:24px;height:24px;font-size:9px;">EC</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12px;font-weight:600;">Emily Chen</div>
-                <div style="font-size:10px;color:var(--color-text-muted);">10:00-15:00 &middot; 5h</div>
-              </div>
-              <span class="badge badge-success" style="font-size:10px;padding:2px 6px;">&#10003;</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div class="avatar avatar-sm" style="width:24px;height:24px;font-size:9px;">JP</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12px;font-weight:600;">James Park</div>
-                <div style="font-size:10px;color:var(--color-text-muted);">06:00-14:00 &middot; 8h</div>
-              </div>
-              <span class="badge badge-warning" style="font-size:10px;padding:2px 6px;">Pending</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div class="avatar avatar-sm" style="background:#FEF3C7;color:#92400E;width:24px;height:24px;font-size:9px;">SK</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12px;font-weight:600;">Sarah Kim</div>
-                <div style="font-size:10px;color:var(--color-text-muted);">08:00-17:00 &middot; 9h</div>
-              </div>
-              <span class="badge badge-success" style="font-size:10px;padding:2px 6px;">&#10003;</span>
-            </div>
-          </div>
-        </div>
+    <!-- Team Size by Hour Chart -->
+    <div class="team-size-hourly">
+      <div class="team-size-hourly-title">Team Size by Hour</div>
+      <div class="hourly-chart">
+        <div class="hourly-bar-col"><span class="hourly-bar-num">2</span><div class="hourly-bar" style="height:40%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">2</span><div class="hourly-bar" style="height:40%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">3</span><div class="hourly-bar" style="height:60%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">3</span><div class="hourly-bar" style="height:60%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">4</span><div class="hourly-bar" style="height:80%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">4</span><div class="hourly-bar" style="height:80%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">3</span><div class="hourly-bar" style="height:60%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">3</span><div class="hourly-bar" style="height:60%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">2</span><div class="hourly-bar" style="height:40%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">1</span><div class="hourly-bar" style="height:20%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">1</span><div class="hourly-bar" style="height:20%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">1</span><div class="hourly-bar" style="height:20%;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">0</span><div class="hourly-bar" style="height:4px;opacity:0.2;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">0</span><div class="hourly-bar" style="height:4px;opacity:0.2;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">0</span><div class="hourly-bar" style="height:4px;opacity:0.2;"></div></div>
+        <div class="hourly-bar-col"><span class="hourly-bar-num">0</span><div class="hourly-bar" style="height:4px;opacity:0.2;"></div></div>
       </div>
+      <div class="hourly-labels">
+        <span class="hourly-label">6A</span>
+        <span class="hourly-label">7</span>
+        <span class="hourly-label">8</span>
+        <span class="hourly-label">9</span>
+        <span class="hourly-label">10</span>
+        <span class="hourly-label">11</span>
+        <span class="hourly-label">12P</span>
+        <span class="hourly-label">1</span>
+        <span class="hourly-label">2</span>
+        <span class="hourly-label">3</span>
+        <span class="hourly-label">4</span>
+        <span class="hourly-label">5</span>
+        <span class="hourly-label">6</span>
+        <span class="hourly-label">7</span>
+        <span class="hourly-label">8</span>
+        <span class="hourly-label">9</span>
+      </div>
+    </div>
+
+    <!-- Staff Schedule Table -->
+    <div class="daily-table-wrapper">
+      <table class="daily-table">
+        <thead>
+          <tr>
+            <th style="width:180px;">Employee</th>
+            <th>Time</th>
+            <th>Shift</th>
+            <th>Position</th>
+            <th>Hours</th>
+            <th>Status</th>
+            <th class="gm-only">Cost</th>
+            <th style="min-width:200px;">Timeline</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Emily Chen: 06:00-11:00, Open, Kitchen, 5h, Approved -->
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="avatar avatar-sm" style="background:#DCFCE7;color:#166534;width:28px;height:28px;font-size:10px;">EC</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Emily Chen</div>
+                  <div style="font-size:11px;color:var(--color-text-muted);">Staff <span class="gm-only">&middot; $15/hr</span></div>
+                </div>
+              </div>
+            </td>
+            <td style="font-weight:600;font-variant-numeric:tabular-nums;">06:00 &ndash; 11:00</td>
+            <td>Open</td>
+            <td>Kitchen</td>
+            <td style="font-weight:700;">5h</td>
+            <td><span class="status-badge-sm approved">&#10003; Approved</span></td>
+            <td class="gm-only" style="font-weight:600;color:var(--color-success);">$75</td>
+            <td>
+              <div class="mini-timeline">
+                <!-- 06-11 out of 06-22 = 0% to 31.25% -->
+                <div class="mini-timeline-bar approved" style="left:0%;width:31.25%;"></div>
+              </div>
+            </td>
+          </tr>
+          <!-- James Park: 06:00-14:00, Open, Server, 8h, Pending -->
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="avatar avatar-sm" style="width:28px;height:28px;font-size:10px;">JP</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">James Park</div>
+                  <div style="font-size:11px;color:var(--color-text-muted);">Staff <span class="gm-only">&middot; $15/hr</span></div>
+                </div>
+              </div>
+            </td>
+            <td style="font-weight:600;font-variant-numeric:tabular-nums;">06:00 &ndash; 14:00</td>
+            <td>Open</td>
+            <td>Server</td>
+            <td style="font-weight:700;">8h</td>
+            <td><span class="status-badge-sm pending">&#9200; Pending</span></td>
+            <td class="gm-only" style="font-weight:600;color:var(--color-warning);">$120</td>
+            <td>
+              <div class="mini-timeline">
+                <!-- 06-14 out of 06-22 = 0% to 50% -->
+                <div class="mini-timeline-bar pending" style="left:0%;width:50%;"></div>
+              </div>
+            </td>
+          </tr>
+          <!-- Sarah Kim: 08:00-17:00, Day, Manager, 9h, Approved -->
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="avatar avatar-sm" style="background:#FEF3C7;color:#92400E;width:28px;height:28px;font-size:10px;">SK</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Sarah Kim</div>
+                  <div style="font-size:11px;color:var(--color-text-muted);">GM <span class="gm-only">&middot; $25/hr</span></div>
+                </div>
+              </div>
+            </td>
+            <td style="font-weight:600;font-variant-numeric:tabular-nums;">08:00 &ndash; 17:00</td>
+            <td>Day</td>
+            <td>Manager</td>
+            <td style="font-weight:700;">9h</td>
+            <td><span class="status-badge-sm approved">&#10003; Approved</span></td>
+            <td class="gm-only" style="font-weight:600;color:var(--color-success);">$225</td>
+            <td>
+              <div class="mini-timeline">
+                <!-- 08-17 out of 06-22 = 12.5% to 68.75% (width 56.25%) -->
+                <div class="mini-timeline-bar approved" style="left:12.5%;width:56.25%;"></div>
+              </div>
+            </td>
+          </tr>
+          <!-- Mike Lee: 10:00-15:00 (Wed schedule from current data, adjusted for demo) -->
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="avatar avatar-sm" style="background:#E0E7FF;color:#3730A3;width:28px;height:28px;font-size:10px;">ML</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">Mike Lee</div>
+                  <div style="font-size:11px;color:var(--color-text-muted);">SV <span class="gm-only">&middot; $20/hr</span></div>
+                </div>
+              </div>
+            </td>
+            <td style="font-weight:600;font-variant-numeric:tabular-nums;color:var(--color-text-muted);">--</td>
+            <td style="color:var(--color-text-muted);">--</td>
+            <td style="color:var(--color-text-muted);">--</td>
+            <td style="font-weight:700;color:var(--color-text-muted);">0h</td>
+            <td><span class="status-badge-sm" style="background:var(--color-bg);color:var(--color-text-muted);">Off</span></td>
+            <td class="gm-only" style="color:var(--color-text-muted);">--</td>
+            <td>
+              <div class="mini-timeline">
+                <!-- no bar -->
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
   </div><!-- /view-daily -->
@@ -1578,21 +1761,72 @@
 
 <script>
   // ============================================
-  // VIEW SWITCHING
+  // VIEW SWITCHING (Weekly/Daily toggle)
   // ============================================
   function switchView(view) {
-    // Update guide bar tabs
-    document.querySelectorAll('.guide-bar .page-tab').forEach(t => t.classList.remove('active'));
-    if (view === 'weekly') {
-      document.getElementById('tab-weekly').classList.add('active');
-    } else if (view === 'daily') {
-      document.getElementById('tab-daily').classList.add('active');
-    }
-
     // Show/hide sections
     document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
     const target = document.getElementById('view-' + view);
     if (target) target.classList.add('active');
+
+    // Update toggle buttons in both views
+    document.querySelectorAll('.view-toggle-btn').forEach(b => b.classList.remove('active'));
+    if (view === 'weekly') {
+      document.getElementById('toggle-weekly').classList.add('active');
+      document.getElementById('toggle-weekly-d').classList.remove('active');
+      document.getElementById('toggle-daily').classList.remove('active');
+      document.getElementById('toggle-daily-d').classList.remove('active');
+      document.getElementById('toggle-weekly').classList.add('active');
+    } else if (view === 'daily') {
+      document.getElementById('toggle-daily').classList.add('active');
+      document.getElementById('toggle-daily-d').classList.add('active');
+    }
+  }
+
+  // ============================================
+  // SWITCH TO DAILY VIEW FOR SPECIFIC DAY
+  // ============================================
+  function switchDay(dateStr) {
+    // Parse date for display
+    const d = new Date(dateStr + 'T12:00:00');
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const subtitle = document.getElementById('daily-subtitle');
+    const navLabel = document.getElementById('daily-nav-label');
+    if (subtitle) {
+      subtitle.textContent = 'Main Street \u2014 ' + days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+    }
+    if (navLabel) {
+      navLabel.textContent = shortMonths[d.getMonth()] + ' ' + d.getDate();
+    }
+
+    switchView('daily');
+  }
+
+  // ============================================
+  // ROLE SWITCHING (GM/SV)
+  // ============================================
+  function switchRole(role) {
+    const body = document.body;
+    body.classList.remove('role-gm', 'role-sv');
+    body.classList.add('role-' + role);
+
+    // Update label
+    document.getElementById('role-label-display').textContent = role.toUpperCase();
+
+    // Update dropdown active state
+    document.getElementById('role-opt-gm').classList.toggle('active', role === 'gm');
+    document.getElementById('role-opt-sv').classList.toggle('active', role === 'sv');
+
+    // Close dropdown
+    document.getElementById('role-dropdown').classList.remove('open');
+  }
+
+  function toggleRoleDropdown(e) {
+    e.stopPropagation();
+    document.getElementById('role-dropdown').classList.toggle('open');
   }
 
   // ============================================
@@ -1605,9 +1839,15 @@
   }
 
   document.addEventListener('click', function(e) {
+    // Close context menu
     const menu = document.getElementById('ctx-menu');
     if (menu && !e.target.closest('#block-sarah-mon') && !e.target.closest('#ctx-menu')) {
       menu.classList.remove('open');
+    }
+    // Close role dropdown
+    const rd = document.getElementById('role-dropdown');
+    if (rd && !e.target.closest('.role-switcher')) {
+      rd.classList.remove('open');
     }
   });
 
@@ -1623,28 +1863,10 @@
   // ============================================
   function openSwapModal() {
     document.getElementById('swap-modal').classList.add('open');
-    // Close context menu
     document.getElementById('ctx-menu').classList.remove('open');
   }
   function closeSwapModal() {
     document.getElementById('swap-modal').classList.remove('open');
-  }
-
-  // ============================================
-  // SORT TOGGLE (visual only)
-  // ============================================
-  function toggleSort(el) {
-    const wasActive = el.classList.contains('sorted');
-    document.querySelectorAll('.col-header').forEach(h => {
-      h.classList.remove('sorted');
-      const icon = h.querySelector('.sort-icon');
-      if (icon) icon.innerHTML = '&#8645;';
-    });
-    if (!wasActive) {
-      el.classList.add('sorted');
-      const icon = el.querySelector('.sort-icon');
-      if (icon) icon.innerHTML = '&#9650;';
-    }
   }
 
   // ============================================
