@@ -1157,8 +1157,6 @@ tbody tr.clickable { cursor: pointer; }
    ============================================ */
 
 .calendar-grid {
-  display: grid;
-  grid-template-columns: 60px repeat(7, 1fr);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
