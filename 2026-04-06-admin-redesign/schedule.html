@@ -325,7 +325,7 @@
     }
     .header-row {
       display: grid;
-      grid-template-columns: 200px repeat(7, 1fr) 100px;
+      grid-template-columns: 180px repeat(7, 1fr) 80px;
     }
     .header-row .hcell {
       padding: 0 8px;
@@ -334,7 +334,8 @@
       justify-content: center;
       font-size: 12px;
       color: var(--color-text-secondary);
-      border-right: 1px solid rgba(226, 228, 234, 0.4);
+      border-right: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
       font-variant-numeric: tabular-nums;
     }
     .header-row .hcell:first-child {
@@ -345,6 +346,7 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--color-text-muted);
+      border-right: 2px solid var(--color-border);
     }
     .header-row .hcell:last-child {
       border-right: none;
@@ -352,7 +354,7 @@
 
     /* Date Row */
     .header-row.row-date {
-      border-bottom: 1px solid rgba(226, 228, 234, 0.4);
+      border-bottom: 2px solid var(--color-border);
     }
     .header-row.row-date .hcell {
       padding-top: 10px;
@@ -447,7 +449,7 @@
     /* Schedule Rows */
     .schedule-row {
       display: grid;
-      grid-template-columns: 200px repeat(7, 1fr) 100px;
+      grid-template-columns: 180px repeat(7, 1fr) 80px;
       border-bottom: 1px solid var(--color-border);
       transition: background 0.1s;
     }
@@ -459,7 +461,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      border-right: 1px solid var(--color-border);
+      border-right: 2px solid var(--color-border);
     }
     .staff-cell .staff-info {
       display: flex;
@@ -502,9 +504,12 @@
     .day-cell {
       padding: 8px 6px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      border-right: 1px solid rgba(226, 228, 234, 0.5);
+      gap: 4px;
+      border-right: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
       position: relative;
       min-height: 72px;
     }
@@ -590,12 +595,13 @@
     .schedule-block {
       width: 100%;
       padding: 6px 8px;
-      border-radius: var(--radius-sm);
+      border-radius: 6px;
       font-size: 11px;
       cursor: pointer;
       transition: all 0.15s;
-      border-left: 3px solid transparent;
+      border: 1.5px solid transparent;
       position: relative;
+      margin: 2px;
     }
     .schedule-block:hover {
       box-shadow: var(--shadow-sm);
@@ -624,32 +630,28 @@
       opacity: 0.8;
     }
 
-    /* Work Hour Alert Colors */
-    .wh-normal { border-left-color: var(--color-success); }
-    .wh-caution { border-left-color: var(--color-warning); }
-    .wh-overtime { border-left-color: var(--color-danger); }
-
     /* Status: Approved */
-    .status-approved.wh-normal { background: rgba(0, 184, 148, 0.1); color: #065F46; }
-    .status-approved.wh-caution { background: rgba(240, 165, 0, 0.1); color: #78350F; }
-    .status-approved.wh-overtime { background: rgba(239, 68, 68, 0.1); color: #991B1B; }
+    .status-approved {
+      border-color: var(--color-success);
+      background: rgba(0, 184, 148, 0.08);
+    }
+    .status-approved.wh-normal { color: #065F46; }
+    .status-approved.wh-caution { border-color: var(--color-warning); background: rgba(240, 165, 0, 0.08); color: #78350F; }
+    .status-approved.wh-overtime { border-color: var(--color-danger); background: rgba(239, 68, 68, 0.08); color: #991B1B; }
 
     /* Status: Pending */
     .status-pending {
-      border: 2px solid var(--color-warning) !important;
-      border-left-width: 3px !important;
+      border-color: var(--color-warning);
+      background: repeating-linear-gradient(-45deg, rgba(240,165,0,0.06), rgba(240,165,0,0.06) 3px, transparent 3px, transparent 6px);
       position: relative;
     }
     .status-pending.wh-normal {
-      background: repeating-linear-gradient(-45deg, rgba(0, 184, 148, 0.1), rgba(0, 184, 148, 0.1) 4px, rgba(0, 184, 148, 0.02) 4px, rgba(0, 184, 148, 0.02) 8px);
       color: #065F46;
     }
     .status-pending.wh-caution {
-      background: repeating-linear-gradient(-45deg, rgba(240, 165, 0, 0.12), rgba(240, 165, 0, 0.12) 4px, rgba(240, 165, 0, 0.03) 4px, rgba(240, 165, 0, 0.03) 8px);
       color: #78350F;
     }
     .status-pending.wh-overtime {
-      background: repeating-linear-gradient(-45deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.12) 4px, rgba(239, 68, 68, 0.03) 4px, rgba(239, 68, 68, 0.03) 8px);
       color: #991B1B;
     }
     .pending-label {
@@ -666,11 +668,29 @@
 
     /* Status: Draft */
     .status-draft {
-      background: rgba(148, 163, 184, 0.06) !important;
-      border: 1px dashed var(--color-border) !important;
-      border-left-width: 3px !important;
+      border-color: var(--color-border);
+      border-style: dashed;
+      background: rgba(148, 163, 184, 0.04);
       color: var(--color-text-muted) !important;
       opacity: 0.6;
+    }
+
+    /* Other-store schedule indicator */
+    .schedule-block.other-store {
+      border: 1.5px dotted var(--color-text-muted);
+      background: rgba(148, 163, 184, 0.04);
+      opacity: 0.45;
+      color: var(--color-text-muted);
+    }
+    .schedule-block.other-store .block-time,
+    .schedule-block.other-store .block-shift {
+      color: var(--color-text-muted);
+    }
+    .schedule-block.other-store .sched-store {
+      display: block;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--color-text-muted);
     }
 
     /* Weekly Total Column */
@@ -684,6 +704,11 @@
       font-size: 13px;
       font-variant-numeric: tabular-nums;
       gap: 2px;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .total-cell .val-pending {
+      font-size: 11px;
+      font-weight: 600;
     }
     .total-cell .total-cost {
       font-size: 11px;
@@ -893,16 +918,30 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--color-text-muted);
-      border-right: 1px solid var(--color-border);
+      border-right: 2px solid var(--color-border);
     }
     .gantt-cell:last-child { border-right: none; }
 
-    /* Time header row */
-    .gantt-row.row-time .gantt-cell {
-      padding-top: 8px;
-      padding-bottom: 4px;
+    /* Section label cells in gantt */
+    .gantt-cell.section-label {
       font-weight: 700;
       font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-text-muted);
+      background: var(--color-bg);
+    }
+
+    /* Time header row */
+    .gantt-row.row-time {
+      background: rgba(0, 0, 0, 0.03);
+      border-bottom: 2px solid var(--color-border);
+    }
+    .gantt-row.row-time .gantt-cell {
+      padding-top: 10px;
+      padding-bottom: 6px;
+      font-weight: 800;
+      font-size: 12px;
       color: var(--color-text);
     }
 
@@ -961,7 +1000,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      border-right: 1px solid var(--color-border);
+      border-right: 2px solid var(--color-border);
     }
     .gantt-staff-cell .gs-info {
       display: flex;
@@ -1165,17 +1204,15 @@
     .gantt-cell.sort-pending .sort-arrow-up { color: #C0C4CC; opacity: 0.4; }
     .gantt-cell.sort-pending .sort-arrow-down { color: #F0A500; opacity: 1; }
 
-    /* Column highlight — accent purple */
+    /* Column highlight — accent purple (background + inset shadow only, no border override) */
     .hcell.col-active,
     .gantt-cell.col-active {
-      background: rgba(108, 92, 231, 0.06);
-      border-left: 1px solid rgba(108, 92, 231, 0.15);
-      border-right: 1px solid rgba(108, 92, 231, 0.15);
+      background: rgba(108, 92, 231, 0.08);
+      box-shadow: inset 2px 0 0 rgba(108, 92, 231, 0.2), inset -2px 0 0 rgba(108, 92, 231, 0.2);
     }
     .day-cell.col-active {
-      background: rgba(108, 92, 231, 0.03);
-      border-left: 1px solid rgba(108, 92, 231, 0.15);
-      border-right: 1px solid rgba(108, 92, 231, 0.15);
+      background: rgba(108, 92, 231, 0.08);
+      box-shadow: inset 2px 0 0 rgba(108, 92, 231, 0.2), inset -2px 0 0 rgba(108, 92, 231, 0.2);
     }
 
     /* Confirmed/pending sub-rows styling */
@@ -1387,6 +1424,11 @@
           </div>
         </div>
         <div class="filter-dropdowns">
+          <select class="form-select" style="min-width:160px;">
+            <option selected>Main Street</option>
+            <option>Downtown</option>
+            <option>Westside</option>
+          </select>
           <select class="form-select">
             <option>All Roles</option>
             <option>GM</option>
@@ -1585,8 +1627,14 @@
             </button>
           </div>
         </div>
-        <!-- Tue: empty -->
-        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Tue: Other store schedule (@ Downtown) -->
+        <div class="day-cell">
+          <div class="schedule-block other-store" title="Scheduled at Downtown">
+            <span class="block-time">08-14</span>
+            <span class="block-shift">Day</span>
+            <span class="sched-store">@ Downtown</span>
+          </div>
+        </div>
         <!-- Wed: 08-17 Day 9h Approved -->
         <div class="day-cell">
           <div class="schedule-block wh-overtime status-approved">
@@ -1610,9 +1658,9 @@
         <!-- Sat: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Total -->
-        <div class="total-cell total-red">
-          <span>27h</span>
-          <span class="total-cost gm-only">$675</span>
+        <div class="total-cell">
+          <span class="val-confirmed">27h</span>
+          <span class="gm-only val-confirmed">$675</span>
         </div>
       </div>
 
@@ -1661,9 +1709,11 @@
         </div>
         <!-- Sat: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <div class="total-cell total-red">
-          <span>27h</span>
-          <span class="total-cost gm-only">$540</span>
+        <div class="total-cell">
+          <span class="val-confirmed">18h</span>
+          <span class="val-pending">+9h</span>
+          <span class="gm-only val-confirmed">$360</span>
+          <span class="gm-only val-pending">+$180</span>
         </div>
       </div>
 
@@ -1710,18 +1760,26 @@
             <span class="block-cost gm-only">$135</span>
           </div>
         </div>
-        <!-- Sat: 06-16 Open 10h Approved -->
+        <!-- Sat: TWO schedules stacked -->
         <div class="day-cell">
-          <div class="schedule-block wh-overtime status-approved">
-            <span class="block-time">06-16</span>
+          <div class="schedule-block wh-normal status-approved">
+            <span class="block-time">06-11</span>
             <span class="block-shift">Open</span>
             <span class="block-status">&#10003;</span>
-            <span class="block-cost gm-only">$150</span>
+            <span class="block-cost gm-only">$75</span>
+          </div>
+          <div class="schedule-block wh-normal status-approved">
+            <span class="block-time">14-18</span>
+            <span class="block-shift">Afternoon</span>
+            <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$60</span>
           </div>
         </div>
-        <div class="total-cell total-orange">
-          <span>32h</span>
-          <span class="total-cost gm-only">$480</span>
+        <div class="total-cell">
+          <span class="val-confirmed">23h</span>
+          <span class="val-pending">+8h</span>
+          <span class="gm-only val-confirmed">$345</span>
+          <span class="gm-only val-pending">+$120</span>
         </div>
       </div>
 
@@ -1773,13 +1831,19 @@
             <span class="block-cost gm-only">$75</span>
           </div>
         </div>
-        <!-- Fri: empty -->
-        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Fri: Other store schedule (@ Westside) -->
+        <div class="day-cell">
+          <div class="schedule-block other-store" title="Scheduled at Westside">
+            <span class="block-time">10-15</span>
+            <span class="block-shift">Day</span>
+            <span class="sched-store">@ Westside</span>
+          </div>
+        </div>
         <!-- Sat: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <div class="total-cell total-green">
-          <span>20h</span>
-          <span class="total-cost gm-only">$300</span>
+        <div class="total-cell">
+          <span class="val-confirmed">20h</span>
+          <span class="gm-only val-confirmed">$300</span>
         </div>
       </div>
 
@@ -1835,9 +1899,11 @@
             <span class="block-cost gm-only">$126</span>
           </div>
         </div>
-        <div class="total-cell total-green">
-          <span>23h</span>
-          <span class="total-cost gm-only">$414</span>
+        <div class="total-cell">
+          <span class="val-confirmed">17h</span>
+          <span class="val-pending">+6h</span>
+          <span class="gm-only val-confirmed">$306</span>
+          <span class="gm-only val-pending">+$108</span>
         </div>
       </div>
 
@@ -1966,6 +2032,19 @@
       </div>
     </div>
 
+    <!-- Filter Section (Daily) -->
+    <div class="filter-section">
+      <div class="filter-search-row">
+        <div class="filter-dropdowns">
+          <select class="form-select" style="min-width:160px;">
+            <option selected>Main Street</option>
+            <option>Downtown</option>
+            <option>Westside</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
     <!-- Store Hours -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:0 4px;">
       <span class="store-hours-label">Store hours: 6:00 AM &ndash; 10:00 PM (16 hours)</span>
@@ -1979,7 +2058,7 @@
         <div class="gantt-header">
           <!-- Row 1: Time -->
           <div class="gantt-row row-time">
-            <div class="gantt-cell">Time</div>
+            <div class="gantt-cell section-label">Time</div>
             <div class="gantt-cell">6AM</div>
             <div class="gantt-cell">7AM</div>
             <div class="gantt-cell">8AM</div>
