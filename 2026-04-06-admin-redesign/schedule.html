@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskManager Admin — Schedule Redesign</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    /* ============================================
+       SCHEDULE-SPECIFIC STYLES
+       ============================================ */
+
+    /* Week Navigator */
+    .week-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .week-nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      background: var(--color-surface);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .week-nav-btn:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-bar .form-select {
+      width: auto;
+      min-width: 160px;
+      padding: 8px 36px 8px 12px;
+      font-size: 13px;
+    }
+    .filter-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      background: var(--color-accent-muted);
+      color: var(--color-accent);
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .filter-chip .chip-remove {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--color-accent);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      transition: background 0.15s;
+    }
+    .filter-chip .chip-remove:hover {
+      background: rgba(108, 92, 231, 0.2);
+    }
+    .filter-more {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      background: var(--color-bg);
+      color: var(--color-text-secondary);
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--color-border);
+      transition: all 0.15s;
+    }
+    .filter-more:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+    }
+    .btn-clear-filters {
+      margin-left: auto;
+    }
+
+    /* Team Size Summary */
+    .team-size-row {
+      display: grid;
+      grid-template-columns: 200px repeat(7, 1fr) 80px;
+      gap: 0;
+      margin-bottom: 2px;
+      padding: 8px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+    .team-size-row .team-label {
+      padding-left: 16px;
+      display: flex;
+      align-items: center;
+    }
+    .team-size-row .team-count {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 8px;
+    }
+    .team-size-row .team-count .count-num {
+      background: var(--color-accent-muted);
+      color: var(--color-accent);
+      border-radius: var(--radius-sm);
+      padding: 2px 10px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* Weekly Calendar Grid */
+    .schedule-grid {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .schedule-grid-header {
+      display: grid;
+      grid-template-columns: 200px repeat(7, 1fr) 80px;
+      background: var(--color-bg);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .schedule-grid-header .col-header {
+      padding: 12px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .schedule-grid-header .col-header:first-child {
+      text-align: left;
+      padding-left: 16px;
+      cursor: default;
+      align-items: flex-start;
+    }
+    .schedule-grid-header .col-header:last-child {
+      cursor: default;
+    }
+    .schedule-grid-header .col-header:hover:not(:first-child):not(:last-child) {
+      color: var(--color-accent);
+      background: rgba(108, 92, 231, 0.04);
+    }
+    .col-header .day-name {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .col-header .day-date {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--color-text-muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-style: dotted;
+    }
+    .col-header:hover .day-date {
+      text-decoration-style: solid;
+      color: var(--color-accent);
+    }
+    .col-header.day-sat .day-name { color: var(--color-accent); }
+    .col-header.day-sun .day-name { color: var(--color-danger); }
+    .col-header .sort-icon {
+      font-size: 10px;
+      opacity: 0.3;
+      transition: opacity 0.15s;
+    }
+    .col-header:hover .sort-icon { opacity: 0.6; }
+    .col-header.sorted .sort-icon {
+      opacity: 1;
+      color: var(--color-accent);
+    }
+    .col-header.sorted {
+      background: rgba(108, 92, 231, 0.06);
+    }
+
+    /* Schedule Rows */
+    .schedule-row {
+      display: grid;
+      grid-template-columns: 200px repeat(7, 1fr) 80px;
+      border-bottom: 1px solid var(--color-border);
+      transition: background 0.1s;
+    }
+    .schedule-row:last-child { border-bottom: none; }
+    .schedule-row:hover { background: rgba(0, 0, 0, 0.01); }
+
+    .staff-cell {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-right: 1px solid var(--color-border);
+    }
+    .staff-cell .staff-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+    .staff-cell .staff-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .staff-cell .role-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      border-radius: var(--radius-full);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      width: fit-content;
+    }
+    .role-badge.gm { background: #FEF3C7; color: #92400E; }
+    .role-badge.sv { background: #E0E7FF; color: #3730A3; }
+    .role-badge.staff { background: var(--color-bg); color: var(--color-text-muted); }
+    .role-badge.owner { background: #FDE68A; color: #78350F; }
+
+    /* Schedule Day Cell */
+    .day-cell {
+      padding: 8px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid rgba(226, 228, 234, 0.5);
+      position: relative;
+      min-height: 64px;
+    }
+    .day-cell:hover .empty-add {
+      opacity: 1;
+    }
+    .empty-add {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      border: 1.5px dashed var(--color-border);
+      background: transparent;
+      color: var(--color-text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .empty-add:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+      background: var(--color-accent-muted);
+    }
+
+    /* Schedule Block */
+    .schedule-block {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+      position: relative;
+    }
+    .schedule-block:hover {
+      box-shadow: var(--shadow-sm);
+      transform: translateY(-1px);
+    }
+    .schedule-block .block-time {
+      font-weight: 700;
+      font-size: 12px;
+      margin-bottom: 1px;
+    }
+    .schedule-block .block-shift {
+      font-size: 10px;
+      opacity: 0.75;
+      font-weight: 500;
+    }
+    .schedule-block .block-status {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 9px;
+    }
+
+    /* Work Hour Alert Colors */
+    .wh-green {
+      border-left-color: var(--color-success);
+      background: rgba(0, 184, 148, 0.08);
+      color: #065F46;
+    }
+    .wh-orange {
+      border-left-color: var(--color-warning);
+      background: rgba(240, 165, 0, 0.08);
+      color: #78350F;
+    }
+    .wh-red {
+      border-left-color: var(--color-danger);
+      background: rgba(239, 68, 68, 0.08);
+      color: #991B1B;
+    }
+
+    /* Schedule Status */
+    .status-approved {
+      /* solid — default */
+    }
+    .status-pending {
+      border-style: dashed;
+      border-width: 1.5px;
+      border-left-width: 3px;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        rgba(0, 0, 0, 0.02) 4px,
+        rgba(0, 0, 0, 0.02) 8px
+      );
+    }
+    .status-draft {
+      opacity: 0.55;
+      border-left-style: dotted;
+    }
+
+    /* Weekly Total Column */
+    .total-cell {
+      padding: 12px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+    .total-green { color: var(--color-success); }
+    .total-orange { color: var(--color-warning); }
+    .total-red { color: var(--color-danger); }
+
+    /* Bottom Summary */
+    .summary-bar {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      margin-bottom: 24px;
+    }
+    .summary-bar .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .summary-bar .summary-item strong {
+      color: var(--color-text);
+      font-weight: 700;
+    }
+    .summary-bar .summary-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--color-border);
+    }
+
+    /* Context Menu */
+    .context-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 80;
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      min-width: 200px;
+      padding: 4px;
+      display: none;
+    }
+    .context-menu.open { display: block; }
+    .context-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--color-text);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      font-family: var(--font-sans);
+      transition: background 0.1s;
+    }
+    .context-menu-item:hover {
+      background: var(--color-surface-hover);
+    }
+    .context-menu-item.danger { color: var(--color-danger); }
+    .context-menu-item.danger:hover { background: var(--color-danger-muted); }
+    .context-menu-divider {
+      height: 1px;
+      background: var(--color-border);
+      margin: 4px 0;
+    }
+    .context-menu-item .cm-icon { font-size: 14px; width: 20px; text-align: center; }
+
+    /* History Side Panel */
+    .history-panel {
+      position: fixed;
+      top: var(--guide-bar-height);
+      right: 0;
+      bottom: 0;
+      width: 380px;
+      background: var(--color-card);
+      border-left: 1px solid var(--color-border);
+      box-shadow: -4px 0 24px rgba(0, 0, 0, 0.08);
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+    }
+    .history-panel.open { transform: translateX(0); }
+    .history-panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .history-panel-header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--color-text);
+    }
+    .history-panel-header .history-subtitle {
+      font-size: 12px;
+      color: var(--color-text-muted);
+      margin-top: 2px;
+    }
+    .history-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+    }
+    .history-entry {
+      position: relative;
+      padding-left: 20px;
+      padding-bottom: 20px;
+      border-left: 2px solid var(--color-border);
+      margin-left: 4px;
+    }
+    .history-entry:last-child { border-left-color: transparent; padding-bottom: 0; }
+    .history-entry::before {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      border: 2px solid var(--color-card);
+    }
+    .history-entry .history-time {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+    .history-entry .history-actor {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text);
+      margin-bottom: 2px;
+    }
+    .history-entry .history-actor .actor-role {
+      font-weight: 500;
+      color: var(--color-text-muted);
+    }
+    .history-entry .history-action {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+    .history-entry.system-entry::before { background: var(--color-text-muted); }
+
+    /* Swap Modal extras */
+    .swap-info {
+      padding: 16px;
+      background: var(--color-bg);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+    .swap-info .swap-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+      margin-bottom: 4px;
+    }
+    .swap-info .swap-detail {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+    .swap-note {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: var(--color-info-muted);
+      border-radius: var(--radius);
+      font-size: 13px;
+      color: var(--color-info);
+      margin-top: 16px;
+    }
+
+    /* ============================================
+       DAILY VIEW STYLES
+       ============================================ */
+    .daily-view-container {
+      display: flex;
+      gap: 20px;
+    }
+    .daily-timeline-area {
+      flex: 1;
+      min-width: 0;
+    }
+    .daily-right-panel {
+      width: 260px;
+      flex-shrink: 0;
+    }
+
+    .timeline-grid {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+    }
+    .timeline-row {
+      display: flex;
+      border-bottom: 1px solid rgba(226, 228, 234, 0.5);
+      min-height: 52px;
+      position: relative;
+    }
+    .timeline-row:last-child { border-bottom: none; }
+    .timeline-label {
+      width: 70px;
+      flex-shrink: 0;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      border-right: 1px solid var(--color-border);
+      display: flex;
+      align-items: flex-start;
+      font-variant-numeric: tabular-nums;
+    }
+    .timeline-content {
+      flex: 1;
+      position: relative;
+      min-height: 52px;
+    }
+    .timeline-block {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .timeline-block:hover {
+      box-shadow: var(--shadow-md);
+      z-index: 2;
+    }
+    .timeline-block .tb-name {
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .timeline-block .tb-info {
+      font-size: 10px;
+      opacity: 0.8;
+      font-weight: 500;
+    }
+    .timeline-block .tb-badge {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    /* Headcount Chart */
+    .headcount-card {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+    .headcount-card h4 {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--color-text);
+    }
+    .headcount-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+    .headcount-row .hc-label {
+      width: 48px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .headcount-row .hc-bar-wrap {
+      flex: 1;
+      height: 18px;
+      background: var(--color-bg);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .headcount-row .hc-bar {
+      height: 100%;
+      background: var(--color-accent);
+      border-radius: var(--radius-sm);
+      transition: width 0.3s ease;
+      opacity: 0.7;
+    }
+    .headcount-row .hc-num {
+      width: 20px;
+      font-weight: 700;
+      color: var(--color-text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* View sections */
+    .view-section { display: none; }
+    .view-section.active { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- GUIDE BAR -->
+<div class="guide-bar">
+  <div class="guide-bar-inner">
+    <span class="guide-bar-title">Schedule — Redesign</span>
+    <div class="page-tabs">
+      <button class="page-tab active" id="tab-weekly" onclick="switchView('weekly')">Weekly View</button>
+      <button class="page-tab" id="tab-daily" onclick="switchView('daily')">Daily View</button>
+      <a class="page-tab" href="schedule-settings.html">Settings</a>
+    </div>
+    <span class="hint">Try: Click day headers, sort columns, filter staff</span>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo" style="display:flex;align-items:center;gap:10px;">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="#6C5CE7"/>
+        <path d="M10 11h12M10 16h8M10 21h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--color-accent);">TaskManager</div>
+        <div style="font-size:11px;color:var(--color-text-muted);">Admin Console</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">MAIN</div>
+    <a class="nav-item" href="index.html">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="7" height="7" rx="1"/><rect x="11" y="2" width="7" height="7" rx="1"/><rect x="2" y="11" width="7" height="7" rx="1"/><rect x="11" y="11" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+
+    <div class="sidebar-section-label">OPERATIONS</div>
+    <a class="nav-item" href="index.html">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10V17H17V10"/><path d="M1 5L3 2H17L19 5"/><line x1="1" y1="5" x2="19" y2="5"/><path d="M7 17V12H13V17"/></svg>
+      Stores
+    </a>
+    <a class="nav-item" href="index.html">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16v-1a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v1"/><circle cx="9" cy="7" r="3"/><path d="M17 16v-1a3 3 0 0 0-2-2.83"/><path d="M13 4.17a3 3 0 0 1 0 5.66"/></svg>
+      Staff
+    </a>
+
+    <div class="nav-group open">
+      <a class="nav-item active" onclick="toggleSubmenu('sub-schedules')">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="15" rx="2"/><line x1="14" y1="1" x2="14" y2="5"/><line x1="6" y1="1" x2="6" y2="5"/><line x1="2" y1="8" x2="18" y2="8"/></svg>
+        Schedules
+        <svg class="nav-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 8 10 13 15 8"/></svg>
+      </a>
+      <div class="nav-children" id="sub-schedules">
+        <a class="nav-child active" href="schedule.html">Calendar</a>
+        <a class="nav-child" href="index.html">List View</a>
+        <a class="nav-child" href="schedule-settings.html">Settings</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <a class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><polyline points="10 5 10 10 13 12"/></svg>
+        Attendance
+        <svg class="nav-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 8 10 13 15 8"/></svg>
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <a class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="16" height="16" rx="2"/><path d="M6 10l2.5 2.5L14 7"/></svg>
+        Checklists
+        <svg class="nav-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 8 10 13 15 8"/></svg>
+      </a>
+    </div>
+
+    <a class="nav-item">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="10 1 12.5 7 19 7 14 11.5 16 18 10 14 4 18 6 11.5 1 7 7.5 7"/></svg>
+      Tasks
+    </a>
+
+    <div class="sidebar-section-label">COMMUNICATION</div>
+    <a class="nav-item">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l-4 4H5a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h7l4 4V4z"/><path d="M17 8a4 4 0 0 1 0 4"/></svg>
+      Notices
+    </a>
+    <a class="nav-item">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7a5 5 0 0 0-10 0c0 5.5-2.5 7-2.5 7h15S15 12.5 15 7"/><path d="M11.3 17a1.5 1.5 0 0 1-2.6 0"/></svg>
+      Alerts
+      <span class="nav-badge">3</span>
+    </a>
+
+    <div class="sidebar-section-label">ADMIN</div>
+    <a class="nav-item" href="schedule-settings.html">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M17.4 12.2a1.5 1.5 0 0 0 .3 1.7l.1.1a1.8 1.8 0 1 1-2.6 2.6l-.1-.1a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.4v.2a1.8 1.8 0 1 1-3.6 0v-.1a1.5 1.5 0 0 0-1-1.4 1.5 1.5 0 0 0-1.7.3l-.1.1a1.8 1.8 0 1 1-2.6-2.6l.1-.1a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.4-.9H2a1.8 1.8 0 1 1 0-3.6h.1a1.5 1.5 0 0 0 1.4-1 1.5 1.5 0 0 0-.3-1.7l-.1-.1a1.8 1.8 0 1 1 2.6-2.6l.1.1a1.5 1.5 0 0 0 1.7.3h.1a1.5 1.5 0 0 0 .9-1.4V2a1.8 1.8 0 1 1 3.6 0v.1a1.5 1.5 0 0 0 .9 1.4 1.5 1.5 0 0 0 1.7-.3l.1-.1a1.8 1.8 0 1 1 2.6 2.6l-.1.1a1.5 1.5 0 0 0-.3 1.7v.1a1.5 1.5 0 0 0 1.4.9H18a1.8 1.8 0 1 1 0 3.6h-.2a1.5 1.5 0 0 0-1.4.9z"/></svg>
+      Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="avatar avatar-sm">JS</div>
+    <div>
+      <div class="font-medium" style="font-size:13px;">John Smith</div>
+      <div class="text-muted" style="font-size:11px;">admin@company.com</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+
+  <!-- ========== WEEKLY VIEW ========== -->
+  <div class="view-section active" id="view-weekly">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <div>
+          <div class="page-title">Schedules</div>
+          <div class="page-subtitle">Main Street &mdash; Week 1, April 2026</div>
+        </div>
+      </div>
+      <div class="page-header-right">
+        <div class="week-nav">
+          <button class="week-nav-btn" title="Previous week">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 12 6 8 10 4"/></svg>
+          </button>
+          <span style="font-size:13px;font-weight:600;color:var(--color-text);min-width:80px;text-align:center;">Mar 30 - Apr 5</span>
+          <button class="week-nav-btn" title="Next week">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 10 8 6 12"/></svg>
+          </button>
+        </div>
+        <button class="btn btn-primary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+          Add Schedule
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <select class="form-select" style="min-width:180px;">
+        <option>Main Street</option>
+        <option>Downtown Branch</option>
+        <option>All Stores</option>
+      </select>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:12px;font-weight:600;color:var(--color-text-muted);">Staff:</span>
+        <div class="filter-chips">
+          <span class="filter-chip">Sarah Kim <button class="chip-remove">&times;</button></span>
+          <span class="filter-chip">Mike Lee <button class="chip-remove">&times;</button></span>
+          <button class="filter-more">+3 more</button>
+        </div>
+      </div>
+      <select class="form-select" style="min-width:120px;">
+        <option>All Roles</option>
+        <option>Owner</option>
+        <option>GM</option>
+        <option>SV</option>
+        <option>Staff</option>
+      </select>
+      <button class="btn btn-ghost btn-sm btn-clear-filters">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="11" y1="3" x2="3" y2="11"/><line x1="3" y1="3" x2="11" y2="11"/></svg>
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Team Size Summary -->
+    <div class="team-size-row">
+      <div class="team-label">Team Size</div>
+      <div class="team-count"><span class="count-num">4</span></div>
+      <div class="team-count"><span class="count-num">3</span></div>
+      <div class="team-count"><span class="count-num">4</span></div>
+      <div class="team-count"><span class="count-num">5</span></div>
+      <div class="team-count"><span class="count-num">3</span></div>
+      <div class="team-count"><span class="count-num">2</span></div>
+      <div class="team-count"><span class="count-num">1</span></div>
+      <div class="team-count"></div>
+    </div>
+
+    <!-- Weekly Calendar Grid -->
+    <div class="schedule-grid">
+      <!-- Header -->
+      <div class="schedule-grid-header">
+        <div class="col-header" style="cursor:default;">
+          <span class="day-name">Employee</span>
+        </div>
+        <div class="col-header" onclick="switchView('daily')">
+          <span class="day-name">Mon</span>
+          <span class="day-date">3/30</span>
+          <span class="sort-icon">&#8645;</span>
+        </div>
+        <div class="col-header" onclick="switchView('daily')">
+          <span class="day-name">Tue</span>
+          <span class="day-date">3/31</span>
+          <span class="sort-icon">&#8645;</span>
+        </div>
+        <div class="col-header" onclick="switchView('daily')">
+          <span class="day-name">Wed</span>
+          <span class="day-date">4/1</span>
+          <span class="sort-icon">&#8645;</span>
+        </div>
+        <div class="col-header sorted" onclick="toggleSort(this)">
+          <span class="day-name">Thu</span>
+          <span class="day-date">4/2</span>
+          <span class="sort-icon">&#9650;</span>
+        </div>
+        <div class="col-header" onclick="switchView('daily')">
+          <span class="day-name">Fri</span>
+          <span class="day-date">4/3</span>
+          <span class="sort-icon">&#8645;</span>
+        </div>
+        <div class="col-header day-sat" onclick="switchView('daily')">
+          <span class="day-name">Sat</span>
+          <span class="day-date">4/4</span>
+          <span class="sort-icon">&#8645;</span>
+        </div>
+        <div class="col-header day-sun" onclick="switchView('daily')">
+          <span class="day-name">Sun</span>
+          <span class="day-date">4/5</span>
+          <span class="sort-icon">&#8645;</span>
+        </div>
+        <div class="col-header" style="cursor:default;">
+          <span class="day-name">Total</span>
+        </div>
+      </div>
+
+      <!-- Row 1: Sarah Kim (GM) — has context menu demo -->
+      <div class="schedule-row">
+        <div class="staff-cell">
+          <div class="avatar avatar-sm" style="background:#FEF3C7;color:#92400E;">SK</div>
+          <div class="staff-info">
+            <span class="staff-name">Sarah Kim</span>
+            <span class="role-badge gm">GM</span>
+          </div>
+        </div>
+        <!-- Mon: 08-17 Morning, 9h = red, Approved — with context menu -->
+        <div class="day-cell" style="position:relative;">
+          <div class="schedule-block wh-red status-approved" id="block-sarah-mon" onclick="toggleContextMenu(event)">
+            <span class="block-time">08-17</span>
+            <span class="block-shift">Morning</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+          <!-- Context Menu (visible for demo) -->
+          <div class="context-menu open" id="ctx-menu" style="top:auto;bottom:-4px;left:6px;transform:translateY(100%);">
+            <button class="context-menu-item" onclick="event.stopPropagation();">
+              <span class="cm-icon">&#9998;</span> Edit Schedule
+            </button>
+            <button class="context-menu-item" onclick="event.stopPropagation();">
+              <span class="cm-icon">&#8617;</span> Revert to Pending
+            </button>
+            <button class="context-menu-item" onclick="openSwapModal(); event.stopPropagation();">
+              <span class="cm-icon">&#8634;</span> Swap with...
+            </button>
+            <button class="context-menu-item" onclick="toggleHistory(); event.stopPropagation();">
+              <span class="cm-icon">&#128203;</span> View History
+            </button>
+            <div class="context-menu-divider"></div>
+            <button class="context-menu-item danger" onclick="event.stopPropagation();">
+              <span class="cm-icon">&#128465;</span> Delete
+            </button>
+          </div>
+        </div>
+        <!-- Tue: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Wed: 08-17 9h red -->
+        <div class="day-cell">
+          <div class="schedule-block wh-red status-approved">
+            <span class="block-time">08-17</span>
+            <span class="block-shift">Day</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Thu: 08-17 9h red, Approved — shown first because sorted -->
+        <div class="day-cell">
+          <div class="schedule-block wh-red status-approved">
+            <span class="block-time">08-17</span>
+            <span class="block-shift">Day</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Fri: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Sat: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Sun: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Total: 27h, green ≤30 -->
+        <div class="total-cell total-green">27h</div>
+      </div>
+
+      <!-- Row 2: Mike Lee (SV) -->
+      <div class="schedule-row">
+        <div class="staff-cell">
+          <div class="avatar avatar-sm" style="background:#E0E7FF;color:#3730A3;">ML</div>
+          <div class="staff-info">
+            <span class="staff-name">Mike Lee</span>
+            <span class="role-badge sv">SV</span>
+          </div>
+        </div>
+        <!-- Mon: 13-22 Afternoon, 9h red -->
+        <div class="day-cell">
+          <div class="schedule-block wh-red status-approved">
+            <span class="block-time">13-22</span>
+            <span class="block-shift">Afternoon</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Tue: 08-17 9h red, Pending -->
+        <div class="day-cell">
+          <div class="schedule-block wh-red status-pending">
+            <span class="block-time">08-17</span>
+            <span class="block-shift">Day</span>
+            <span class="block-status" style="color:var(--color-warning);">&#9679;</span>
+          </div>
+        </div>
+        <!-- Wed: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Thu: empty — sorted: empty goes last -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Fri: 08-17 9h red -->
+        <div class="day-cell">
+          <div class="schedule-block wh-red status-approved">
+            <span class="block-time">08-17</span>
+            <span class="block-shift">Day</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Sat: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Sun: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <div class="total-cell total-green">27h</div>
+      </div>
+
+      <!-- Row 3: James Park (Staff) -->
+      <div class="schedule-row">
+        <div class="staff-cell">
+          <div class="avatar avatar-sm">JP</div>
+          <div class="staff-info">
+            <span class="staff-name">James Park</span>
+            <span class="role-badge staff">Staff</span>
+          </div>
+        </div>
+        <!-- Mon: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Tue: 08-13 5h green -->
+        <div class="day-cell">
+          <div class="schedule-block wh-green status-approved">
+            <span class="block-time">08-13</span>
+            <span class="block-shift">Day</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Wed: 06-14 Open, 8h red -->
+        <div class="day-cell">
+          <div class="schedule-block wh-red status-pending">
+            <span class="block-time">06-14</span>
+            <span class="block-shift">Open</span>
+            <span class="block-status" style="color:var(--color-warning);">&#9679;</span>
+          </div>
+        </div>
+        <!-- Thu: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Fri: 13-22 9h red -->
+        <div class="day-cell">
+          <div class="schedule-block wh-red status-approved">
+            <span class="block-time">13-22</span>
+            <span class="block-shift">Afternoon</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Sat: 06-16 10h red -->
+        <div class="day-cell">
+          <div class="schedule-block wh-red status-approved">
+            <span class="block-time">06-16</span>
+            <span class="block-shift">Open</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Sun: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <div class="total-cell total-orange">32h</div>
+      </div>
+
+      <!-- Row 4: Emily Chen (Staff) -->
+      <div class="schedule-row">
+        <div class="staff-cell">
+          <div class="avatar avatar-sm" style="background:#DCFCE7;color:#166534;">EC</div>
+          <div class="staff-info">
+            <span class="staff-name">Emily Chen</span>
+            <span class="role-badge staff">Staff</span>
+          </div>
+        </div>
+        <!-- Mon: 06-11 5h green -->
+        <div class="day-cell">
+          <div class="schedule-block wh-green status-approved">
+            <span class="block-time">06-11</span>
+            <span class="block-shift">Open</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Tue: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Wed: 10-15 5h green -->
+        <div class="day-cell">
+          <div class="schedule-block wh-green status-approved">
+            <span class="block-time">10-15</span>
+            <span class="block-shift">Day</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Thu: 06-11 5h green, Approved -->
+        <div class="day-cell">
+          <div class="schedule-block wh-green status-approved">
+            <span class="block-time">06-11</span>
+            <span class="block-shift">Open</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Fri: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Sat: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Sun: 08-13 5h green -->
+        <div class="day-cell">
+          <div class="schedule-block wh-green status-approved">
+            <span class="block-time">08-13</span>
+            <span class="block-shift">Morning</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <div class="total-cell total-green">20h</div>
+      </div>
+
+      <!-- Row 5: Chris Han (Staff) -->
+      <div class="schedule-row">
+        <div class="staff-cell">
+          <div class="avatar avatar-sm" style="background:#FEE2E2;color:#991B1B;">CH</div>
+          <div class="staff-info">
+            <span class="staff-name">Chris Han</span>
+            <span class="role-badge staff">Staff</span>
+          </div>
+        </div>
+        <!-- Mon: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Tue: 14-19 5h green -->
+        <div class="day-cell">
+          <div class="schedule-block wh-green status-approved">
+            <span class="block-time">14-19</span>
+            <span class="block-shift">Afternoon</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Wed: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Thu: 16-22 Close, 6h orange, Pending -->
+        <div class="day-cell">
+          <div class="schedule-block wh-orange status-pending">
+            <span class="block-time">16-22</span>
+            <span class="block-shift">Close</span>
+            <span class="block-status" style="color:var(--color-warning);">&#9679;</span>
+          </div>
+        </div>
+        <!-- Fri: 14-19 5h green -->
+        <div class="day-cell">
+          <div class="schedule-block wh-green status-approved">
+            <span class="block-time">14-19</span>
+            <span class="block-shift">Afternoon</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Sat: 15-22 7h orange -->
+        <div class="day-cell">
+          <div class="schedule-block wh-orange status-approved">
+            <span class="block-time">15-22</span>
+            <span class="block-shift">Close</span>
+            <span class="block-status">&#10003;</span>
+          </div>
+        </div>
+        <!-- Sun: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <div class="total-cell total-green">23h</div>
+      </div>
+
+      <!-- Row 6: Alex Yun (Staff) -->
+      <div class="schedule-row">
+        <div class="staff-cell">
+          <div class="avatar avatar-sm" style="background:var(--color-bg);color:var(--color-text-muted);">AY</div>
+          <div class="staff-info">
+            <span class="staff-name">Alex Yun</span>
+            <span class="role-badge staff">Staff</span>
+          </div>
+        </div>
+        <!-- Mon-Sat: all empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <div class="day-cell"><button class="empty-add">+</button></div>
+        <!-- Sun: 08-17 9h red, draft -->
+        <div class="day-cell">
+          <div class="schedule-block wh-red status-draft">
+            <span class="block-time">08-17</span>
+            <span class="block-shift">Day</span>
+            <span class="block-status" style="color:var(--color-text-muted);">&#9998;</span>
+          </div>
+        </div>
+        <div class="total-cell total-green">9h</div>
+      </div>
+    </div>
+
+    <!-- Bottom Summary -->
+    <div class="summary-bar">
+      <div class="summary-item">Total Staff: <strong>6</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Scheduled: <strong>5</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Unscheduled: <strong>1</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Pending Approval: <strong style="color:var(--color-warning);">3</strong></div>
+      <div class="summary-divider"></div>
+      <div class="summary-item">Weekly Avg: <strong>23h</strong></div>
+    </div>
+
+  </div><!-- /view-weekly -->
+
+
+  <!-- ========== DAILY VIEW ========== -->
+  <div class="view-section" id="view-daily">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <button class="page-back" onclick="switchView('weekly')">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 12 6 8 10 4"/></svg>
+          Back to Week
+        </button>
+        <div>
+          <div class="page-title">Wednesday, April 1, 2026</div>
+          <div class="page-subtitle">Main Street &mdash; Daily View</div>
+        </div>
+      </div>
+      <div class="page-header-right">
+        <div class="week-nav">
+          <button class="week-nav-btn" title="Previous day">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 12 6 8 10 4"/></svg>
+          </button>
+          <span style="font-size:13px;font-weight:600;color:var(--color-text);min-width:60px;text-align:center;">Apr 1</span>
+          <button class="week-nav-btn" title="Next day">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 10 8 6 12"/></svg>
+          </button>
+        </div>
+        <button class="btn btn-primary btn-sm">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+          Add Schedule
+        </button>
+      </div>
+    </div>
+
+    <div class="daily-view-container">
+      <!-- Timeline -->
+      <div class="daily-timeline-area">
+        <div class="timeline-grid">
+          <!-- 06:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">06:00</div>
+            <div class="timeline-content">
+              <!-- Emily Chen 06-11 (5h, green) - spans 5 rows -->
+              <div class="timeline-block wh-green status-approved" style="left:0;width:28%;height:calc(52px * 5 - 8px);">
+                <span class="tb-name">Emily Chen</span>
+                <span class="tb-info">06:00-11:00 &middot; Open &middot; 5h</span>
+                <span class="tb-badge">&#10003;</span>
+              </div>
+              <!-- James Park 06-14 (8h, red, pending) - spans 8 rows -->
+              <div class="timeline-block wh-red status-pending" style="left:30%;width:32%;height:calc(52px * 8 - 8px);">
+                <span class="tb-name">James Park</span>
+                <span class="tb-info">06:00-14:00 &middot; Open &middot; 8h</span>
+                <span class="tb-badge" style="color:var(--color-warning);">&#9679; Pending</span>
+              </div>
+            </div>
+          </div>
+          <!-- 07:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">07:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 08:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">08:00</div>
+            <div class="timeline-content">
+              <!-- Sarah Kim 08-17 (9h, red) - spans 9 rows -->
+              <div class="timeline-block wh-red status-approved" style="left:64%;width:34%;height:calc(52px * 9 - 8px);">
+                <span class="tb-name">Sarah Kim</span>
+                <span class="tb-info">08:00-17:00 &middot; Day &middot; 9h</span>
+                <span class="tb-badge">&#10003; GM</span>
+              </div>
+            </div>
+          </div>
+          <!-- 09:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">09:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 10:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">10:00</div>
+            <div class="timeline-content">
+              <!-- Emily's 10-15 block (this is Wed schedule from the table for Emily) -->
+              <!-- Actually Emily has 10-15 on Wed. Let me use a separate block approach -->
+            </div>
+          </div>
+          <!-- 11:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">11:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 12:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">12:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 13:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">13:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 14:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">14:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 15:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">15:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 16:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">16:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 17:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">17:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 18:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">18:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 19:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">19:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 20:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">20:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 21:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">21:00</div>
+            <div class="timeline-content"></div>
+          </div>
+          <!-- 22:00 -->
+          <div class="timeline-row">
+            <div class="timeline-label">22:00</div>
+            <div class="timeline-content"></div>
+          </div>
+        </div>
+
+        <!-- Daily Summary -->
+        <div class="summary-bar" style="margin-top:16px;">
+          <div class="summary-item">Staff on Duty: <strong>3</strong></div>
+          <div class="summary-divider"></div>
+          <div class="summary-item">Approved: <strong style="color:var(--color-success);">2</strong></div>
+          <div class="summary-divider"></div>
+          <div class="summary-item">Pending: <strong style="color:var(--color-warning);">1</strong></div>
+          <div class="summary-divider"></div>
+          <div class="summary-item">Peak Coverage: <strong>3 staff (08:00-11:00)</strong></div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Headcount -->
+      <div class="daily-right-panel">
+        <div class="headcount-card">
+          <h4>Headcount by Hour</h4>
+          <div class="headcount-row">
+            <span class="hc-label">06-07</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
+            <span class="hc-num">2</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">07-08</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
+            <span class="hc-num">2</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">08-09</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:75%;"></div></div>
+            <span class="hc-num">3</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">09-10</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:75%;"></div></div>
+            <span class="hc-num">3</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">10-11</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:75%;"></div></div>
+            <span class="hc-num">3</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">11-12</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
+            <span class="hc-num">2</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">12-13</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
+            <span class="hc-num">2</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">13-14</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:50%;"></div></div>
+            <span class="hc-num">2</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">14-15</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:25%;"></div></div>
+            <span class="hc-num">1</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">15-16</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:25%;"></div></div>
+            <span class="hc-num">1</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">16-17</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:25%;"></div></div>
+            <span class="hc-num">1</span>
+          </div>
+          <div class="headcount-row">
+            <span class="hc-label">17-22</span>
+            <div class="hc-bar-wrap"><div class="hc-bar" style="width:0%;background:var(--color-border);"></div></div>
+            <span class="hc-num">0</span>
+          </div>
+        </div>
+
+        <!-- Day staff list -->
+        <div class="card" style="margin-top:12px;padding:16px;">
+          <h4 style="font-size:13px;font-weight:700;margin-bottom:12px;">Staff on Duty</h4>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="avatar avatar-sm" style="background:#DCFCE7;color:#166534;width:24px;height:24px;font-size:9px;">EC</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:600;">Emily Chen</div>
+                <div style="font-size:10px;color:var(--color-text-muted);">10:00-15:00 &middot; 5h</div>
+              </div>
+              <span class="badge badge-success" style="font-size:10px;padding:2px 6px;">&#10003;</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="avatar avatar-sm" style="width:24px;height:24px;font-size:9px;">JP</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:600;">James Park</div>
+                <div style="font-size:10px;color:var(--color-text-muted);">06:00-14:00 &middot; 8h</div>
+              </div>
+              <span class="badge badge-warning" style="font-size:10px;padding:2px 6px;">Pending</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="avatar avatar-sm" style="background:#FEF3C7;color:#92400E;width:24px;height:24px;font-size:9px;">SK</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:600;">Sarah Kim</div>
+                <div style="font-size:10px;color:var(--color-text-muted);">08:00-17:00 &middot; 9h</div>
+              </div>
+              <span class="badge badge-success" style="font-size:10px;padding:2px 6px;">&#10003;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /view-daily -->
+
+</main>
+
+
+<!-- ========== HISTORY SIDE PANEL ========== -->
+<div class="history-panel" id="history-panel">
+  <div class="history-panel-header">
+    <div>
+      <h3>Schedule History</h3>
+      <div class="history-subtitle">Sarah Kim &mdash; Mon 3/30</div>
+    </div>
+    <button class="modal-close" onclick="toggleHistory()">&times;</button>
+  </div>
+  <div class="history-panel-body">
+    <div class="history-entry">
+      <div class="history-time">Apr 5, 10:32 AM</div>
+      <div class="history-actor">Sarah Kim <span class="actor-role">(Staff)</span></div>
+      <div class="history-action">Requested shift swap with Mike Lee</div>
+    </div>
+    <div class="history-entry">
+      <div class="history-time">Apr 4, 3:15 PM</div>
+      <div class="history-actor">Admin <span class="actor-role">(John Smith)</span></div>
+      <div class="history-action">Approved schedule</div>
+    </div>
+    <div class="history-entry">
+      <div class="history-time">Apr 3, 11:00 AM</div>
+      <div class="history-actor">Sarah Kim <span class="actor-role">(Staff)</span></div>
+      <div class="history-action">Submitted schedule request: 08:00-17:00 Morning</div>
+    </div>
+    <div class="history-entry system-entry">
+      <div class="history-time">Apr 2, 9:45 AM</div>
+      <div class="history-actor">System</div>
+      <div class="history-action">Auto-generated from last week template</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== SWAP MODAL ========== -->
+<div class="modal-overlay" id="swap-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Swap Schedule</h2>
+      <button class="modal-close" onclick="closeSwapModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="swap-info" style="margin-bottom:12px;">
+        <div class="swap-label">From</div>
+        <div class="swap-detail">Sarah Kim &mdash; Mon 3/30, 08:00-17:00 Morning</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Swap with <span class="required">*</span></label>
+        <select class="form-select">
+          <option value="">Select employee...</option>
+          <option>Mike Lee (SV) &mdash; Available Mon</option>
+          <option>Emily Chen (Staff) &mdash; 06:00-11:00</option>
+          <option>Chris Han (Staff) &mdash; Available Mon</option>
+          <option>James Park (Staff) &mdash; Available Mon</option>
+        </select>
+        <div class="form-hint">Shows employees available for this time slot</div>
+      </div>
+      <div class="swap-note">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><line x1="8" y1="5" x2="8" y2="8"/><line x1="8" y1="10.5" x2="8" y2="11"/></svg>
+        Both employees will be notified of the swap.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeSwapModal()">Cancel</button>
+      <button class="btn btn-primary">Confirm Swap</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- SHARED MODULES -->
+<link rel="stylesheet" href="../shared/feedback.css">
+<script src="../shared/feedback.js"></script>
+<script src="../shared/history.js"></script>
+
+<script>
+  // ============================================
+  // VIEW SWITCHING
+  // ============================================
+  function switchView(view) {
+    // Update guide bar tabs
+    document.querySelectorAll('.guide-bar .page-tab').forEach(t => t.classList.remove('active'));
+    if (view === 'weekly') {
+      document.getElementById('tab-weekly').classList.add('active');
+    } else if (view === 'daily') {
+      document.getElementById('tab-daily').classList.add('active');
+    }
+
+    // Show/hide sections
+    document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+    const target = document.getElementById('view-' + view);
+    if (target) target.classList.add('active');
+  }
+
+  // ============================================
+  // CONTEXT MENU
+  // ============================================
+  function toggleContextMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('ctx-menu');
+    menu.classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const menu = document.getElementById('ctx-menu');
+    if (menu && !e.target.closest('#block-sarah-mon') && !e.target.closest('#ctx-menu')) {
+      menu.classList.remove('open');
+    }
+  });
+
+  // ============================================
+  // HISTORY PANEL
+  // ============================================
+  function toggleHistory() {
+    document.getElementById('history-panel').classList.toggle('open');
+  }
+
+  // ============================================
+  // SWAP MODAL
+  // ============================================
+  function openSwapModal() {
+    document.getElementById('swap-modal').classList.add('open');
+    // Close context menu
+    document.getElementById('ctx-menu').classList.remove('open');
+  }
+  function closeSwapModal() {
+    document.getElementById('swap-modal').classList.remove('open');
+  }
+
+  // ============================================
+  // SORT TOGGLE (visual only)
+  // ============================================
+  function toggleSort(el) {
+    const wasActive = el.classList.contains('sorted');
+    document.querySelectorAll('.col-header').forEach(h => {
+      h.classList.remove('sorted');
+      const icon = h.querySelector('.sort-icon');
+      if (icon) icon.innerHTML = '&#8645;';
+    });
+    if (!wasActive) {
+      el.classList.add('sorted');
+      const icon = el.querySelector('.sort-icon');
+      if (icon) icon.innerHTML = '&#9650;';
+    }
+  }
+
+  // ============================================
+  // SIDEBAR SUBMENU
+  // ============================================
+  function toggleSubmenu(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      const parent = el.closest('.nav-group');
+      if (parent) parent.classList.toggle('open');
+      el.classList.toggle('hidden');
+    }
+  }
+</script>
+
+</body>
+</html>
