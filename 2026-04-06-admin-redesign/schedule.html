@@ -1115,52 +1115,67 @@
     }
 
     /* ============================================
-       SORT ARROWS (DUAL UP/DOWN) & COLUMN HIGHLIGHT
+       SORT ARROWS (UP on confirmed, DOWN on pending) & COLUMN HIGHLIGHT
        ============================================ */
-    .sort-arrows {
+
+    /* Sort arrow base styles — hidden by default */
+    .sort-arrow-up, .sort-arrow-down {
       display: inline-flex;
-      flex-direction: column;
-      gap: 0px;
       margin-left: 3px;
       opacity: 0;
       transition: opacity 0.15s;
       flex-shrink: 0;
-    }
-    .sort-arrows svg {
       color: #C0C4CC;
     }
-    .hcell.sortable, .gantt-cell.sortable {
+
+    /* Team size rows are clickable */
+    .row-team-confirmed .hcell.sortable,
+    .row-team-pending .hcell.sortable,
+    .gantt-row.row-team-confirmed .gantt-cell.sortable,
+    .gantt-row.row-team-pending .gantt-cell.sortable {
       cursor: pointer;
       user-select: none;
     }
-    /* Show on hover of parent cell */
-    .hcell.sortable:hover .sort-arrows,
-    .gantt-cell.sortable:hover .sort-arrows {
-      opacity: 1;
-    }
-    /* Always show if column is actively sorted */
-    .hcell.col-sorted .sort-arrows,
-    .gantt-cell.col-sorted .sort-arrows {
-      opacity: 1;
-    }
-    /* Sort state: confirmed first - up arrow green, down gray */
-    .hcell.sort-confirmed .arrow-up { color: #00B894; }
-    .hcell.sort-confirmed .arrow-down { color: #C0C4CC; }
-    /* Sort state: pending first - up gray, down amber */
-    .hcell.sort-pending .arrow-up { color: #C0C4CC; }
-    .hcell.sort-pending .arrow-down { color: #F0A500; }
-    /* Same for gantt */
-    .gantt-cell.sort-confirmed .arrow-up { color: #00B894; }
-    .gantt-cell.sort-confirmed .arrow-down { color: #C0C4CC; }
-    .gantt-cell.sort-pending .arrow-up { color: #C0C4CC; }
-    .gantt-cell.sort-pending .arrow-down { color: #F0A500; }
 
+    /* Show arrows on column hover (JS adds .col-hover) */
+    .hcell.col-hover .sort-arrow-up,
+    .hcell.col-hover .sort-arrow-down,
+    .gantt-cell.col-hover .sort-arrow-up,
+    .gantt-cell.col-hover .sort-arrow-down {
+      opacity: 0.4;
+    }
+
+    /* Always show when column is sorted */
+    .hcell.col-sorted .sort-arrow-up,
+    .hcell.col-sorted .sort-arrow-down,
+    .gantt-cell.col-sorted .sort-arrow-up,
+    .gantt-cell.col-sorted .sort-arrow-down {
+      opacity: 0.4;
+    }
+
+    /* Sort state: confirmed first - up arrow green */
+    .hcell.sort-confirmed .sort-arrow-up { color: #00B894; opacity: 1; }
+    .hcell.sort-confirmed .sort-arrow-down { color: #C0C4CC; opacity: 0.4; }
+    /* Sort state: pending first - down arrow amber */
+    .hcell.sort-pending .sort-arrow-up { color: #C0C4CC; opacity: 0.4; }
+    .hcell.sort-pending .sort-arrow-down { color: #F0A500; opacity: 1; }
+    /* Same for gantt */
+    .gantt-cell.sort-confirmed .sort-arrow-up { color: #00B894; opacity: 1; }
+    .gantt-cell.sort-confirmed .sort-arrow-down { color: #C0C4CC; opacity: 0.4; }
+    .gantt-cell.sort-pending .sort-arrow-up { color: #C0C4CC; opacity: 0.4; }
+    .gantt-cell.sort-pending .sort-arrow-down { color: #F0A500; opacity: 1; }
+
+    /* Column highlight — accent purple */
     .hcell.col-active,
     .gantt-cell.col-active {
-      background: rgba(0, 184, 148, 0.06);
+      background: rgba(108, 92, 231, 0.06);
+      border-left: 1px solid rgba(108, 92, 231, 0.15);
+      border-right: 1px solid rgba(108, 92, 231, 0.15);
     }
     .day-cell.col-active {
-      background: rgba(0, 184, 148, 0.03);
+      background: rgba(108, 92, 231, 0.03);
+      border-left: 1px solid rgba(108, 92, 231, 0.15);
+      border-right: 1px solid rgba(108, 92, 231, 0.15);
     }
 
     /* Confirmed/pending sub-rows styling */
@@ -1206,7 +1221,7 @@
           <button class="role-dropdown-item" id="role-opt-sv" onclick="switchRole('sv')">&#128101; SV (Supervisor)</button>
         </div>
       </div>
-      <span class="hint">Try: Click day headers, toggle Weekly/Daily, switch GM/SV role, hover Alex Yun's cells, click Hours values to sort</span>
+      <span class="hint">Try: Click day headers, toggle Weekly/Daily, switch GM/SV role, hover Alex Yun's cells, click Team Size to sort</span>
     </div>
   </div>
 </div>
@@ -1326,7 +1341,7 @@
           <button class="week-nav-btn" title="Previous week">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="10 12 6 8 10 4"/></svg>
           </button>
-          <span style="font-size:13px;font-weight:600;color:var(--color-text);min-width:100px;text-align:center;">Mar 30 &ndash; Apr 5</span>
+          <span style="font-size:13px;font-weight:600;color:var(--color-text);min-width:100px;text-align:center;">Mar 29 &ndash; Apr 4</span>
           <button class="week-nav-btn" title="Next week">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 4 10 8 6 12"/></svg>
           </button>
@@ -1407,165 +1422,123 @@
       <!-- Multi-Row Header -->
       <div class="schedule-grid-header">
 
-        <!-- Row 1: Date -->
+        <!-- Row 1: Date (SUN first) -->
         <div class="header-row row-date">
           <div class="hcell">Employee</div>
-          <div class="hcell" onclick="switchDay('2026-03-30')">
+          <div class="hcell day-sun" data-col="col0" onclick="switchDay('2026-03-29')">
+            <span class="day-name">SUN</span>
+            <span class="day-date">Mar 29</span>
+          </div>
+          <div class="hcell" data-col="col1" onclick="switchDay('2026-03-30')">
             <span class="day-name">MON</span>
             <span class="day-date">Mar 30</span>
           </div>
-          <div class="hcell" onclick="switchDay('2026-03-31')">
+          <div class="hcell" data-col="col2" onclick="switchDay('2026-03-31')">
             <span class="day-name">TUE</span>
             <span class="day-date">Mar 31</span>
           </div>
-          <div class="hcell" onclick="switchDay('2026-04-01')">
+          <div class="hcell" data-col="col3" onclick="switchDay('2026-04-01')">
             <span class="day-name">WED</span>
             <span class="day-date">Apr 1</span>
           </div>
-          <div class="hcell" onclick="switchDay('2026-04-02')">
+          <div class="hcell" data-col="col4" onclick="switchDay('2026-04-02')">
             <span class="day-name">THU</span>
             <span class="day-date">Apr 2</span>
           </div>
-          <div class="hcell" onclick="switchDay('2026-04-03')">
+          <div class="hcell" data-col="col5" onclick="switchDay('2026-04-03')">
             <span class="day-name">FRI</span>
             <span class="day-date">Apr 3</span>
           </div>
-          <div class="hcell day-sat" onclick="switchDay('2026-04-04')">
+          <div class="hcell day-sat" data-col="col6" onclick="switchDay('2026-04-04')">
             <span class="day-name">SAT</span>
             <span class="day-date">Apr 4</span>
-          </div>
-          <div class="hcell day-sun" onclick="switchDay('2026-04-05')">
-            <span class="day-name">SUN</span>
-            <span class="day-date">Apr 5</span>
           </div>
           <div class="hcell" style="cursor:default;">Total</div>
         </div>
 
-        <!-- Row 2a: Team Size Confirmed -->
+        <!-- Row 2a: Team Size Confirmed (with UP arrows) -->
         <div class="header-row row-team-confirmed">
           <div class="hcell row-label">
             Team Size
           </div>
-          <div class="hcell"><span class="team-badge confirmed">3</span></div>
-          <div class="hcell"><span class="team-badge confirmed">2</span></div>
-          <div class="hcell"><span class="team-badge confirmed">2</span></div>
-          <div class="hcell"><span class="team-badge confirmed">2</span></div>
-          <div class="hcell"><span class="team-badge confirmed">3</span></div>
-          <div class="hcell"><span class="team-badge confirmed">2</span></div>
-          <div class="hcell"><span class="team-badge confirmed">1</span></div>
+          <div class="hcell sortable" data-col="0" onclick="sortColumn(0)"><span class="team-badge confirmed">1</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="1" onclick="sortColumn(1)"><span class="team-badge confirmed">3</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="2" onclick="sortColumn(2)"><span class="team-badge confirmed">2</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="3" onclick="sortColumn(3)"><span class="team-badge confirmed">2</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="4" onclick="sortColumn(4)"><span class="team-badge confirmed">2</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="5" onclick="sortColumn(5)"><span class="team-badge confirmed">3</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="6" onclick="sortColumn(6)"><span class="team-badge confirmed">2</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
           <div class="hcell"></div>
         </div>
-        <!-- Row 2b: Team Size Pending -->
+        <!-- Row 2b: Team Size Pending (with DOWN arrows) -->
         <div class="header-row row-team-pending">
           <div class="hcell row-label">
           </div>
-          <div class="hcell"><span class="team-badge pending">1</span></div>
-          <div class="hcell"><span class="team-badge pending">1</span></div>
-          <div class="hcell"><span class="team-badge pending">1</span></div>
-          <div class="hcell"><span class="team-badge pending">1</span></div>
-          <div class="hcell"><span class="team-badge pending" style="opacity:0.4;">0</span></div>
-          <div class="hcell"><span class="team-badge pending" style="opacity:0.4;">0</span></div>
-          <div class="hcell"><span class="team-badge pending" style="opacity:0.4;">0</span></div>
+          <div class="hcell sortable" data-col="0" onclick="sortColumn(0)"><span class="team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="1" onclick="sortColumn(1)"><span class="team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="2" onclick="sortColumn(2)"><span class="team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="3" onclick="sortColumn(3)"><span class="team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="4" onclick="sortColumn(4)"><span class="team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="5" onclick="sortColumn(5)"><span class="team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+          <div class="hcell sortable" data-col="6" onclick="sortColumn(6)"><span class="team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
           <div class="hcell"></div>
         </div>
 
-        <!-- Row 3a: Hours Confirmed (green) -->
+        <!-- Row 3a: Hours Confirmed (NO arrows) -->
         <div class="header-row row-hours-confirmed">
           <div class="hcell row-label">
             Hours
           </div>
-          <div class="hcell sortable" data-col="0" onclick="sortColumn(0)">
-            <span class="val-confirmed">23h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="1" onclick="sortColumn(1)">
-            <span class="val-confirmed">10h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="2" onclick="sortColumn(2)">
-            <span class="val-confirmed">14h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="3" onclick="sortColumn(3)">
-            <span class="val-confirmed">14h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="4" onclick="sortColumn(4)">
-            <span class="val-confirmed">23h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="5" onclick="sortColumn(5)">
-            <span class="val-confirmed">17h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="6" onclick="sortColumn(6)">
-            <span class="val-confirmed">5h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
+          <div class="hcell" data-col="0"><span class="val-confirmed">5h</span></div>
+          <div class="hcell" data-col="1"><span class="val-confirmed">23h</span></div>
+          <div class="hcell" data-col="2"><span class="val-confirmed">10h</span></div>
+          <div class="hcell" data-col="3"><span class="val-confirmed">14h</span></div>
+          <div class="hcell" data-col="4"><span class="val-confirmed">14h</span></div>
+          <div class="hcell" data-col="5"><span class="val-confirmed">23h</span></div>
+          <div class="hcell" data-col="6"><span class="val-confirmed">17h</span></div>
           <div class="hcell"><span class="val-confirmed" style="font-weight:800;">106h</span></div>
         </div>
 
-        <!-- Row 3b: Hours Pending (yellow/amber) -->
+        <!-- Row 3b: Hours Pending (NO arrows) -->
         <div class="header-row row-hours-pending">
           <div class="hcell row-label">
           </div>
-          <div class="hcell sortable" data-col="0" onclick="sortColumn(0)">
-            <span class="val-pending">5h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="1" onclick="sortColumn(1)">
-            <span class="val-pending">9h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="2" onclick="sortColumn(2)">
-            <span class="val-pending">8h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="3" onclick="sortColumn(3)">
-            <span class="val-pending">6h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="4" onclick="sortColumn(4)">
-            <span class="val-pending">0h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="5" onclick="sortColumn(5)">
-            <span class="val-pending">0h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
-          <div class="hcell sortable" data-col="6" onclick="sortColumn(6)">
-            <span class="val-pending">0h</span>
-            <span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span>
-          </div>
+          <div class="hcell" data-col="0"><span class="val-pending">0h</span></div>
+          <div class="hcell" data-col="1"><span class="val-pending">5h</span></div>
+          <div class="hcell" data-col="2"><span class="val-pending">9h</span></div>
+          <div class="hcell" data-col="3"><span class="val-pending">8h</span></div>
+          <div class="hcell" data-col="4"><span class="val-pending">6h</span></div>
+          <div class="hcell" data-col="5"><span class="val-pending">0h</span></div>
+          <div class="hcell" data-col="6"><span class="val-pending">0h</span></div>
           <div class="hcell"><span class="val-pending">28h</span></div>
         </div>
 
-        <!-- Row 4a: Labor Confirmed (green, GM only) -->
+        <!-- Row 4a: Labor Confirmed (green, GM only, NO arrows) -->
         <div class="header-row row-labor-confirmed gm-only">
           <div class="hcell row-label">
             Labor
           </div>
-          <div class="hcell"><span class="val-confirmed">$430</span></div>
-          <div class="hcell"><span class="val-confirmed">$145</span></div>
-          <div class="hcell"><span class="val-confirmed">$300</span></div>
-          <div class="hcell"><span class="val-confirmed">$300</span></div>
-          <div class="hcell"><span class="val-confirmed">$385</span></div>
-          <div class="hcell"><span class="val-confirmed">$348</span></div>
-          <div class="hcell"><span class="val-confirmed">$75</span></div>
+          <div class="hcell" data-col="0"><span class="val-confirmed">$75</span></div>
+          <div class="hcell" data-col="1"><span class="val-confirmed">$430</span></div>
+          <div class="hcell" data-col="2"><span class="val-confirmed">$145</span></div>
+          <div class="hcell" data-col="3"><span class="val-confirmed">$300</span></div>
+          <div class="hcell" data-col="4"><span class="val-confirmed">$300</span></div>
+          <div class="hcell" data-col="5"><span class="val-confirmed">$385</span></div>
+          <div class="hcell" data-col="6"><span class="val-confirmed">$348</span></div>
           <div class="hcell"><span class="val-confirmed" style="font-weight:800;">$1,983</span></div>
         </div>
 
-        <!-- Row 4b: Labor Pending (yellow, GM only) -->
+        <!-- Row 4b: Labor Pending (yellow, GM only, NO arrows) -->
         <div class="header-row row-labor-pending gm-only">
           <div class="hcell row-label">
           </div>
-          <div class="hcell"><span class="val-pending">$100</span></div>
-          <div class="hcell"><span class="val-pending">$180</span></div>
-          <div class="hcell"><span class="val-pending">$120</span></div>
-          <div class="hcell"><span class="val-pending">$84</span></div>
-          <div class="hcell"><span class="val-pending">$0</span></div>
-          <div class="hcell"><span class="val-pending">$0</span></div>
-          <div class="hcell"><span class="val-pending">$0</span></div>
+          <div class="hcell" data-col="0"><span class="val-pending">$0</span></div>
+          <div class="hcell" data-col="1"><span class="val-pending">$100</span></div>
+          <div class="hcell" data-col="2"><span class="val-pending">$180</span></div>
+          <div class="hcell" data-col="3"><span class="val-pending">$120</span></div>
+          <div class="hcell" data-col="4"><span class="val-pending">$84</span></div>
+          <div class="hcell" data-col="5"><span class="val-pending">$0</span></div>
+          <div class="hcell" data-col="6"><span class="val-pending">$0</span></div>
           <div class="hcell"><span class="val-pending">$484</span></div>
         </div>
 
@@ -1573,7 +1546,8 @@
 
       <div id="weekly-body">
       <!-- Row 1: Sarah Kim (GM) $25/hr -->
-      <div class="schedule-row" data-col0="approved" data-col1="none" data-col2="approved" data-col3="approved" data-col4="none" data-col5="none" data-col6="none" data-original-index="0">
+      <!-- SUN=none, MON=approved, TUE=none, WED=approved, THU=approved, FRI=none, SAT=none -->
+      <div class="schedule-row" data-col0="none" data-col1="approved" data-col2="none" data-col3="approved" data-col4="approved" data-col5="none" data-col6="none" data-original-index="0">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:#FEF3C7;color:#92400E;">SK</div>
           <div class="staff-info">
@@ -1581,6 +1555,8 @@
             <span class="staff-role-rate"><span class="role-badge gm">GM</span> <span class="gm-only">&middot; $25/hr</span></span>
           </div>
         </div>
+        <!-- Sun: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Mon: 08-17 Morning, 9h, Approved — with context menu -->
         <div class="day-cell" style="position:relative;">
           <div class="schedule-block wh-overtime status-approved" id="block-sarah-mon" onclick="toggleContextMenu(event)">
@@ -1633,8 +1609,6 @@
         <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Sat: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Sun: empty -->
-        <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Total -->
         <div class="total-cell total-red">
           <span>27h</span>
@@ -1643,7 +1617,8 @@
       </div>
 
       <!-- Row 2: Mike Lee (SV) $20/hr -->
-      <div class="schedule-row" data-col0="approved" data-col1="pending" data-col2="none" data-col3="none" data-col4="approved" data-col5="none" data-col6="none" data-original-index="1">
+      <!-- SUN=none, MON=approved, TUE=pending, WED=none, THU=none, FRI=approved, SAT=none -->
+      <div class="schedule-row" data-col0="none" data-col1="approved" data-col2="pending" data-col3="none" data-col4="none" data-col5="approved" data-col6="none" data-original-index="1">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:#E0E7FF;color:#3730A3;">ML</div>
           <div class="staff-info">
@@ -1651,6 +1626,8 @@
             <span class="staff-role-rate"><span class="role-badge sv">SV</span> <span class="gm-only">&middot; $20/hr</span></span>
           </div>
         </div>
+        <!-- Sun: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Mon: 13-22 Afternoon, 9h Approved -->
         <div class="day-cell">
           <div class="schedule-block wh-overtime status-approved">
@@ -1684,8 +1661,6 @@
         </div>
         <!-- Sat: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Sun: empty -->
-        <div class="day-cell"><button class="empty-add">+</button></div>
         <div class="total-cell total-red">
           <span>27h</span>
           <span class="total-cost gm-only">$540</span>
@@ -1693,7 +1668,8 @@
       </div>
 
       <!-- Row 3: James Park (Staff) $15/hr -->
-      <div class="schedule-row" data-col0="none" data-col1="approved" data-col2="pending" data-col3="none" data-col4="approved" data-col5="approved" data-col6="none" data-original-index="2">
+      <!-- SUN=none, MON=none, TUE=approved, WED=pending, THU=none, FRI=approved, SAT=approved -->
+      <div class="schedule-row" data-col0="none" data-col1="none" data-col2="approved" data-col3="pending" data-col4="none" data-col5="approved" data-col6="approved" data-original-index="2">
         <div class="staff-cell">
           <div class="avatar avatar-sm">JP</div>
           <div class="staff-info">
@@ -1701,6 +1677,8 @@
             <span class="staff-role-rate"><span class="role-badge staff">Staff</span> <span class="gm-only">&middot; $15/hr</span></span>
           </div>
         </div>
+        <!-- Sun: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Mon: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Tue: 08-13 Day 5h Approved -->
@@ -1741,8 +1719,6 @@
             <span class="block-cost gm-only">$150</span>
           </div>
         </div>
-        <!-- Sun: empty -->
-        <div class="day-cell"><button class="empty-add">+</button></div>
         <div class="total-cell total-orange">
           <span>32h</span>
           <span class="total-cost gm-only">$480</span>
@@ -1750,12 +1726,22 @@
       </div>
 
       <!-- Row 4: Emily Chen (Staff) $15/hr -->
-      <div class="schedule-row" data-col0="approved" data-col1="none" data-col2="approved" data-col3="approved" data-col4="none" data-col5="none" data-col6="approved" data-original-index="3">
+      <!-- SUN=approved, MON=approved, TUE=none, WED=approved, THU=approved, FRI=none, SAT=none -->
+      <div class="schedule-row" data-col0="approved" data-col1="approved" data-col2="none" data-col3="approved" data-col4="approved" data-col5="none" data-col6="none" data-original-index="3">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:#DCFCE7;color:#166534;">EC</div>
           <div class="staff-info">
             <span class="staff-name">Emily Chen</span>
             <span class="staff-role-rate"><span class="role-badge staff">Staff</span> <span class="gm-only">&middot; $15/hr</span></span>
+          </div>
+        </div>
+        <!-- Sun: 08-13 Morning 5h Approved -->
+        <div class="day-cell">
+          <div class="schedule-block wh-normal status-approved">
+            <span class="block-time">08-13</span>
+            <span class="block-shift">Morning</span>
+            <span class="block-status">&#10003;</span>
+            <span class="block-cost gm-only">$75</span>
           </div>
         </div>
         <!-- Mon: 06-11 Open 5h Approved -->
@@ -1791,15 +1777,6 @@
         <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Sat: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
-        <!-- Sun: 08-13 Morning 5h Approved -->
-        <div class="day-cell">
-          <div class="schedule-block wh-normal status-approved">
-            <span class="block-time">08-13</span>
-            <span class="block-shift">Morning</span>
-            <span class="block-status">&#10003;</span>
-            <span class="block-cost gm-only">$75</span>
-          </div>
-        </div>
         <div class="total-cell total-green">
           <span>20h</span>
           <span class="total-cost gm-only">$300</span>
@@ -1807,7 +1784,8 @@
       </div>
 
       <!-- Row 5: Chris Han (Staff) $18/hr -->
-      <div class="schedule-row" data-col0="none" data-col1="approved" data-col2="none" data-col3="pending" data-col4="approved" data-col5="approved" data-col6="none" data-original-index="4">
+      <!-- SUN=none, MON=none, TUE=approved, WED=none, THU=pending, FRI=approved, SAT=approved -->
+      <div class="schedule-row" data-col0="none" data-col1="none" data-col2="approved" data-col3="none" data-col4="pending" data-col5="approved" data-col6="approved" data-original-index="4">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:#FEE2E2;color:#991B1B;">CH</div>
           <div class="staff-info">
@@ -1815,6 +1793,8 @@
             <span class="staff-role-rate"><span class="role-badge staff">Staff</span> <span class="gm-only">&middot; $18/hr</span></span>
           </div>
         </div>
+        <!-- Sun: empty -->
+        <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Mon: empty -->
         <div class="day-cell"><button class="empty-add">+</button></div>
         <!-- Tue: 14-19 Afternoon 5h Approved -->
@@ -1855,8 +1835,6 @@
             <span class="block-cost gm-only">$126</span>
           </div>
         </div>
-        <!-- Sun: empty -->
-        <div class="day-cell"><button class="empty-add">+</button></div>
         <div class="total-cell total-green">
           <span>23h</span>
           <span class="total-cost gm-only">$414</span>
@@ -1864,7 +1842,8 @@
       </div>
 
       <!-- Row 6: Alex Yun (Staff) NO RATE -->
-      <div class="schedule-row" data-col0="none" data-col1="none" data-col2="none" data-col3="none" data-col4="none" data-col5="none" data-col6="draft" data-original-index="5">
+      <!-- SUN=draft, MON=none, TUE=none, WED=none, THU=none, FRI=none, SAT=none -->
+      <div class="schedule-row" data-col0="draft" data-col1="none" data-col2="none" data-col3="none" data-col4="none" data-col5="none" data-col6="none" data-original-index="5">
         <div class="staff-cell">
           <div class="avatar avatar-sm" style="background:var(--color-bg);color:var(--color-text-muted);">AY</div>
           <div class="staff-info">
@@ -1873,6 +1852,13 @@
               <span class="role-badge staff">Staff</span>
               <span class="gm-only" style="color:var(--color-danger);font-weight:700;">&middot; No rate set</span>
             </span>
+          </div>
+        </div>
+        <!-- Sun: 08-17 Day 9h DRAFT -->
+        <div class="day-cell">
+          <div class="schedule-block wh-overtime status-draft">
+            <span class="block-time">08-17</span>
+            <span class="block-shift">Day</span>
           </div>
         </div>
         <!-- Mon: empty + warning tooltip -->
@@ -1921,13 +1907,6 @@
           <div class="no-rate-tooltip">
             <div class="nrt-title">&#9888;&#65039; Cannot assign: No hourly rate set</div>
             <div class="nrt-sub">Set rate in Organization, Store, or Staff settings</div>
-          </div>
-        </div>
-        <!-- Sun: 08-17 Day 9h DRAFT -->
-        <div class="day-cell">
-          <div class="schedule-block wh-overtime status-draft">
-            <span class="block-time">08-17</span>
-            <span class="block-shift">Day</span>
           </div>
         </div>
         <div class="total-cell" style="color:var(--color-text-muted);">
@@ -2019,98 +1998,98 @@
             <div class="gantt-cell">9PM</div>
           </div>
 
-          <!-- Row 2a: Team Size Confirmed per hour -->
+          <!-- Row 2a: Team Size Confirmed per hour (with UP arrows) -->
           <!-- Wed Confirmed: Emily 10-15, Sarah 08-17 -->
           <div class="gantt-row row-team-confirmed">
             <div class="gantt-cell row-label">
               Team Size
             </div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed">2</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed">2</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed">2</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed">2</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell sortable" data-col="0" onclick="sortGanttColumn(0)"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="1" onclick="sortGanttColumn(1)"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="2" onclick="sortGanttColumn(2)"><span class="gantt-team-badge confirmed">1</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="3" onclick="sortGanttColumn(3)"><span class="gantt-team-badge confirmed">1</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="4" onclick="sortGanttColumn(4)"><span class="gantt-team-badge confirmed">2</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="5" onclick="sortGanttColumn(5)"><span class="gantt-team-badge confirmed">2</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="6" onclick="sortGanttColumn(6)"><span class="gantt-team-badge confirmed">2</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="7" onclick="sortGanttColumn(7)"><span class="gantt-team-badge confirmed">2</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="8" onclick="sortGanttColumn(8)"><span class="gantt-team-badge confirmed">1</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="9" onclick="sortGanttColumn(9)"><span class="gantt-team-badge confirmed">1</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="10" onclick="sortGanttColumn(10)"><span class="gantt-team-badge confirmed">1</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="11" onclick="sortGanttColumn(11)"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="12" onclick="sortGanttColumn(12)"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="13" onclick="sortGanttColumn(13)"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="14" onclick="sortGanttColumn(14)"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="15" onclick="sortGanttColumn(15)"><span class="gantt-team-badge confirmed" style="opacity:0.4;">0</span><svg class="sort-arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
           </div>
-          <!-- Row 2b: Team Size Pending per hour -->
+          <!-- Row 2b: Team Size Pending per hour (with DOWN arrows) -->
           <!-- Wed Pending: James 06-14 -->
           <div class="gantt-row row-team-pending">
             <div class="gantt-cell row-label">
             </div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending">1</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span></div>
-            <div class="gantt-cell"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell sortable" data-col="0" onclick="sortGanttColumn(0)"><span class="gantt-team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="1" onclick="sortGanttColumn(1)"><span class="gantt-team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="2" onclick="sortGanttColumn(2)"><span class="gantt-team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="3" onclick="sortGanttColumn(3)"><span class="gantt-team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="4" onclick="sortGanttColumn(4)"><span class="gantt-team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="5" onclick="sortGanttColumn(5)"><span class="gantt-team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="6" onclick="sortGanttColumn(6)"><span class="gantt-team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="7" onclick="sortGanttColumn(7)"><span class="gantt-team-badge pending">1</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="8" onclick="sortGanttColumn(8)"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="9" onclick="sortGanttColumn(9)"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="10" onclick="sortGanttColumn(10)"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="11" onclick="sortGanttColumn(11)"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="12" onclick="sortGanttColumn(12)"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="13" onclick="sortGanttColumn(13)"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="14" onclick="sortGanttColumn(14)"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="gantt-cell sortable" data-col="15" onclick="sortGanttColumn(15)"><span class="gantt-team-badge pending" style="opacity:0.4;">0</span><svg class="sort-arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>
           </div>
 
-          <!-- Row 3a: Hours Confirmed per hour -->
+          <!-- Row 3a: Hours Confirmed per hour (NO arrows) -->
           <div class="gantt-row row-hours-confirmed">
             <div class="gantt-cell row-label">
               Hours
             </div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(0)"><span class="val-confirmed" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(1)"><span class="val-confirmed" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(2)"><span class="val-confirmed">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(3)"><span class="val-confirmed">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(4)"><span class="val-confirmed">2</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(5)"><span class="val-confirmed">2</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(6)"><span class="val-confirmed">2</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(7)"><span class="val-confirmed">2</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(8)"><span class="val-confirmed">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(9)"><span class="val-confirmed">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(10)"><span class="val-confirmed">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(11)"><span class="val-confirmed" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(12)"><span class="val-confirmed" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(13)"><span class="val-confirmed" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(14)"><span class="val-confirmed" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(15)"><span class="val-confirmed" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
+            <div class="gantt-cell" data-col="0"><span class="val-confirmed" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="1"><span class="val-confirmed" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="2"><span class="val-confirmed">1</span></div>
+            <div class="gantt-cell" data-col="3"><span class="val-confirmed">1</span></div>
+            <div class="gantt-cell" data-col="4"><span class="val-confirmed">2</span></div>
+            <div class="gantt-cell" data-col="5"><span class="val-confirmed">2</span></div>
+            <div class="gantt-cell" data-col="6"><span class="val-confirmed">2</span></div>
+            <div class="gantt-cell" data-col="7"><span class="val-confirmed">2</span></div>
+            <div class="gantt-cell" data-col="8"><span class="val-confirmed">1</span></div>
+            <div class="gantt-cell" data-col="9"><span class="val-confirmed">1</span></div>
+            <div class="gantt-cell" data-col="10"><span class="val-confirmed">1</span></div>
+            <div class="gantt-cell" data-col="11"><span class="val-confirmed" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="12"><span class="val-confirmed" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="13"><span class="val-confirmed" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="14"><span class="val-confirmed" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="15"><span class="val-confirmed" style="opacity:0.4;">0</span></div>
           </div>
 
-          <!-- Row 3b: Hours Pending per hour -->
+          <!-- Row 3b: Hours Pending per hour (NO arrows) -->
           <div class="gantt-row row-hours-pending">
             <div class="gantt-cell row-label">
             </div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(0)"><span class="val-pending">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(1)"><span class="val-pending">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(2)"><span class="val-pending">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(3)"><span class="val-pending">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(4)"><span class="val-pending">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(5)"><span class="val-pending">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(6)"><span class="val-pending">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(7)"><span class="val-pending">1</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(8)"><span class="val-pending" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(9)"><span class="val-pending" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(10)"><span class="val-pending" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(11)"><span class="val-pending" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(12)"><span class="val-pending" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(13)"><span class="val-pending" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(14)"><span class="val-pending" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
-            <div class="gantt-cell sortable" onclick="sortGanttColumn(15)"><span class="val-pending" style="opacity:0.4;">0</span><span class="sort-arrows"><svg class="arrow-up" width="10" height="6" viewBox="0 0 10 6"><path d="M1 5l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg><svg class="arrow-down" width="10" height="6" viewBox="0 0 10 6"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></span></div>
+            <div class="gantt-cell" data-col="0"><span class="val-pending">1</span></div>
+            <div class="gantt-cell" data-col="1"><span class="val-pending">1</span></div>
+            <div class="gantt-cell" data-col="2"><span class="val-pending">1</span></div>
+            <div class="gantt-cell" data-col="3"><span class="val-pending">1</span></div>
+            <div class="gantt-cell" data-col="4"><span class="val-pending">1</span></div>
+            <div class="gantt-cell" data-col="5"><span class="val-pending">1</span></div>
+            <div class="gantt-cell" data-col="6"><span class="val-pending">1</span></div>
+            <div class="gantt-cell" data-col="7"><span class="val-pending">1</span></div>
+            <div class="gantt-cell" data-col="8"><span class="val-pending" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="9"><span class="val-pending" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="10"><span class="val-pending" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="11"><span class="val-pending" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="12"><span class="val-pending" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="13"><span class="val-pending" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="14"><span class="val-pending" style="opacity:0.4;">0</span></div>
+            <div class="gantt-cell" data-col="15"><span class="val-pending" style="opacity:0.4;">0</span></div>
           </div>
 
-          <!-- Row 4a: Labor Confirmed (GM only) -->
+          <!-- Row 4a: Labor Confirmed (GM only, NO arrows) -->
           <!-- Confirmed: Emily $15 (10-15), Sarah $25 (08-17) -->
           <div class="gantt-row row-labor-confirmed gm-only">
             <div class="gantt-cell row-label">
@@ -2134,7 +2113,7 @@
             <div class="gantt-cell"><span class="val-confirmed" style="opacity:0.4;">$0</span></div>
           </div>
 
-          <!-- Row 4b: Labor Pending (GM only) -->
+          <!-- Row 4b: Labor Pending (GM only, NO arrows) -->
           <!-- Pending: James $15 (06-14) -->
           <div class="gantt-row row-labor-pending gm-only">
             <div class="gantt-cell row-label">
@@ -2459,6 +2438,27 @@
   }
 
   // ============================================
+  // TEAM SIZE HOVER — show arrows on both rows
+  // ============================================
+  function setupTeamSizeHover(scope, confirmedSelector, pendingSelector) {
+    document.querySelectorAll(scope + ' ' + confirmedSelector + ' [data-col], ' + scope + ' ' + pendingSelector + ' [data-col]').forEach(cell => {
+      cell.addEventListener('mouseenter', () => {
+        const col = cell.dataset.col;
+        document.querySelectorAll(scope + ' ' + confirmedSelector + ' [data-col="' + col + '"], ' + scope + ' ' + pendingSelector + ' [data-col="' + col + '"]').forEach(c => c.classList.add('col-hover'));
+      });
+      cell.addEventListener('mouseleave', () => {
+        const col = cell.dataset.col;
+        document.querySelectorAll(scope + ' ' + confirmedSelector + ' [data-col="' + col + '"], ' + scope + ' ' + pendingSelector + ' [data-col="' + col + '"]').forEach(c => c.classList.remove('col-hover'));
+      });
+    });
+  }
+
+  // Weekly view team size hover
+  setupTeamSizeHover('#view-weekly', '.row-team-confirmed', '.row-team-pending');
+  // Daily/Gantt view team size hover
+  setupTeamSizeHover('#view-daily', '.row-team-confirmed', '.row-team-pending');
+
+  // ============================================
   // SORT COLUMN (Weekly View) — Real DOM sorting
   // ============================================
   let currentSort = { col: -1, state: 0 };
@@ -2497,11 +2497,11 @@
         if (hasA !== hasB) return hasB - hasA;
 
         if (state === 1) {
-          // Confirmed first
+          // Confirmed first (green up arrow): approved -> pending -> draft -> none
           const order = { approved: 0, pending: 1, draft: 2, none: 3 };
           return (order[aStatus] || 3) - (order[bStatus] || 3);
         } else {
-          // Pending first
+          // Pending first (amber down arrow): pending -> approved -> draft -> none
           const order = { pending: 0, approved: 1, draft: 2, none: 3 };
           return (order[aStatus] || 3) - (order[bStatus] || 3);
         }
@@ -2513,14 +2513,24 @@
   }
 
   function highlightWeeklyColumn(colIndex, state) {
-    // Add col-sorted + sort-confirmed/sort-pending to all header cells at this column
-    const allHeaderRows = document.querySelectorAll('#view-weekly .schedule-grid-header .header-row');
-    allHeaderRows.forEach(row => {
+    // Add col-sorted + sort-confirmed/sort-pending to team size cells at this column
+    const teamRows = document.querySelectorAll('#view-weekly .row-team-confirmed, #view-weekly .row-team-pending');
+    teamRows.forEach(row => {
       const cells = row.querySelectorAll('.hcell');
       const cell = cells[colIndex + 1]; // +1 for label column
       if (cell) {
         cell.classList.add('col-active', 'col-sorted');
         cell.classList.add(state === 1 ? 'sort-confirmed' : 'sort-pending');
+      }
+    });
+
+    // Add col-active to all other header cells at this column
+    const otherHeaderRows = document.querySelectorAll('#view-weekly .schedule-grid-header .header-row:not(.row-team-confirmed):not(.row-team-pending)');
+    otherHeaderRows.forEach(row => {
+      const cells = row.querySelectorAll('.hcell');
+      const cell = cells[colIndex + 1];
+      if (cell) {
+        cell.classList.add('col-active');
       }
     });
 
@@ -2557,14 +2567,24 @@
     } else {
       ganttCurrentSort = { col: colIndex, state: state };
 
-      // Highlight column in gantt header
-      const ganttRows = document.querySelectorAll('#view-daily .gantt-header .gantt-row');
-      ganttRows.forEach(row => {
+      // Highlight team size cells at this column
+      const teamRows = document.querySelectorAll('#view-daily .gantt-header .row-team-confirmed, #view-daily .gantt-header .row-team-pending');
+      teamRows.forEach(row => {
         const cells = row.querySelectorAll('.gantt-cell');
         const cell = cells[colIndex + 1];
         if (cell) {
           cell.classList.add('col-active', 'col-sorted');
           cell.classList.add(state === 1 ? 'sort-confirmed' : 'sort-pending');
+        }
+      });
+
+      // col-active on other header rows
+      const otherRows = document.querySelectorAll('#view-daily .gantt-header .gantt-row:not(.row-team-confirmed):not(.row-team-pending)');
+      otherRows.forEach(row => {
+        const cells = row.querySelectorAll('.gantt-cell');
+        const cell = cells[colIndex + 1];
+        if (cell) {
+          cell.classList.add('col-active');
         }
       });
 
@@ -2578,9 +2598,11 @@
         if (hasA !== hasB) return hasB - hasA;
 
         if (state === 1) {
+          // Confirmed first: approved -> pending -> draft -> none
           const order = { approved: 0, pending: 1, draft: 2, none: 3 };
           return (order[aStatus] || 3) - (order[bStatus] || 3);
         } else {
+          // Pending first: pending -> approved -> draft -> none
           const order = { pending: 0, approved: 1, draft: 2, none: 3 };
           return (order[aStatus] || 3) - (order[bStatus] || 3);
         }
