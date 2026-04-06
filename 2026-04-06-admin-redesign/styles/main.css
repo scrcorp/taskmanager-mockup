@@ -1220,8 +1220,76 @@ tbody tr.clickable { cursor: pointer; }
 
 .calendar-cell:last-child { border-right: none; }
 
+/* Calendar body layout (matches HTML structure) */
+.calendar-card { padding: 0; overflow: hidden; }
+
+.calendar-header {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.calendar-time-col,
+.calendar-day-col {
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.calendar-day-name {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.calendar-day-num {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-top: 2px;
+}
+
+.calendar-day-col-accent .calendar-day-num { color: var(--color-accent); }
+.calendar-day-col-danger .calendar-day-name,
+.calendar-day-col-danger .calendar-day-num { color: var(--color-danger); }
+
+.calendar-body {
+  display: grid;
+  grid-template-columns: 60px repeat(7, 1fr);
+  min-height: 480px;
+  position: relative;
+}
+
+.calendar-time-labels {
+  position: relative;
+  border-right: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.calendar-time-label {
+  position: absolute;
+  right: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transform: translateY(-50%);
+}
+
+.calendar-day-body {
+  position: relative;
+  border-right: 1px solid var(--color-border);
+  min-height: 480px;
+}
+
+.calendar-day-body:last-child { border-right: none; }
+
 /* Schedule blocks */
 .schedule-block {
+  position: absolute;
+  left: 4px;
+  right: 4px;
   border-radius: var(--radius-sm);
   padding: 4px 8px;
   font-size: 11px;
@@ -1236,6 +1304,23 @@ tbody tr.clickable { cursor: pointer; }
 }
 
 .schedule-block:hover { opacity: 0.85; }
+
+.schedule-block-name {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+}
+.schedule-block-time {
+  display: block;
+  font-size: 10px;
+  opacity: 0.7;
+}
+.schedule-block-info {
+  display: block;
+  font-size: 10px;
+  opacity: 0.6;
+  margin-top: 1px;
+}
 
 .schedule-block-purple {
   background: rgba(108, 92, 231, 0.12);
