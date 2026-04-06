@@ -1,0 +1,3716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskManager Admin — Redesign Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+
+<!-- GUIDE BAR -->
+<div class="guide-bar">
+  <div class="guide-bar-inner">
+    <span class="guide-bar-title">Admin Redesign</span>
+    <div class="page-tabs">
+      <button class="page-tab active" onclick="navigateTo('page-dashboard')">Dashboard</button>
+      <button class="page-tab" onclick="navigateTo('page-stores')">Stores</button>
+      <button class="page-tab" onclick="navigateTo('page-users')">Staff</button>
+      <button class="page-tab" onclick="navigateTo('page-schedules')">Schedules</button>
+      <button class="page-tab" onclick="navigateTo('page-attendances')">Attendance</button>
+      <button class="page-tab" onclick="navigateTo('page-checklists')">Checklists</button>
+      <button class="page-tab" onclick="navigateTo('page-tasks')">Tasks</button>
+      <button class="page-tab" onclick="navigateTo('page-announcements')">Notices</button>
+      <button class="page-tab" onclick="navigateTo('page-daily-reports')">Reports</button>
+      <button class="page-tab" onclick="navigateTo('page-evaluations')">Evaluations</button>
+      <button class="page-tab" onclick="navigateTo('page-inventory')">Inventory</button>
+      <button class="page-tab" onclick="navigateTo('page-notifications')">Alerts</button>
+      <button class="page-tab" onclick="navigateTo('page-settings')">Settings</button>
+      <button class="page-tab" onclick="navigateTo('page-ui-states')">UI States</button>
+    </div>
+    <span class="hint">Try: Click sidebar items or guide tabs</span>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+        <rect width="32" height="32" rx="8" fill="#6C5CE7"/>
+        <path d="M10 11h12M10 16h8M10 21h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="sidebar-brand-name">TaskManager</div>
+        <div class="sidebar-brand-sub">Admin Console</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="sidebar-section-label">MAIN</div>
+    <a class="nav-item active" data-page="page-dashboard" onclick="navigateTo('page-dashboard')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="7" height="7" rx="1"/><rect x="11" y="2" width="7" height="7" rx="1"/><rect x="2" y="11" width="7" height="7" rx="1"/><rect x="11" y="11" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </a>
+
+    <div class="sidebar-section-label">OPERATIONS</div>
+    <a class="nav-item" data-page="page-stores" onclick="navigateTo('page-stores')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10V17H17V10"/><path d="M1 5L3 2H17L19 5"/><line x1="1" y1="5" x2="19" y2="5"/><path d="M7 17V12H13V17"/></svg>
+      Stores
+    </a>
+    <a class="nav-item" data-page="page-users" onclick="navigateTo('page-users')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 16v-1a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v1"/><circle cx="9" cy="7" r="3"/><path d="M17 16v-1a3 3 0 0 0-2-2.83"/><path d="M13 4.17a3 3 0 0 1 0 5.66"/></svg>
+      Staff
+    </a>
+
+    <div class="nav-group">
+      <a class="nav-item" onclick="toggleSubmenu('sub-schedules')">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="16" height="15" rx="2"/><line x1="14" y1="1" x2="14" y2="5"/><line x1="6" y1="1" x2="6" y2="5"/><line x1="2" y1="8" x2="18" y2="8"/></svg>
+        Schedules
+        <svg class="nav-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 8 10 13 15 8"/></svg>
+      </a>
+      <div class="nav-children hidden" id="sub-schedules">
+        <a class="nav-child" data-page="page-schedules" onclick="navigateTo('page-schedules')">Calendar</a>
+        <a class="nav-child" data-page="page-schedule-list" onclick="navigateTo('page-schedule-list')">List View</a>
+        <a class="nav-child" data-page="page-schedule-settings" onclick="navigateTo('page-schedule-settings')">Settings</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <a class="nav-item" onclick="toggleSubmenu('sub-attendance')">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="8"/><polyline points="10 5 10 10 13 12"/></svg>
+        Attendance
+        <svg class="nav-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 8 10 13 15 8"/></svg>
+      </a>
+      <div class="nav-children hidden" id="sub-attendance">
+        <a class="nav-child" data-page="page-attendances" onclick="navigateTo('page-attendances')">Daily View</a>
+        <a class="nav-child" data-page="page-attendance-summary" onclick="navigateTo('page-attendance-summary')">Weekly Summary</a>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <a class="nav-item" onclick="toggleSubmenu('sub-checklists')">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="16" height="16" rx="2"/><path d="M6 10l2.5 2.5L14 7"/></svg>
+        Checklists
+        <svg class="nav-chevron" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 8 10 13 15 8"/></svg>
+      </a>
+      <div class="nav-children hidden" id="sub-checklists">
+        <a class="nav-child" data-page="page-checklists" onclick="navigateTo('page-checklists')">Templates</a>
+        <a class="nav-child" data-page="page-checklist-progress" onclick="navigateTo('page-checklist-progress')">Progress</a>
+      </div>
+    </div>
+
+    <a class="nav-item" data-page="page-tasks" onclick="navigateTo('page-tasks')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="10 1 12.5 7 19 7 14 11.5 16 18 10 14 4 18 6 11.5 1 7 7.5 7"/></svg>
+      Tasks
+    </a>
+
+    <a class="nav-item" data-page="page-evaluations" onclick="navigateTo('page-evaluations')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2l2.4 4.8 5.3.8-3.85 3.7.9 5.3L10 14.1l-4.75 2.5.9-5.3L2.3 7.6l5.3-.8L10 2z"/></svg>
+      Evaluations
+    </a>
+
+    <div class="sidebar-section-label">COMMUNICATION</div>
+    <a class="nav-item" data-page="page-announcements" onclick="navigateTo('page-announcements')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4l-4 4H5a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h7l4 4V4z"/><path d="M17 8a4 4 0 0 1 0 4"/></svg>
+      Notices
+    </a>
+    <a class="nav-item" data-page="page-daily-reports" onclick="navigateTo('page-daily-reports')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><polyline points="12 2 12 7 17 7"/><line x1="7" y1="10" x2="13" y2="10"/><line x1="7" y1="13" x2="11" y2="13"/></svg>
+      Daily Reports
+    </a>
+    <a class="nav-item" data-page="page-notifications" onclick="navigateTo('page-notifications')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7a5 5 0 0 0-10 0c0 5.5-2.5 7-2.5 7h15S15 12.5 15 7"/><path d="M11.3 17a1.5 1.5 0 0 1-2.6 0"/></svg>
+      Alerts
+      <span class="nav-badge">3</span>
+    </a>
+
+    <div class="sidebar-section-label">ADMIN</div>
+    <a class="nav-item" data-page="page-inventory" onclick="navigateTo('page-inventory')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 10V5L10 1 3 5v5l7 4 7-4z"/><line x1="10" y1="10" x2="10" y2="18"/><line x1="3" y1="5" x2="10" y2="10"/><line x1="17" y1="5" x2="10" y2="10"/></svg>
+      Inventory
+    </a>
+    <a class="nav-item" data-page="page-settings" onclick="navigateTo('page-settings')">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M17.4 12.2a1.5 1.5 0 0 0 .3 1.7l.1.1a1.8 1.8 0 1 1-2.6 2.6l-.1-.1a1.5 1.5 0 0 0-1.7-.3 1.5 1.5 0 0 0-.9 1.4v.2a1.8 1.8 0 1 1-3.6 0v-.1a1.5 1.5 0 0 0-1-1.4 1.5 1.5 0 0 0-1.7.3l-.1.1a1.8 1.8 0 1 1-2.6-2.6l.1-.1a1.5 1.5 0 0 0 .3-1.7 1.5 1.5 0 0 0-1.4-.9H2a1.8 1.8 0 1 1 0-3.6h.1a1.5 1.5 0 0 0 1.4-1 1.5 1.5 0 0 0-.3-1.7l-.1-.1a1.8 1.8 0 1 1 2.6-2.6l.1.1a1.5 1.5 0 0 0 1.7.3h.1a1.5 1.5 0 0 0 .9-1.4V2a1.8 1.8 0 1 1 3.6 0v.1a1.5 1.5 0 0 0 .9 1.4 1.5 1.5 0 0 0 1.7-.3l.1-.1a1.8 1.8 0 1 1 2.6 2.6l-.1.1a1.5 1.5 0 0 0-.3 1.7v.1a1.5 1.5 0 0 0 1.4.9H18a1.8 1.8 0 1 1 0 3.6h-.2a1.5 1.5 0 0 0-1.4.9z"/></svg>
+      Settings
+    </a>
+  </nav>
+
+  <div class="sidebar-user">
+    <div class="avatar avatar-sm">JS</div>
+    <div>
+      <div class="font-medium" style="font-size:13px;">John Smith</div>
+      <div class="text-muted" style="font-size:11px;">admin@company.com</div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+<!-- ============================================ -->
+<!-- PAGE: LOGIN                                  -->
+<!-- ============================================ -->
+<div id="page-login" class="page login-page">
+  <div class="login-container">
+    <div class="card login-card">
+      <div class="login-logo">
+        <div class="login-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </div>
+        <h1 class="login-title">TaskManager</h1>
+        <p class="login-subtitle">Admin Console</p>
+      </div>
+      <div class="login-form">
+        <div class="form-group">
+          <label class="form-label">Username</label>
+          <input type="text" class="form-input" placeholder="Enter your username" value="admin">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="Enter your password" value="password123">
+        </div>
+        <button class="btn btn-primary w-full" onclick="navigateTo('page-dashboard')">Sign In</button>
+      </div>
+      <p class="login-footer">Staff accounts use the mobile app</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: DASHBOARD                              -->
+<!-- ============================================ -->
+<div id="page-dashboard" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Good morning, Admin</h1>
+      <p class="page-subtitle">Here's what's happening today</p>
+    </div>
+  </div>
+
+  <!-- Stat Cards Row -->
+  <div class="grid-5 mb-24">
+    <div class="stat-card">
+      <div class="flex-between mb-8">
+        <span class="stat-label">Total Staff</span>
+        <span class="stat-icon stat-icon-accent">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+      </div>
+      <div class="stat-value">24</div>
+      <span class="text-success" style="font-size: 12px;">+2 this month</span>
+    </div>
+    <div class="stat-card">
+      <div class="flex-between mb-8">
+        <span class="stat-label">Checked In</span>
+        <span class="stat-icon stat-icon-success">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </span>
+      </div>
+      <div class="stat-value">18</div>
+      <span class="text-muted" style="font-size: 12px;">75% of staff</span>
+    </div>
+    <div class="stat-card">
+      <div class="flex-between mb-8">
+        <span class="stat-label">Active Checklists</span>
+        <span class="stat-icon stat-icon-warning">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </span>
+      </div>
+      <div class="stat-value">12</div>
+      <span class="text-warning" style="font-size: 12px;">4 incomplete</span>
+    </div>
+    <div class="stat-card">
+      <div class="flex-between mb-8">
+        <span class="stat-label">Today's Tasks</span>
+        <span class="stat-icon stat-icon-info">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+      </div>
+      <div class="stat-value">5</div>
+      <span class="text-success" style="font-size: 12px;">3 done</span>
+    </div>
+    <div class="stat-card">
+      <div class="flex-between mb-8">
+        <span class="stat-label">Notices</span>
+        <span class="stat-icon stat-icon-danger">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </span>
+      </div>
+      <div class="stat-value">3</div>
+      <span class="text-danger" style="font-size: 12px;">1 urgent</span>
+    </div>
+  </div>
+
+  <!-- Two Column: Schedule + Notices -->
+  <div class="grid-2-wide mb-24">
+    <!-- Weekly Schedule Chart -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Weekly Schedule</h3>
+        <span class="text-muted" style="font-size: 13px;">Staff coverage by day</span>
+      </div>
+      <div class="bar-chart">
+        <div class="bar-chart-row">
+          <span class="bar-chart-label">Mon</span>
+          <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 85%;"></div></div>
+          <span class="bar-chart-value">17</span>
+        </div>
+        <div class="bar-chart-row">
+          <span class="bar-chart-label">Tue</span>
+          <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 75%;"></div></div>
+          <span class="bar-chart-value">15</span>
+        </div>
+        <div class="bar-chart-row">
+          <span class="bar-chart-label">Wed</span>
+          <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 90%;"></div></div>
+          <span class="bar-chart-value">18</span>
+        </div>
+        <div class="bar-chart-row">
+          <span class="bar-chart-label">Thu</span>
+          <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 70%;"></div></div>
+          <span class="bar-chart-value">14</span>
+        </div>
+        <div class="bar-chart-row">
+          <span class="bar-chart-label">Fri</span>
+          <div class="bar-chart-track"><div class="bar-chart-fill" style="width: 100%;"></div></div>
+          <span class="bar-chart-value">20</span>
+        </div>
+        <div class="bar-chart-row">
+          <span class="bar-chart-label">Sat</span>
+          <div class="bar-chart-track"><div class="bar-chart-fill bar-chart-fill-accent" style="width: 95%;"></div></div>
+          <span class="bar-chart-value">19</span>
+        </div>
+        <div class="bar-chart-row">
+          <span class="bar-chart-label">Sun</span>
+          <div class="bar-chart-track"><div class="bar-chart-fill bar-chart-fill-muted" style="width: 50%;"></div></div>
+          <span class="bar-chart-value">10</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Notices -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Recent Notices</h3>
+        <button class="btn btn-ghost btn-sm" onclick="navigateTo('page-notices')">View All</button>
+      </div>
+      <div class="notice-list">
+        <div class="notice-item">
+          <div class="flex-between mb-8">
+            <span class="badge badge-danger">Urgent</span>
+            <span class="text-muted" style="font-size: 12px;">Apr 6, 2026</span>
+          </div>
+          <p class="font-medium">Health inspection scheduled for next Tuesday</p>
+        </div>
+        <div class="notice-item">
+          <div class="flex-between mb-8">
+            <span class="badge badge-info">Info</span>
+            <span class="text-muted" style="font-size: 12px;">Apr 5, 2026</span>
+          </div>
+          <p class="font-medium">New POS system training materials available</p>
+        </div>
+        <div class="notice-item">
+          <div class="flex-between mb-8">
+            <span class="badge badge-info">Info</span>
+            <span class="text-muted" style="font-size: 12px;">Apr 4, 2026</span>
+          </div>
+          <p class="font-medium">Monthly team meeting moved to Friday 3 PM</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Recent Activity</h3>
+    </div>
+    <div class="activity-timeline">
+      <div class="activity-item">
+        <span class="activity-dot activity-dot-success"></span>
+        <div class="activity-content">
+          <p>Sarah Kim checked in at <strong>Main Street</strong></p>
+          <span class="text-muted" style="font-size: 12px;">8 minutes ago</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <span class="activity-dot activity-dot-accent"></span>
+        <div class="activity-content">
+          <p>Mike Lee completed <strong>Opening Checklist</strong></p>
+          <span class="text-muted" style="font-size: 12px;">23 minutes ago</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <span class="activity-dot activity-dot-warning"></span>
+        <div class="activity-content">
+          <p>Emily Park requested <strong>shift swap</strong> for Thursday</p>
+          <span class="text-muted" style="font-size: 12px;">1 hour ago</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <span class="activity-dot activity-dot-info"></span>
+        <div class="activity-content">
+          <p>New schedule published for <strong>Week of Apr 6</strong></p>
+          <span class="text-muted" style="font-size: 12px;">2 hours ago</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <span class="activity-dot activity-dot-danger"></span>
+        <div class="activity-content">
+          <p>Tom Wilson marked as <strong>inactive</strong> by admin</p>
+          <span class="text-muted" style="font-size: 12px;">3 hours ago</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: STORES                                 -->
+<!-- ============================================ -->
+<div id="page-stores" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Stores</h1>
+      <p class="page-subtitle">Manage your store locations</p>
+    </div>
+    <button class="btn btn-primary" onclick="toggleModal('modal-create-store')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Store
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <div class="table-toolbar">
+        <input type="text" class="table-search" placeholder="Search stores...">
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Store Name</th>
+            <th>Address</th>
+            <th>Staff</th>
+            <th>Shifts</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="clickable" onclick="navigateTo('page-store-detail')">
+            <td class="font-medium">Main Street</td>
+            <td class="text-secondary">123 Main St, New York, NY</td>
+            <td>12</td>
+            <td>3</td>
+            <td><span class="badge badge-success">Active</span></td>
+          </tr>
+          <tr class="clickable" onclick="navigateTo('page-store-detail')">
+            <td class="font-medium">Downtown</td>
+            <td class="text-secondary">456 Broadway, New York, NY</td>
+            <td>8</td>
+            <td>2</td>
+            <td><span class="badge badge-success">Active</span></td>
+          </tr>
+          <tr class="clickable" onclick="navigateTo('page-store-detail')">
+            <td class="font-medium">Westside</td>
+            <td class="text-secondary">789 West Ave, Brooklyn, NY</td>
+            <td>4</td>
+            <td>2</td>
+            <td><span class="badge badge-danger">Inactive</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: STORE DETAIL                           -->
+<!-- ============================================ -->
+<div id="page-store-detail" class="page">
+  <div class="page-header">
+    <div class="flex gap-16" style="align-items: center;">
+      <button class="page-back" onclick="navigateTo('page-stores')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div>
+        <div class="flex gap-12" style="align-items: center;">
+          <h1 class="page-title">Main Street</h1>
+          <span class="badge badge-success">Active</span>
+        </div>
+        <p class="page-subtitle">123 Main St, New York, NY</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-group mb-24">
+    <button class="tab active">Shifts &amp; Positions</button>
+    <button class="tab">Checklists</button>
+    <button class="tab">Settings</button>
+  </div>
+
+  <!-- Shifts Section -->
+  <div class="flex-between mb-16">
+    <h3 class="font-semibold">Shifts</h3>
+    <button class="btn btn-secondary btn-sm">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Shift
+    </button>
+  </div>
+  <div class="grid-3 mb-24">
+    <div class="card shift-card">
+      <div class="flex gap-12" style="align-items: center;">
+        <span class="shift-icon shift-icon-orange">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </span>
+        <div>
+          <p class="font-semibold">Morning</p>
+          <p class="text-secondary" style="font-size: 13px;">06:00 - 14:00</p>
+        </div>
+      </div>
+      <p class="text-muted" style="font-size: 13px; margin-top: 12px;">4 staff assigned</p>
+    </div>
+    <div class="card shift-card">
+      <div class="flex gap-12" style="align-items: center;">
+        <span class="shift-icon shift-icon-purple">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <div>
+          <p class="font-semibold">Afternoon</p>
+          <p class="text-secondary" style="font-size: 13px;">14:00 - 22:00</p>
+        </div>
+      </div>
+      <p class="text-muted" style="font-size: 13px; margin-top: 12px;">5 staff assigned</p>
+    </div>
+    <div class="card shift-card">
+      <div class="flex gap-12" style="align-items: center;">
+        <span class="shift-icon shift-icon-gray">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </span>
+        <div>
+          <p class="font-semibold">Night</p>
+          <p class="text-secondary" style="font-size: 13px;">22:00 - 06:00</p>
+        </div>
+      </div>
+      <p class="text-muted" style="font-size: 13px; margin-top: 12px;">3 staff assigned</p>
+    </div>
+  </div>
+
+  <!-- Positions Section -->
+  <div class="flex-between mb-16">
+    <h3 class="font-semibold">Positions</h3>
+    <button class="btn btn-secondary btn-sm">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Position
+    </button>
+  </div>
+  <div class="card">
+    <div class="position-list">
+      <div class="position-item">
+        <div class="flex gap-12" style="align-items: center;">
+          <span class="drag-handle">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="8" y2="6"/><line x1="16" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/><line x1="8" y1="18" x2="8" y2="18"/><line x1="16" y1="18" x2="16" y2="18"/></svg>
+          </span>
+          <span class="font-medium">Manager</span>
+        </div>
+        <span class="text-secondary" style="font-size: 13px;">2 staff</span>
+      </div>
+      <div class="position-item">
+        <div class="flex gap-12" style="align-items: center;">
+          <span class="drag-handle">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="8" y2="6"/><line x1="16" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/><line x1="8" y1="18" x2="8" y2="18"/><line x1="16" y1="18" x2="16" y2="18"/></svg>
+          </span>
+          <span class="font-medium">Cashier</span>
+        </div>
+        <span class="text-secondary" style="font-size: 13px;">6 staff</span>
+      </div>
+      <div class="position-item">
+        <div class="flex gap-12" style="align-items: center;">
+          <span class="drag-handle">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="8" y2="6"/><line x1="16" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="16" y2="12"/><line x1="8" y1="18" x2="8" y2="18"/><line x1="16" y1="18" x2="16" y2="18"/></svg>
+          </span>
+          <span class="font-medium">Stock Clerk</span>
+        </div>
+        <span class="text-secondary" style="font-size: 13px;">4 staff</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: USERS (STAFF)                          -->
+<!-- ============================================ -->
+<div id="page-users" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Staff</h1>
+      <p class="page-subtitle">Manage your team members</p>
+    </div>
+    <button class="btn btn-primary" onclick="toggleModal('modal-create-user')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Staff
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <div class="table-toolbar">
+        <input type="text" class="table-search" placeholder="Search staff...">
+        <select class="form-select" style="width: auto;">
+          <option>All Roles</option>
+          <option>Owner</option>
+          <option>GM</option>
+          <option>SV</option>
+          <option>Staff</option>
+        </select>
+        <label class="flex gap-8" style="align-items: center; font-size: 13px; color: var(--text-secondary); white-space: nowrap;">
+          <input type="checkbox"> Include inactive
+        </label>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>Stores</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="clickable" onclick="navigateTo('page-user-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items: center;">
+                <div class="avatar avatar-sm">JS</div>
+                <div>
+                  <p class="font-medium">John Smith</p>
+                  <p class="text-muted" style="font-size: 12px;">@john</p>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-danger">Owner</span></td>
+            <td class="text-secondary">john@company.com</td>
+            <td class="text-secondary">All Stores</td>
+            <td><span class="badge badge-success">Active</span></td>
+          </tr>
+          <tr class="clickable" onclick="navigateTo('page-user-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items: center;">
+                <div class="avatar avatar-sm">SK</div>
+                <div>
+                  <p class="font-medium">Sarah Kim</p>
+                  <p class="text-muted" style="font-size: 12px;">@sarah.k</p>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-accent">GM</span></td>
+            <td class="text-secondary">sarah.k@company.com</td>
+            <td class="text-secondary">Main Street, Downtown</td>
+            <td><span class="badge badge-success">Active</span></td>
+          </tr>
+          <tr class="clickable" onclick="navigateTo('page-user-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items: center;">
+                <div class="avatar avatar-sm">ML</div>
+                <div>
+                  <p class="font-medium">Mike Lee</p>
+                  <p class="text-muted" style="font-size: 12px;">@mike.l</p>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-warning">SV</span></td>
+            <td class="text-secondary">mike.l@company.com</td>
+            <td class="text-secondary">Main Street</td>
+            <td><span class="badge badge-success">Active</span></td>
+          </tr>
+          <tr class="clickable" onclick="navigateTo('page-user-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items: center;">
+                <div class="avatar avatar-sm">EP</div>
+                <div>
+                  <p class="font-medium">Emily Park</p>
+                  <p class="text-muted" style="font-size: 12px;">@emily.p</p>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-neutral">Staff</span></td>
+            <td class="text-secondary">emily.p@company.com</td>
+            <td class="text-secondary">Downtown</td>
+            <td><span class="badge badge-success">Active</span></td>
+          </tr>
+          <tr class="clickable" onclick="navigateTo('page-user-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items: center;">
+                <div class="avatar avatar-sm">TW</div>
+                <div>
+                  <p class="font-medium">Tom Wilson</p>
+                  <p class="text-muted" style="font-size: 12px;">@tom.w</p>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-neutral">Staff</span></td>
+            <td class="text-secondary">tom.w@company.com</td>
+            <td class="text-secondary">Westside</td>
+            <td><span class="badge badge-danger">Inactive</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: USER DETAIL                            -->
+<!-- ============================================ -->
+<div id="page-user-detail" class="page">
+  <div class="page-header">
+    <div class="flex gap-16" style="align-items: center;">
+      <button class="page-back" onclick="navigateTo('page-users')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div>
+        <div class="flex gap-12" style="align-items: center;">
+          <h1 class="page-title">Sarah Kim</h1>
+          <span class="badge badge-accent">GM</span>
+          <span class="badge badge-success">Active</span>
+        </div>
+        <p class="page-subtitle">General Manager</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-layout">
+    <!-- Left Column -->
+    <div class="detail-main">
+      <!-- Profile Card -->
+      <div class="card mb-24">
+        <div class="card-header">
+          <h3 class="card-title">Profile Information</h3>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-field">
+            <span class="detail-label">Name</span>
+            <span class="detail-value">Sarah Kim</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-label">Username</span>
+            <span class="detail-value">@sarah.k</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-label">Role</span>
+            <span class="detail-value">General Manager</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-label">Email</span>
+            <span class="detail-value">sarah.k@company.com</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-label">Phone</span>
+            <span class="detail-value">(212) 555-0147</span>
+          </div>
+          <div class="detail-field">
+            <span class="detail-label">Joined</span>
+            <span class="detail-value">Aug 15, 2025</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Store Assignments -->
+      <div class="card mb-24">
+        <div class="card-header">
+          <h3 class="card-title">Store Assignments</h3>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Store</th>
+              <th>Role</th>
+              <th>Since</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-medium">Main Street</td>
+              <td>General Manager</td>
+              <td class="text-secondary">Aug 15, 2025</td>
+              <td><span class="badge badge-success">Active</span></td>
+            </tr>
+            <tr>
+              <td class="font-medium">Downtown</td>
+              <td>General Manager</td>
+              <td class="text-secondary">Nov 1, 2025</td>
+              <td><span class="badge badge-success">Active</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Recent Schedules -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Recent Schedules</h3>
+        </div>
+        <div class="schedule-list">
+          <div class="schedule-item">
+            <div class="flex-between">
+              <div>
+                <p class="font-medium">Main Street - Morning</p>
+                <p class="text-secondary" style="font-size: 13px;">08:00 - 17:00</p>
+              </div>
+              <div style="text-align: right;">
+                <p class="text-secondary" style="font-size: 13px;">Apr 6, 2026</p>
+                <span class="badge badge-success">Approved</span>
+              </div>
+            </div>
+          </div>
+          <div class="schedule-item">
+            <div class="flex-between">
+              <div>
+                <p class="font-medium">Downtown - Afternoon</p>
+                <p class="text-secondary" style="font-size: 13px;">13:00 - 22:00</p>
+              </div>
+              <div style="text-align: right;">
+                <p class="text-secondary" style="font-size: 13px;">Apr 5, 2026</p>
+                <span class="badge badge-neutral">Completed</span>
+              </div>
+            </div>
+          </div>
+          <div class="schedule-item">
+            <div class="flex-between">
+              <div>
+                <p class="font-medium">Main Street - Morning</p>
+                <p class="text-secondary" style="font-size: 13px;">08:00 - 17:00</p>
+              </div>
+              <div style="text-align: right;">
+                <p class="text-secondary" style="font-size: 13px;">Apr 4, 2026</p>
+                <span class="badge badge-neutral">Completed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="detail-sidebar">
+      <!-- Quick Actions -->
+      <div class="card mb-24">
+        <div class="card-header">
+          <h3 class="card-title">Quick Actions</h3>
+        </div>
+        <div class="action-list">
+          <button class="btn btn-secondary w-full">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Profile
+          </button>
+          <button class="btn btn-ghost w-full text-warning">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            Deactivate Account
+          </button>
+          <button class="btn btn-ghost w-full text-danger">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Reset Password
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Statistics</h3>
+        </div>
+        <div class="stats-list">
+          <div class="stats-row">
+            <span class="text-secondary">Work Days</span>
+            <span class="font-semibold">45</span>
+          </div>
+          <div class="stats-row">
+            <span class="text-secondary">Late</span>
+            <span class="font-semibold text-warning">2</span>
+          </div>
+          <div class="stats-row">
+            <span class="text-secondary">Absent</span>
+            <span class="font-semibold text-success">0</span>
+          </div>
+          <div class="stats-row">
+            <span class="text-secondary">Avg Hours</span>
+            <span class="font-semibold">8.2h</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: SCHEDULES (Calendar View)              -->
+<!-- ============================================ -->
+<div id="page-schedules" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Schedules</h1>
+      <p class="page-subtitle">Manage staff work schedules</p>
+    </div>
+    <div class="flex gap-12" style="align-items: center;">
+      <div class="tab-group">
+        <button class="tab active" onclick="navigateTo('page-schedules')">Calendar</button>
+        <button class="tab" onclick="navigateTo('page-schedule-list')">List</button>
+      </div>
+      <button class="btn btn-primary" onclick="toggleModal('modal-create-schedule')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Schedule
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card filter-bar mb-24">
+    <div class="flex gap-12" style="align-items: center;">
+      <select class="form-select" style="width: 180px;">
+        <option>All Stores</option>
+        <option>Main Street</option>
+        <option>Downtown</option>
+        <option>Westside</option>
+      </select>
+      <select class="form-select" style="width: 180px;">
+        <option>All Employees</option>
+        <option>Sarah Kim</option>
+        <option>Mike Lee</option>
+        <option>James Park</option>
+        <option>Emily Chen</option>
+        <option>Alex Yun</option>
+        <option>Chris Han</option>
+      </select>
+      <div style="flex: 1;"></div>
+      <div class="week-nav">
+        <button class="btn btn-ghost btn-icon btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="font-medium">Week 1, April 2026</span>
+        <button class="btn btn-ghost btn-icon btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="card calendar-card">
+    <div class="calendar-grid">
+      <!-- Header Row -->
+      <div class="calendar-header">
+        <div class="calendar-time-col"></div>
+        <div class="calendar-day-col">
+          <span class="calendar-day-name">Mon</span>
+          <span class="calendar-day-num">3/30</span>
+        </div>
+        <div class="calendar-day-col">
+          <span class="calendar-day-name">Tue</span>
+          <span class="calendar-day-num">3/31</span>
+        </div>
+        <div class="calendar-day-col">
+          <span class="calendar-day-name">Wed</span>
+          <span class="calendar-day-num">4/1</span>
+        </div>
+        <div class="calendar-day-col">
+          <span class="calendar-day-name">Thu</span>
+          <span class="calendar-day-num">4/2</span>
+        </div>
+        <div class="calendar-day-col">
+          <span class="calendar-day-name">Fri</span>
+          <span class="calendar-day-num">4/3</span>
+        </div>
+        <div class="calendar-day-col calendar-day-col-accent">
+          <span class="calendar-day-name">Sat</span>
+          <span class="calendar-day-num">4/4</span>
+        </div>
+        <div class="calendar-day-col calendar-day-col-danger">
+          <span class="calendar-day-name">Sun</span>
+          <span class="calendar-day-num">4/5</span>
+        </div>
+      </div>
+
+      <!-- Calendar Body -->
+      <div class="calendar-body">
+        <!-- Time Labels -->
+        <div class="calendar-time-labels">
+          <div class="calendar-time-label" style="top: 0%;">06:00</div>
+          <div class="calendar-time-label" style="top: 12.5%;">08:00</div>
+          <div class="calendar-time-label" style="top: 25%;">10:00</div>
+          <div class="calendar-time-label" style="top: 37.5%;">12:00</div>
+          <div class="calendar-time-label" style="top: 50%;">14:00</div>
+          <div class="calendar-time-label" style="top: 62.5%;">16:00</div>
+          <div class="calendar-time-label" style="top: 75%;">18:00</div>
+          <div class="calendar-time-label" style="top: 87.5%;">20:00</div>
+        </div>
+
+        <!-- Monday -->
+        <div class="calendar-day-body">
+          <div class="schedule-block schedule-block-purple" style="top: 12.5%; height: 56.25%;">
+            <span class="schedule-block-name">Sarah Kim</span>
+            <span class="schedule-block-time">08-17</span>
+            <span class="schedule-block-info">Morning / Manager</span>
+          </div>
+          <div class="schedule-block schedule-block-green" style="top: 43.75%; height: 56.25%;">
+            <span class="schedule-block-name">Mike Lee</span>
+            <span class="schedule-block-time">13-22</span>
+            <span class="schedule-block-info">Afternoon / Barista</span>
+          </div>
+        </div>
+
+        <!-- Tuesday -->
+        <div class="calendar-day-body">
+          <div class="schedule-block schedule-block-blue" style="top: 12.5%; height: 56.25%;">
+            <span class="schedule-block-name">James Park</span>
+            <span class="schedule-block-time">08-17</span>
+            <span class="schedule-block-info">Morning / Server</span>
+          </div>
+          <div class="schedule-block schedule-block-purple" style="top: 43.75%; height: 56.25%;">
+            <span class="schedule-block-name">Sarah Kim</span>
+            <span class="schedule-block-time">13-22</span>
+            <span class="schedule-block-info">Afternoon / Manager</span>
+          </div>
+        </div>
+
+        <!-- Wednesday -->
+        <div class="calendar-day-body">
+          <div class="schedule-block schedule-block-orange" style="top: 0%; height: 50%;">
+            <span class="schedule-block-name">Emily Chen</span>
+            <span class="schedule-block-time">06-14</span>
+            <span class="schedule-block-info">Open / Kitchen</span>
+          </div>
+          <div class="schedule-block schedule-block-green" style="top: 25%; height: 56.25%;">
+            <span class="schedule-block-name">Mike Lee</span>
+            <span class="schedule-block-time">10-19</span>
+            <span class="schedule-block-info">Mid / Barista</span>
+          </div>
+        </div>
+
+        <!-- Thursday -->
+        <div class="calendar-day-body">
+          <div class="schedule-block schedule-block-purple" style="top: 12.5%; height: 56.25%;">
+            <span class="schedule-block-name">Sarah Kim</span>
+            <span class="schedule-block-time">08-17</span>
+            <span class="schedule-block-info">Morning / Manager</span>
+          </div>
+          <div class="schedule-block schedule-block-blue" style="top: 62.5%; height: 37.5%;">
+            <span class="schedule-block-name">Alex Yun</span>
+            <span class="schedule-block-time">16-22</span>
+            <span class="schedule-block-info">Close / Server</span>
+          </div>
+        </div>
+
+        <!-- Friday -->
+        <div class="calendar-day-body">
+          <div class="schedule-block schedule-block-green" style="top: 12.5%; height: 56.25%;">
+            <span class="schedule-block-name">Mike Lee</span>
+            <span class="schedule-block-time">08-17</span>
+            <span class="schedule-block-info">Morning / Barista</span>
+          </div>
+        </div>
+
+        <!-- Saturday -->
+        <div class="calendar-day-body">
+          <div class="schedule-block schedule-block-orange" style="top: 0%; height: 62.5%;">
+            <span class="schedule-block-name">James Park</span>
+            <span class="schedule-block-time">06-16</span>
+            <span class="schedule-block-info">Full / Server</span>
+          </div>
+          <div class="schedule-block schedule-block-purple" style="top: 56.25%; height: 43.75%;">
+            <span class="schedule-block-name">Chris Han</span>
+            <span class="schedule-block-time">15-22</span>
+            <span class="schedule-block-info">Close / Barista</span>
+          </div>
+        </div>
+
+        <!-- Sunday -->
+        <div class="calendar-day-body">
+          <div class="schedule-block schedule-block-red" style="top: 12.5%; height: 56.25%;">
+            <span class="schedule-block-name">Emily Chen</span>
+            <span class="schedule-block-time">08-17</span>
+            <span class="schedule-block-info">Weekend / Kitchen</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: SCHEDULE LIST VIEW                     -->
+<!-- ============================================ -->
+<div id="page-schedule-list" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Schedules</h1>
+      <p class="page-subtitle">Manage staff work schedules</p>
+    </div>
+    <div class="flex gap-12" style="align-items: center;">
+      <div class="tab-group">
+        <button class="tab" onclick="navigateTo('page-schedules')">Calendar</button>
+        <button class="tab active" onclick="navigateTo('page-schedule-list')">List</button>
+      </div>
+      <button class="btn btn-primary" onclick="toggleModal('modal-create-schedule')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Schedule
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card filter-bar mb-24">
+    <div class="flex gap-12" style="align-items: center;">
+      <select class="form-select" style="width: 180px;">
+        <option>All Stores</option>
+        <option>Main Street</option>
+        <option>Downtown</option>
+        <option>Westside</option>
+      </select>
+      <select class="form-select" style="width: 180px;">
+        <option>All Employees</option>
+        <option>Sarah Kim</option>
+        <option>Mike Lee</option>
+        <option>James Park</option>
+        <option>Emily Chen</option>
+        <option>Alex Yun</option>
+        <option>Chris Han</option>
+      </select>
+      <div style="flex: 1;"></div>
+      <div class="week-nav">
+        <button class="btn btn-ghost btn-icon btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="font-medium">Week 1, April 2026</span>
+        <button class="btn btn-ghost btn-icon btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule Table -->
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Employee</th>
+            <th>Store</th>
+            <th>Shift</th>
+            <th>Time</th>
+            <th>Position</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="font-medium">Mon, Mar 30</td>
+            <td>
+              <div class="flex gap-8" style="align-items: center;">
+                <div class="avatar avatar-sm">SK</div>
+                Sarah Kim
+              </div>
+            </td>
+            <td class="text-secondary">Main Street</td>
+            <td>Morning</td>
+            <td class="text-secondary">08:00 - 17:00</td>
+            <td>Manager</td>
+            <td><span class="badge badge-success">Approved</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Mon, Mar 30</td>
+            <td>
+              <div class="flex gap-8" style="align-items: center;">
+                <div class="avatar avatar-sm">ML</div>
+                Mike Lee
+              </div>
+            </td>
+            <td class="text-secondary">Main Street</td>
+            <td>Afternoon</td>
+            <td class="text-secondary">13:00 - 22:00</td>
+            <td>Barista</td>
+            <td><span class="badge badge-success">Approved</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Tue, Mar 31</td>
+            <td>
+              <div class="flex gap-8" style="align-items: center;">
+                <div class="avatar avatar-sm">JP</div>
+                James Park
+              </div>
+            </td>
+            <td class="text-secondary">Main Street</td>
+            <td>Morning</td>
+            <td class="text-secondary">08:00 - 17:00</td>
+            <td>Server</td>
+            <td><span class="badge badge-accent">Assigned</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Wed, Apr 1</td>
+            <td>
+              <div class="flex gap-8" style="align-items: center;">
+                <div class="avatar avatar-sm">EC</div>
+                Emily Chen
+              </div>
+            </td>
+            <td class="text-secondary">Main Street</td>
+            <td>Open</td>
+            <td class="text-secondary">06:00 - 14:00</td>
+            <td>Kitchen</td>
+            <td><span class="badge badge-success">Approved</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Thu, Apr 2</td>
+            <td>
+              <div class="flex gap-8" style="align-items: center;">
+                <div class="avatar avatar-sm">AY</div>
+                Alex Yun
+              </div>
+            </td>
+            <td class="text-secondary">Main Street</td>
+            <td>Close</td>
+            <td class="text-secondary">16:00 - 22:00</td>
+            <td>Server</td>
+            <td><span class="badge badge-accent">Assigned</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Fri, Apr 3</td>
+            <td>
+              <div class="flex gap-8" style="align-items: center;">
+                <div class="avatar avatar-sm">ML</div>
+                Mike Lee
+              </div>
+            </td>
+            <td class="text-secondary">Main Street</td>
+            <td>Morning</td>
+            <td class="text-secondary">08:00 - 17:00</td>
+            <td>Barista</td>
+            <td><span class="badge badge-success">Approved</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Sat, Apr 4</td>
+            <td>
+              <div class="flex gap-8" style="align-items: center;">
+                <div class="avatar avatar-sm">JP</div>
+                James Park
+              </div>
+            </td>
+            <td class="text-secondary">Main Street</td>
+            <td>Full</td>
+            <td class="text-secondary">06:00 - 16:00</td>
+            <td>Server</td>
+            <td><span class="badge badge-neutral">Completed</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Sun, Apr 5</td>
+            <td>
+              <div class="flex gap-8" style="align-items: center;">
+                <div class="avatar avatar-sm">EC</div>
+                Emily Chen
+              </div>
+            </td>
+            <td class="text-secondary">Main Street</td>
+            <td>Weekend</td>
+            <td class="text-secondary">08:00 - 17:00</td>
+            <td>Kitchen</td>
+            <td><span class="badge badge-accent">Assigned</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<!-- PAGE 9: Schedule Settings -->
+<div id="page-schedule-settings" class="page">
+  <div class="page-header">
+    <h1 class="page-title">Schedule Settings</h1>
+  </div>
+
+  <!-- Card 1: Approval Required -->
+  <div class="card mb-24">
+    <div class="card-header">
+      <h3 class="card-title">Approval Required</h3>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="flex-between" style="padding:12px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <div class="font-medium">Main Street</div>
+          <div class="text-muted" style="font-size:13px;">GM approval required for all schedule changes</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;">
+          <input type="checkbox" checked style="opacity:0;width:0;height:0;">
+          <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--accent);border-radius:12px;transition:.3s;">
+            <span style="position:absolute;content:'';height:18px;width:18px;left:23px;bottom:3px;background:white;border-radius:50%;transition:.3s;display:block;"></span>
+          </span>
+        </label>
+      </div>
+      <div class="flex-between" style="padding:12px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <div class="font-medium">Downtown</div>
+          <div class="text-muted" style="font-size:13px;">Auto-confirmed</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;">
+          <input type="checkbox" style="opacity:0;width:0;height:0;">
+          <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:12px;transition:.3s;">
+            <span style="position:absolute;content:'';height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;display:block;"></span>
+          </span>
+        </label>
+      </div>
+      <div class="flex-between" style="padding:12px 0;">
+        <div>
+          <div class="font-medium">Westside</div>
+          <div class="text-muted" style="font-size:13px;">GM approval required for all schedule changes</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;">
+          <input type="checkbox" checked style="opacity:0;width:0;height:0;">
+          <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--accent);border-radius:12px;transition:.3s;">
+            <span style="position:absolute;content:'';height:18px;width:18px;left:23px;bottom:3px;background:white;border-radius:50%;transition:.3s;display:block;"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Default Work Hours -->
+  <div class="card mb-24">
+    <div class="card-header">
+      <h3 class="card-title">Default Work Hours</h3>
+    </div>
+    <div class="grid-2" style="gap:16px;">
+      <div style="padding:16px;border:1px solid var(--border);border-radius:8px;">
+        <div class="flex gap-8 mb-8" style="align-items:center;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#f97316;display:inline-block;"></span>
+          <span class="font-semibold">Open</span>
+        </div>
+        <div class="flex gap-8" style="align-items:center;">
+          <input type="time" value="06:00" class="form-input" style="flex:1;">
+          <span class="text-muted">to</span>
+          <input type="time" value="14:00" class="form-input" style="flex:1;">
+        </div>
+      </div>
+      <div style="padding:16px;border:1px solid var(--border);border-radius:8px;">
+        <div class="flex gap-8 mb-8" style="align-items:center;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#a855f7;display:inline-block;"></span>
+          <span class="font-semibold">Morning</span>
+        </div>
+        <div class="flex gap-8" style="align-items:center;">
+          <input type="time" value="08:00" class="form-input" style="flex:1;">
+          <span class="text-muted">to</span>
+          <input type="time" value="17:00" class="form-input" style="flex:1;">
+        </div>
+      </div>
+      <div style="padding:16px;border:1px solid var(--border);border-radius:8px;">
+        <div class="flex gap-8 mb-8" style="align-items:center;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+          <span class="font-semibold">Afternoon</span>
+        </div>
+        <div class="flex gap-8" style="align-items:center;">
+          <input type="time" value="13:00" class="form-input" style="flex:1;">
+          <span class="text-muted">to</span>
+          <input type="time" value="22:00" class="form-input" style="flex:1;">
+        </div>
+      </div>
+      <div style="padding:16px;border:1px solid var(--border);border-radius:8px;">
+        <div class="flex gap-8 mb-8" style="align-items:center;">
+          <span style="width:10px;height:10px;border-radius:50%;background:#3b82f6;display:inline-block;"></span>
+          <span class="font-semibold">Close</span>
+        </div>
+        <div class="flex gap-8" style="align-items:center;">
+          <input type="time" value="16:00" class="form-input" style="flex:1;">
+          <span class="text-muted">to</span>
+          <input type="time" value="22:00" class="form-input" style="flex:1;">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Overtime Alerts -->
+  <div class="card mb-24">
+    <div class="card-header">
+      <h3 class="card-title">Overtime Alerts</h3>
+    </div>
+    <div class="grid-3" style="gap:16px;">
+      <div class="form-group">
+        <label class="form-label">Daily Max</label>
+        <div class="flex gap-8" style="align-items:center;">
+          <input type="number" value="10" class="form-input" style="flex:1;">
+          <span class="text-muted">hours</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Weekly Max</label>
+        <div class="flex gap-8" style="align-items:center;">
+          <input type="number" value="52" class="form-input" style="flex:1;">
+          <span class="text-muted">hours</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Consecutive Days</label>
+        <div class="flex gap-8" style="align-items:center;">
+          <input type="number" value="6" class="form-input" style="flex:1;">
+          <span class="text-muted">days</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4: Auto-Schedule Rules -->
+  <div class="card mb-24">
+    <div class="card-header">
+      <h3 class="card-title">Auto-Schedule Rules</h3>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="flex-between" style="padding:12px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <div class="font-medium">Copy last week</div>
+          <div class="text-muted" style="font-size:13px;">Duplicate previous week's schedule as a starting template</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;">
+          <input type="checkbox" style="opacity:0;width:0;height:0;">
+          <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--border);border-radius:12px;transition:.3s;">
+            <span style="position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s;display:block;"></span>
+          </span>
+        </label>
+      </div>
+      <div class="flex-between" style="padding:12px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <div class="font-medium">Auto-assign by availability</div>
+          <div class="text-muted" style="font-size:13px;">Fill open shifts based on employee availability preferences</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;">
+          <input type="checkbox" checked style="opacity:0;width:0;height:0;">
+          <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--accent);border-radius:12px;transition:.3s;">
+            <span style="position:absolute;height:18px;width:18px;left:23px;bottom:3px;background:white;border-radius:50%;transition:.3s;display:block;"></span>
+          </span>
+        </label>
+      </div>
+      <div class="flex-between" style="padding:12px 0;">
+        <div>
+          <div class="font-medium">Min staff alert</div>
+          <div class="text-muted" style="font-size:13px;">Warn when shift has fewer employees than minimum requirement</div>
+        </div>
+        <label style="position:relative;display:inline-block;width:44px;height:24px;">
+          <input type="checkbox" checked style="opacity:0;width:0;height:0;">
+          <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--accent);border-radius:12px;transition:.3s;">
+            <span style="position:absolute;height:18px;width:18px;left:23px;bottom:3px;background:white;border-radius:50%;transition:.3s;display:block;"></span>
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;">
+    <button class="btn btn-primary">Save Settings</button>
+  </div>
+</div>
+
+<!-- PAGE 10: Attendance -->
+<div id="page-attendances" class="page">
+  <div class="page-header">
+    <h1 class="page-title">Attendance</h1>
+    <button class="btn btn-secondary" onclick="navigateTo('page-attendance-summary')">View Summary</button>
+  </div>
+
+  <div class="grid-5 mb-24" style="gap:16px;">
+    <div class="stat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <svg width="18" height="18" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="text-muted" style="font-size:13px;">Scheduled</span>
+      </div>
+      <div class="stat-value">24</div>
+    </div>
+    <div class="stat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <svg width="18" height="18" fill="none" stroke="var(--success)" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span class="text-muted" style="font-size:13px;">Checked In</span>
+      </div>
+      <div class="stat-value text-success">18</div>
+    </div>
+    <div class="stat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <svg width="18" height="18" fill="none" stroke="var(--warning)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span class="text-muted" style="font-size:13px;">Late</span>
+      </div>
+      <div class="stat-value text-warning">3</div>
+    </div>
+    <div class="stat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <svg width="18" height="18" fill="none" stroke="var(--text-secondary)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="text-muted" style="font-size:13px;">On Break</span>
+      </div>
+      <div class="stat-value">2</div>
+    </div>
+    <div class="stat-card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+        <svg width="18" height="18" fill="none" stroke="var(--danger)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <span class="text-muted" style="font-size:13px;">No Show</span>
+      </div>
+      <div class="stat-value text-danger">1</div>
+    </div>
+  </div>
+
+  <div class="flex-between mb-16" style="flex-wrap:wrap;gap:12px;">
+    <div class="flex gap-12" style="align-items:center;">
+      <select class="form-select" style="min-width:160px;">
+        <option>All Stores</option>
+        <option>Main Street</option>
+        <option>Downtown</option>
+        <option>Westside</option>
+      </select>
+      <input type="date" value="2026-04-06" class="form-input">
+    </div>
+    <div class="filter-tabs">
+      <button class="tab active">All</button>
+      <button class="tab">Checked In</button>
+      <button class="tab">Late</button>
+      <button class="tab">No Show</button>
+      <button class="tab">On Break</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Store</th>
+            <th>Clock In</th>
+            <th>Clock Out</th>
+            <th>Hours</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-attendance-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">SK</div>
+                <div>
+                  <div class="font-medium">Sarah Kim</div>
+                  <div class="text-muted" style="font-size:12px;">Manager</div>
+                </div>
+              </div>
+            </td>
+            <td>Main Street</td>
+            <td><span class="text-warning font-medium">08:12</span></td>
+            <td>17:05</td>
+            <td>8h 53m</td>
+            <td><span class="badge badge-warning">Late</span></td>
+          </tr>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-attendance-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">ML</div>
+                <div>
+                  <div class="font-medium">Mike Lee</div>
+                  <div class="text-muted" style="font-size:12px;">Barista</div>
+                </div>
+              </div>
+            </td>
+            <td>Main Street</td>
+            <td>07:58</td>
+            <td>17:02</td>
+            <td>9h 04m</td>
+            <td><span class="badge badge-success">On Time</span></td>
+          </tr>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-attendance-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">JP</div>
+                <div>
+                  <div class="font-medium">James Park</div>
+                  <div class="text-muted" style="font-size:12px;">Server</div>
+                </div>
+              </div>
+            </td>
+            <td>Main Street</td>
+            <td>12:55</td>
+            <td>&mdash;</td>
+            <td class="text-muted">In progress</td>
+            <td><span class="badge badge-neutral">On Break</span></td>
+          </tr>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-attendance-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">EC</div>
+                <div>
+                  <div class="font-medium">Emily Chen</div>
+                  <div class="text-muted" style="font-size:12px;">Kitchen</div>
+                </div>
+              </div>
+            </td>
+            <td>Main Street</td>
+            <td>06:02</td>
+            <td>14:10</td>
+            <td>8h 08m</td>
+            <td><span class="badge badge-success">On Time</span></td>
+          </tr>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-attendance-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">CH</div>
+                <div>
+                  <div class="font-medium">Chris Han</div>
+                  <div class="text-muted" style="font-size:12px;">Barista</div>
+                </div>
+              </div>
+            </td>
+            <td>Downtown</td>
+            <td><span class="text-warning font-medium">08:23</span></td>
+            <td>&mdash;</td>
+            <td class="text-muted">In progress</td>
+            <td><span class="badge badge-warning">Late</span></td>
+          </tr>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-attendance-detail')">
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">AY</div>
+                <div>
+                  <div class="font-medium">Alex Yun</div>
+                  <div class="text-muted" style="font-size:12px;">Server</div>
+                </div>
+              </div>
+            </td>
+            <td>Main Street</td>
+            <td>&mdash;</td>
+            <td>&mdash;</td>
+            <td>&mdash;</td>
+            <td><span class="badge badge-danger">No Show</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 11: Attendance Detail -->
+<div id="page-attendance-detail" class="page">
+  <div class="page-header">
+    <div class="flex gap-16" style="align-items:center;">
+      <button class="btn btn-ghost" onclick="navigateTo('page-attendances')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div>
+        <h1 class="page-title" style="margin:0;">Sarah Kim &mdash; Attendance Detail</h1>
+        <div class="text-muted" style="font-size:14px;">April 6, 2026 &middot; Main Street</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline Visualization -->
+  <div class="card mb-24">
+    <div class="card-header">
+      <h3 class="card-title">Work Timeline</h3>
+    </div>
+    <!-- Time axis labels -->
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px;padding:0 2px;">
+      <span class="text-muted" style="font-size:11px;">06:00</span>
+      <span class="text-muted" style="font-size:11px;">08:00</span>
+      <span class="text-muted" style="font-size:11px;">10:00</span>
+      <span class="text-muted" style="font-size:11px;">12:00</span>
+      <span class="text-muted" style="font-size:11px;">14:00</span>
+      <span class="text-muted" style="font-size:11px;">16:00</span>
+      <span class="text-muted" style="font-size:11px;">18:00</span>
+      <span class="text-muted" style="font-size:11px;">20:00</span>
+      <span class="text-muted" style="font-size:11px;">22:00</span>
+    </div>
+
+    <!-- Scheduled bar -->
+    <div style="margin-bottom:6px;">
+      <div class="text-muted" style="font-size:12px;margin-bottom:4px;">Scheduled</div>
+      <div class="timeline-bar" style="position:relative;height:28px;background:var(--surface-hover);border-radius:6px;overflow:hidden;">
+        <!-- 08:00-17:00 = 12.5%-68.75% of 06:00-22:00 range (16h) -->
+        <div class="timeline-segment" style="position:absolute;left:12.5%;width:56.25%;height:100%;background:rgba(168,85,247,0.2);border-radius:4px;"></div>
+      </div>
+    </div>
+
+    <!-- Actual bar -->
+    <div style="margin-bottom:16px;">
+      <div class="text-muted" style="font-size:12px;margin-bottom:4px;">Actual</div>
+      <div class="timeline-bar" style="position:relative;height:28px;background:var(--surface-hover);border-radius:6px;overflow:hidden;">
+        <!-- Late sliver: 08:00-08:12 -->
+        <div class="timeline-segment" style="position:absolute;left:12.5%;width:1.25%;height:100%;background:var(--danger);border-radius:4px 0 0 4px;"></div>
+        <!-- Work: 08:12-12:00 -->
+        <div class="timeline-segment" style="position:absolute;left:13.75%;width:23.75%;height:100%;background:#a855f7;"></div>
+        <!-- Break: 12:00-13:00 -->
+        <div class="timeline-segment" style="position:absolute;left:37.5%;width:6.25%;height:100%;background:var(--border);"></div>
+        <!-- Work: 13:00-17:05 -->
+        <div class="timeline-segment" style="position:absolute;left:43.75%;width:25.5%;height:100%;background:#a855f7;border-radius:0 4px 4px 0;"></div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="timeline-legend flex gap-24" style="font-size:13px;">
+      <div class="flex gap-8" style="align-items:center;">
+        <span style="width:12px;height:12px;border-radius:3px;background:rgba(168,85,247,0.2);display:inline-block;"></span>
+        <span class="text-muted">Scheduled</span>
+      </div>
+      <div class="flex gap-8" style="align-items:center;">
+        <span style="width:12px;height:12px;border-radius:3px;background:#a855f7;display:inline-block;"></span>
+        <span class="text-muted">Actual Work</span>
+      </div>
+      <div class="flex gap-8" style="align-items:center;">
+        <span style="width:12px;height:12px;border-radius:3px;background:var(--border);display:inline-block;"></span>
+        <span class="text-muted">Break</span>
+      </div>
+      <div class="flex gap-8" style="align-items:center;">
+        <span style="width:12px;height:12px;border-radius:3px;background:var(--danger);display:inline-block;"></span>
+        <span class="text-muted">Late</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 Info Cards -->
+  <div class="grid-3 mb-24" style="gap:16px;">
+    <div class="card" style="text-align:center;">
+      <div style="margin-bottom:8px;">
+        <svg width="24" height="24" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="text-muted" style="font-size:13px;margin-bottom:4px;">Scheduled</div>
+      <div class="font-bold" style="font-size:20px;">08:00 - 17:00</div>
+      <div class="text-muted" style="font-size:13px;margin-top:4px;">Morning Shift (9 hours)</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="margin-bottom:8px;">
+        <svg width="24" height="24" fill="none" stroke="var(--success)" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div class="text-muted" style="font-size:13px;margin-bottom:4px;">Actual</div>
+      <div class="font-bold" style="font-size:20px;">08:12 - 17:05</div>
+      <div class="text-muted" style="font-size:13px;margin-top:4px;">Net work 7h 53m</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="margin-bottom:8px;">
+        <svg width="24" height="24" fill="none" stroke="var(--text-secondary)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="text-muted" style="font-size:13px;margin-bottom:4px;">Break</div>
+      <div class="font-bold" style="font-size:20px;">12:00 - 13:00</div>
+      <div class="text-muted" style="font-size:13px;margin-top:4px;">1 hour</div>
+    </div>
+  </div>
+
+  <!-- Warning Card -->
+  <div class="card mb-24" style="background:rgba(251,191,36,0.08);border-left:4px solid var(--warning);">
+    <div class="flex gap-12" style="align-items:flex-start;">
+      <svg width="20" height="20" fill="none" stroke="var(--warning)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>
+        <div class="font-semibold text-warning" style="margin-bottom:4px;">Anomaly Detected</div>
+        <div class="text-secondary" style="font-size:14px;">Late 12 minutes. Scheduled clock-in 08:00, actual 08:12.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Correction Form -->
+  <div class="card">
+    <div class="card-header">
+      <h3 class="card-title">Request Correction</h3>
+    </div>
+    <div class="grid-2 mb-16" style="gap:16px;">
+      <div class="form-group">
+        <label class="form-label">Correction Type</label>
+        <select class="form-select">
+          <option>Clock In</option>
+          <option>Clock Out</option>
+          <option>Break</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Corrected Time</label>
+        <input type="time" class="form-input" value="08:00">
+      </div>
+    </div>
+    <div class="form-group mb-16">
+      <label class="form-label">Reason</label>
+      <textarea class="form-textarea" rows="3" placeholder="Explain why this correction is needed..."></textarea>
+    </div>
+    <div style="display:flex;justify-content:flex-end;">
+      <button class="btn btn-primary">Submit Correction</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 12: Attendance Summary -->
+<div id="page-attendance-summary" class="page">
+  <div class="page-header">
+    <div class="flex gap-16" style="align-items:center;">
+      <button class="btn btn-ghost" onclick="navigateTo('page-attendances')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <h1 class="page-title" style="margin:0;">Weekly Summary</h1>
+    </div>
+    <div class="flex gap-8" style="align-items:center;">
+      <button class="btn btn-ghost" style="padding:6px;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="font-medium">Week 1, April 2026</span>
+      <button class="btn btn-ghost" style="padding:6px;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="grid-4 mb-24" style="gap:16px;">
+    <div class="stat-card">
+      <div class="stat-label">Total Scheduled</div>
+      <div class="stat-value">192h</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Actual</div>
+      <div class="stat-value text-success">186h</div>
+      <div class="text-muted" style="font-size:13px;">96.9%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Anomalies</div>
+      <div class="stat-value text-warning">5</div>
+      <div class="text-muted" style="font-size:13px;">3 late, 1 early leave, 1 no show</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Break</div>
+      <div class="stat-value">24h</div>
+      <div class="text-muted" style="font-size:13px;">avg 1h/person</div>
+    </div>
+  </div>
+
+  <div class="mb-16">
+    <select class="form-select" style="min-width:160px;">
+      <option>All Stores</option>
+      <option>Main Street</option>
+      <option>Downtown</option>
+      <option>Westside</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th style="text-align:center;">Mon</th>
+            <th style="text-align:center;">Tue</th>
+            <th style="text-align:center;">Wed</th>
+            <th style="text-align:center;">Thu</th>
+            <th style="text-align:center;">Fri</th>
+            <th style="text-align:center;">Sat</th>
+            <th style="text-align:center;">Sun</th>
+            <th style="text-align:center;">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">SK</div>
+                <span class="font-medium">Sarah Kim</span>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="text-success">8.9h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.5h</span></td>
+            <td style="text-align:center;"><span class="text-warning">10.2h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="font-bold">43.6h</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">ML</div>
+                <span class="font-medium">Mike Lee</span>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="text-success">9.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">9.0h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="text-success">8.5h</span></td>
+            <td style="text-align:center;"><span class="text-success">9.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="font-bold">43.5h</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">JP</div>
+                <span class="font-medium">James Park</span>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="text-success">7.5h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-warning">10.5h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="font-bold">42.0h</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">EC</div>
+                <span class="font-medium">Emily Chen</span>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="font-bold">40.0h</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">CH</div>
+                <span class="font-medium">Chris Han</span>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.5h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-danger">Absent</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="font-bold">32.5h</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="flex gap-12" style="align-items:center;">
+                <div class="avatar avatar-sm">AY</div>
+                <span class="font-medium">Alex Yun</span>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">7.5h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-success">8.0h</span></td>
+            <td style="text-align:center;"><span class="text-muted">OFF</span></td>
+            <td style="text-align:center;"><span class="text-danger">Absent</span></td>
+            <td style="text-align:center;"><span class="font-bold">31.5h</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 13: Checklists -->
+<div id="page-checklists" class="page">
+  <div class="page-header">
+    <h1 class="page-title">Checklists</h1>
+    <button class="btn btn-primary">Add Template</button>
+  </div>
+
+  <div class="tab-group mb-24">
+    <button class="tab active">Templates</button>
+    <button class="tab">Instances</button>
+    <button class="tab" onclick="navigateTo('page-checklist-progress')">Progress</button>
+    <button class="tab">Log</button>
+  </div>
+
+  <div class="flex gap-12 mb-24" style="align-items:center;">
+    <select class="form-select" style="min-width:150px;">
+      <option>All Stores</option>
+      <option>Main Street</option>
+      <option>Downtown</option>
+      <option>Westside</option>
+    </select>
+    <select class="form-select" style="min-width:140px;">
+      <option>All Shifts</option>
+      <option>Open</option>
+      <option>Morning</option>
+      <option>Afternoon</option>
+      <option>Close</option>
+    </select>
+    <select class="form-select" style="min-width:140px;">
+      <option>All Positions</option>
+      <option>Manager</option>
+      <option>Barista</option>
+      <option>Server</option>
+      <option>Kitchen</option>
+    </select>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <!-- Template Card 1 -->
+    <div class="card" style="cursor:pointer;">
+      <div class="flex-between">
+        <div style="flex:1;">
+          <div class="flex gap-12 mb-8" style="align-items:center;">
+            <h3 class="font-semibold" style="margin:0;font-size:16px;">Opening Checklist</h3>
+          </div>
+          <div class="flex gap-8 mb-8" style="flex-wrap:wrap;">
+            <span class="badge badge-accent">Morning shift</span>
+            <span class="badge badge-neutral">All positions</span>
+          </div>
+          <div class="flex gap-16 text-muted" style="font-size:13px;">
+            <span>8 items</span>
+            <span>Updated Mar 28</span>
+          </div>
+        </div>
+        <svg width="20" height="20" fill="none" stroke="var(--text-secondary)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Template Card 2 -->
+    <div class="card" style="cursor:pointer;">
+      <div class="flex-between">
+        <div style="flex:1;">
+          <div class="flex gap-12 mb-8" style="align-items:center;">
+            <h3 class="font-semibold" style="margin:0;font-size:16px;">Closing Checklist</h3>
+          </div>
+          <div class="flex gap-8 mb-8" style="flex-wrap:wrap;">
+            <span class="badge badge-info">Closing shift</span>
+            <span class="badge badge-neutral">All positions</span>
+          </div>
+          <div class="flex gap-16 text-muted" style="font-size:13px;">
+            <span>6 items</span>
+            <span>Updated Mar 25</span>
+          </div>
+        </div>
+        <svg width="20" height="20" fill="none" stroke="var(--text-secondary)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Template Card 3 -->
+    <div class="card" style="cursor:pointer;">
+      <div class="flex-between">
+        <div style="flex:1;">
+          <div class="flex gap-12 mb-8" style="align-items:center;">
+            <h3 class="font-semibold" style="margin:0;font-size:16px;">Kitchen Prep</h3>
+          </div>
+          <div class="flex gap-8 mb-8" style="flex-wrap:wrap;">
+            <span class="badge badge-neutral">All shifts</span>
+            <span class="badge badge-warning">Kitchen only</span>
+          </div>
+          <div class="flex gap-16 text-muted" style="font-size:13px;">
+            <span>12 items</span>
+            <span>Updated Apr 1</span>
+          </div>
+        </div>
+        <svg width="20" height="20" fill="none" stroke="var(--text-secondary)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 14: Checklist Progress -->
+<div id="page-checklist-progress" class="page">
+  <div class="page-header">
+    <h1 class="page-title">Checklist Progress</h1>
+  </div>
+
+  <div class="flex-between mb-24">
+    <div class="filter-tabs">
+      <button class="tab active">Day</button>
+      <button class="tab">Week</button>
+      <button class="tab">Month</button>
+    </div>
+    <div class="flex gap-8" style="align-items:center;">
+      <button class="btn btn-ghost" style="padding:6px;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="font-medium">April 6, 2026</span>
+      <button class="btn btn-ghost" style="padding:6px;">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="grid-4 mb-24" style="gap:16px;">
+    <div class="stat-card">
+      <div class="stat-label">Total</div>
+      <div class="stat-value">12</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Completed</div>
+      <div class="stat-value text-success">8</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">In Progress</div>
+      <div class="stat-value text-warning">3</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Not Started</div>
+      <div class="stat-value text-danger">1</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="gap:16px;">
+    <!-- Sarah Kim -->
+    <div class="card">
+      <div class="flex gap-12 mb-16" style="align-items:center;">
+        <div class="avatar avatar-sm">SK</div>
+        <div>
+          <div class="font-medium">Sarah Kim</div>
+          <div class="text-muted" style="font-size:12px;">Main Street</div>
+        </div>
+        <span class="badge badge-success" style="margin-left:auto;">Complete</span>
+      </div>
+      <div class="progress-bar mb-8">
+        <div class="progress-fill" style="width:100%;background:var(--success);"></div>
+      </div>
+      <div class="flex-between text-muted" style="font-size:13px;">
+        <span>8/8 items</span>
+        <span class="text-success font-medium">100%</span>
+      </div>
+    </div>
+
+    <!-- Mike Lee -->
+    <div class="card">
+      <div class="flex gap-12 mb-16" style="align-items:center;">
+        <div class="avatar avatar-sm">ML</div>
+        <div>
+          <div class="font-medium">Mike Lee</div>
+          <div class="text-muted" style="font-size:12px;">Main Street</div>
+        </div>
+        <span class="badge badge-warning" style="margin-left:auto;">In Progress</span>
+      </div>
+      <div class="progress-bar mb-8">
+        <div class="progress-fill" style="width:75%;background:var(--warning);"></div>
+      </div>
+      <div class="flex-between text-muted" style="font-size:13px;">
+        <span>6/8 items</span>
+        <span class="text-warning font-medium">75%</span>
+      </div>
+    </div>
+
+    <!-- James Park -->
+    <div class="card">
+      <div class="flex gap-12 mb-16" style="align-items:center;">
+        <div class="avatar avatar-sm">JP</div>
+        <div>
+          <div class="font-medium">James Park</div>
+          <div class="text-muted" style="font-size:12px;">Main Street</div>
+        </div>
+        <span class="badge badge-warning" style="margin-left:auto;">In Progress</span>
+      </div>
+      <div class="progress-bar mb-8">
+        <div class="progress-fill" style="width:50%;background:var(--warning);"></div>
+      </div>
+      <div class="flex-between text-muted" style="font-size:13px;">
+        <span>4/8 items</span>
+        <span class="text-warning font-medium">50%</span>
+      </div>
+    </div>
+
+    <!-- Emily Chen -->
+    <div class="card">
+      <div class="flex gap-12 mb-16" style="align-items:center;">
+        <div class="avatar avatar-sm">EC</div>
+        <div>
+          <div class="font-medium">Emily Chen</div>
+          <div class="text-muted" style="font-size:12px;">Main Street</div>
+        </div>
+        <span class="badge badge-success" style="margin-left:auto;">Complete</span>
+      </div>
+      <div class="progress-bar mb-8">
+        <div class="progress-fill" style="width:100%;background:var(--success);"></div>
+      </div>
+      <div class="flex-between text-muted" style="font-size:13px;">
+        <span>12/12 items</span>
+        <span class="text-success font-medium">100%</span>
+      </div>
+    </div>
+
+    <!-- Chris Han -->
+    <div class="card">
+      <div class="flex gap-12 mb-16" style="align-items:center;">
+        <div class="avatar avatar-sm">CH</div>
+        <div>
+          <div class="font-medium">Chris Han</div>
+          <div class="text-muted" style="font-size:12px;">Downtown</div>
+        </div>
+        <span class="badge badge-danger" style="margin-left:auto;">Not Started</span>
+      </div>
+      <div class="progress-bar mb-8">
+        <div class="progress-fill" style="width:0%;background:var(--danger);"></div>
+      </div>
+      <div class="flex-between text-muted" style="font-size:13px;">
+        <span>0/6 items</span>
+        <span class="text-danger font-medium">0%</span>
+      </div>
+    </div>
+
+    <!-- Alex Yun -->
+    <div class="card">
+      <div class="flex gap-12 mb-16" style="align-items:center;">
+        <div class="avatar avatar-sm">AY</div>
+        <div>
+          <div class="font-medium">Alex Yun</div>
+          <div class="text-muted" style="font-size:12px;">Main Street</div>
+        </div>
+        <span class="badge badge-accent" style="margin-left:auto;">In Progress</span>
+      </div>
+      <div class="progress-bar mb-8">
+        <div class="progress-fill" style="width:83%;background:var(--accent);"></div>
+      </div>
+      <div class="flex-between text-muted" style="font-size:13px;">
+        <span>5/6 items</span>
+        <span class="text-accent font-medium">83%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 15: Tasks -->
+<div id="page-tasks" class="page">
+  <div class="page-header">
+    <h1 class="page-title">Tasks</h1>
+    <button class="btn btn-primary">Create Task</button>
+  </div>
+
+  <div class="flex gap-12 mb-24" style="align-items:center;">
+    <select class="form-select" style="min-width:150px;">
+      <option>All Stores</option>
+      <option>Main Street</option>
+      <option>Downtown</option>
+      <option>Westside</option>
+    </select>
+    <select class="form-select" style="min-width:140px;">
+      <option>All Status</option>
+      <option>Pending</option>
+      <option>In Progress</option>
+      <option>Completed</option>
+    </select>
+    <select class="form-select" style="min-width:130px;">
+      <option>All Priority</option>
+      <option>Urgent</option>
+      <option>Normal</option>
+      <option>Low</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Store</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Due Date</th>
+            <th>Assignees</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-task-detail')">
+            <td class="font-medium">Restock inventory</td>
+            <td>Main Street</td>
+            <td>
+              <div class="flex gap-8" style="align-items:center;">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;"></span>
+                <span>Urgent</span>
+              </div>
+            </td>
+            <td><span class="badge badge-warning">In Progress</span></td>
+            <td>Apr 8</td>
+            <td>
+              <div class="flex" style="gap:0;">
+                <div class="avatar avatar-sm" style="border:2px solid var(--surface);margin-right:-8px;z-index:2;">SK</div>
+                <div class="avatar avatar-sm" style="border:2px solid var(--surface);z-index:1;">ML</div>
+              </div>
+            </td>
+            <td>
+              <button class="btn btn-ghost" style="padding:4px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </td>
+          </tr>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-task-detail')">
+            <td class="font-medium">Update menu boards</td>
+            <td>Downtown</td>
+            <td>
+              <div class="flex gap-8" style="align-items:center;">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--warning);display:inline-block;"></span>
+                <span>Normal</span>
+              </div>
+            </td>
+            <td><span class="badge badge-accent">Pending</span></td>
+            <td>Apr 10</td>
+            <td>
+              <div class="avatar avatar-sm">JP</div>
+            </td>
+            <td>
+              <button class="btn btn-ghost" style="padding:4px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </td>
+          </tr>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-task-detail')">
+            <td class="font-medium">Deep clean kitchen</td>
+            <td>Main Street</td>
+            <td>
+              <div class="flex gap-8" style="align-items:center;">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block;"></span>
+                <span>Urgent</span>
+              </div>
+            </td>
+            <td><span class="badge badge-success">Completed</span></td>
+            <td>Apr 5</td>
+            <td>
+              <div class="flex" style="gap:0;">
+                <div class="avatar avatar-sm" style="border:2px solid var(--surface);margin-right:-8px;z-index:3;">EC</div>
+                <div class="avatar avatar-sm" style="border:2px solid var(--surface);margin-right:-8px;z-index:2;">CH</div>
+                <div class="avatar avatar-sm" style="border:2px solid var(--surface);z-index:1;">AY</div>
+              </div>
+            </td>
+            <td>
+              <button class="btn btn-ghost" style="padding:4px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </td>
+          </tr>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-task-detail')">
+            <td class="font-medium">Train new cashier</td>
+            <td>Westside</td>
+            <td>
+              <div class="flex gap-8" style="align-items:center;">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;"></span>
+                <span>Low</span>
+              </div>
+            </td>
+            <td><span class="badge badge-accent">Pending</span></td>
+            <td>Apr 15</td>
+            <td>
+              <div class="avatar avatar-sm">SK</div>
+            </td>
+            <td>
+              <button class="btn btn-ghost" style="padding:4px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </td>
+          </tr>
+          <tr style="cursor:pointer;" onclick="navigateTo('page-task-detail')">
+            <td class="font-medium">Fix front door lock</td>
+            <td>Main Street</td>
+            <td>
+              <div class="flex gap-8" style="align-items:center;">
+                <span style="width:8px;height:8px;border-radius:50%;background:var(--warning);display:inline-block;"></span>
+                <span>Normal</span>
+              </div>
+            </td>
+            <td><span class="badge badge-warning">In Progress</span></td>
+            <td>Apr 7</td>
+            <td>
+              <div class="avatar avatar-sm">ML</div>
+            </td>
+            <td>
+              <button class="btn btn-ghost" style="padding:4px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 16: Task Detail -->
+<div id="page-task-detail" class="page">
+  <div class="page-header">
+    <div class="flex gap-16" style="align-items:center;">
+      <button class="btn btn-ghost" onclick="navigateTo('page-tasks')">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <h1 class="page-title" style="margin:0;">Restock Inventory</h1>
+      <span class="badge badge-danger">Urgent</span>
+      <span class="badge badge-warning">In Progress</span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;">
+    <!-- Left Column -->
+    <div style="display:flex;flex-direction:column;gap:24px;">
+      <!-- Description -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Description</h3>
+        </div>
+        <p style="color:var(--text-secondary);line-height:1.6;margin:0;">
+          Multiple items are running low in the Main Street location and need to be restocked before the weekend rush.
+          Check the walk-in cooler for dairy products, verify produce freshness, and reorder any items below minimum
+          threshold. The supplier delivery is expected on Wednesday, so the order must be placed by end of day Tuesday.
+          Coordinate with the kitchen team to prioritize items needed for the weekend specials menu.
+        </p>
+      </div>
+
+      <!-- Attachments -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Attachments</h3>
+        </div>
+        <div class="flex gap-12">
+          <div style="width:120px;height:90px;background:var(--surface-hover);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);">
+            <svg width="32" height="32" fill="none" stroke="var(--text-muted)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div style="width:120px;height:90px;background:var(--surface-hover);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);">
+            <svg width="32" height="32" fill="none" stroke="var(--text-muted)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div style="width:120px;height:90px;background:var(--surface-hover);border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);">
+            <svg width="32" height="32" fill="none" stroke="var(--text-muted)" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Log -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Activity Log</h3>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="flex gap-12" style="align-items:flex-start;">
+            <div class="avatar avatar-sm">SK</div>
+            <div>
+              <div style="font-size:14px;"><span class="font-medium">Sarah Kim</span> <span class="text-secondary">created this task</span></div>
+              <div class="text-muted" style="font-size:12px;">Apr 3, 2026 at 9:15 AM</div>
+            </div>
+          </div>
+          <div class="flex gap-12" style="align-items:flex-start;">
+            <div class="avatar avatar-sm">SK</div>
+            <div>
+              <div style="font-size:14px;"><span class="font-medium">Sarah Kim</span> <span class="text-secondary">assigned</span> <span class="font-medium">Mike Lee</span></div>
+              <div class="text-muted" style="font-size:12px;">Apr 3, 2026 at 9:20 AM</div>
+            </div>
+          </div>
+          <div class="flex gap-12" style="align-items:flex-start;">
+            <div class="avatar avatar-sm">ML</div>
+            <div>
+              <div style="font-size:14px;"><span class="font-medium">Mike Lee</span> <span class="text-secondary">changed status to</span> <span class="badge badge-warning" style="font-size:11px;">In Progress</span></div>
+              <div class="text-muted" style="font-size:12px;">Apr 4, 2026 at 2:30 PM</div>
+            </div>
+          </div>
+          <div class="flex gap-12" style="align-items:flex-start;">
+            <div class="avatar avatar-sm">ML</div>
+            <div>
+              <div style="font-size:14px;"><span class="font-medium">Mike Lee</span> <span class="text-secondary">added 3 attachments</span></div>
+              <div class="text-muted" style="font-size:12px;">Apr 5, 2026 at 11:45 AM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column -->
+    <div style="display:flex;flex-direction:column;gap:24px;">
+      <!-- Details -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Details</h3>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="flex-between">
+            <span class="text-muted" style="font-size:14px;">Store</span>
+            <span class="font-medium" style="font-size:14px;">Main Street</span>
+          </div>
+          <div class="flex-between">
+            <span class="text-muted" style="font-size:14px;">Due Date</span>
+            <span class="font-medium" style="font-size:14px;">Apr 8, 2026</span>
+          </div>
+          <div class="flex-between">
+            <span class="text-muted" style="font-size:14px;">Created By</span>
+            <span class="font-medium" style="font-size:14px;">Sarah Kim</span>
+          </div>
+          <div class="flex-between">
+            <span class="text-muted" style="font-size:14px;">Created</span>
+            <span class="font-medium" style="font-size:14px;">Apr 3, 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assignees -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Assignees</h3>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="flex gap-12" style="align-items:center;">
+            <div class="avatar avatar-sm">SK</div>
+            <div>
+              <div class="font-medium" style="font-size:14px;">Sarah Kim</div>
+              <div class="text-muted" style="font-size:12px;">Manager</div>
+            </div>
+          </div>
+          <div class="flex gap-12" style="align-items:center;">
+            <div class="avatar avatar-sm">ML</div>
+            <div>
+              <div class="font-medium" style="font-size:14px;">Mike Lee</div>
+              <div class="text-muted" style="font-size:12px;">Barista</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Status</h3>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn btn-ghost" style="flex:1;">Pending</button>
+          <button class="btn btn-secondary" style="flex:1;">In Progress</button>
+          <button class="btn btn-ghost" style="flex:1;">Completed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ==================== PAGE 17: ANNOUNCEMENTS ==================== -->
+<div id="page-announcements" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Notices</h1>
+    </div>
+    <button class="btn btn-primary" onclick="toggleModal('modal-create-announcement')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Create Notice
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Target</th>
+            <th>Author</th>
+            <th>Date</th>
+            <th>Views</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="navigateTo('page-announcement-detail')" style="cursor:pointer">
+            <td class="font-medium">April System Maintenance</td>
+            <td><span class="badge badge-danger">All Stores</span></td>
+            <td>Sarah Kim</td>
+            <td class="text-secondary">Apr 6, 2026</td>
+            <td class="text-secondary">18</td>
+          </tr>
+          <tr onclick="navigateTo('page-announcement-detail')" style="cursor:pointer">
+            <td class="font-medium">New Menu Training Schedule</td>
+            <td><span class="badge badge-accent">Main Street</span></td>
+            <td>John Smith</td>
+            <td class="text-secondary">Apr 4, 2026</td>
+            <td class="text-secondary">12</td>
+          </tr>
+          <tr onclick="navigateTo('page-announcement-detail')" style="cursor:pointer">
+            <td class="font-medium">April Schedule Confirmed</td>
+            <td><span class="badge badge-danger">All Stores</span></td>
+            <td>Sarah Kim</td>
+            <td class="text-secondary">Apr 1, 2026</td>
+            <td class="text-secondary">22</td>
+          </tr>
+          <tr onclick="navigateTo('page-announcement-detail')" style="cursor:pointer">
+            <td class="font-medium">Updated Break Policy</td>
+            <td><span class="badge badge-accent">Downtown</span></td>
+            <td>Sarah Kim</td>
+            <td class="text-secondary">Mar 28, 2026</td>
+            <td class="text-secondary">15</td>
+          </tr>
+          <tr onclick="navigateTo('page-announcement-detail')" style="cursor:pointer">
+            <td class="font-medium">Q2 Goals Announcement</td>
+            <td><span class="badge badge-danger">All Stores</span></td>
+            <td>John Smith</td>
+            <td class="text-secondary">Mar 25, 2026</td>
+            <td class="text-secondary">24</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 18: ANNOUNCEMENT DETAIL ==================== -->
+<div id="page-announcement-detail" class="page">
+  <div class="page-header">
+    <div class="flex flex-center gap-3">
+      <button class="btn btn-ghost btn-sm" onclick="navigateTo('page-announcements')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div>
+        <h1 class="page-title">April System Maintenance</h1>
+        <div class="flex flex-center gap-3 mt-1">
+          <span class="text-secondary text-sm">April 6, 2026</span>
+          <span class="text-secondary text-sm">by Sarah Kim</span>
+        </div>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit
+      </button>
+      <button class="btn btn-danger" onclick="toggleModal('modal-confirm-delete')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <span class="badge badge-danger">All Stores</span>
+  </div>
+
+  <div class="card">
+    <div class="card-body" style="padding: 24px; line-height: 1.7;">
+      <p class="mb-4">We will be performing scheduled system maintenance on Saturday, April 11, 2026, from 2:00 AM to 6:00 AM EST. During this time, the TaskManager system may experience intermittent downtime or slow performance.</p>
+
+      <p class="mb-4">Please take note of the following details regarding the maintenance window:</p>
+
+      <ul style="list-style: disc; padding-left: 24px; margin-bottom: 16px;">
+        <li class="mb-2"><strong>Date & Time:</strong> Saturday, April 11, 2026 from 2:00 AM - 6:00 AM EST</li>
+        <li class="mb-2"><strong>What to expect:</strong> The POS system will remain operational. Only the admin portal and staff app may be temporarily unavailable.</li>
+        <li class="mb-2"><strong>Action required:</strong> Please ensure all daily reports for Friday, April 10 are submitted before 1:00 AM EST.</li>
+        <li class="mb-2"><strong>QR Clock-in:</strong> Paper-based sign-in sheets will be provided to each store as a backup during the maintenance window.</li>
+        <li class="mb-2"><strong>Contact:</strong> If you experience any issues after the maintenance window, please reach out to Sarah Kim at sarah.kim@tigersplus.com or call (555) 012-3456.</li>
+      </ul>
+
+      <p>Thank you for your patience and understanding. We are making these improvements to ensure a better experience for everyone.</p>
+    </div>
+  </div>
+
+  <div class="card mt-4">
+    <div class="card-body" style="padding: 20px;">
+      <div class="flex flex-between flex-center mb-2">
+        <span class="font-medium text-sm">Read by 18 / 24 staff</span>
+        <span class="text-secondary text-sm">75%</span>
+      </div>
+      <div style="width: 100%; height: 8px; background: var(--bg-secondary); border-radius: 4px; overflow: hidden;">
+        <div style="width: 75%; height: 100%; background: var(--color-primary); border-radius: 4px; transition: width 0.3s;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 19: DAILY REPORTS ==================== -->
+<div id="page-daily-reports" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Daily Reports</h1>
+    </div>
+  </div>
+
+  <div class="flex flex-between flex-center mb-4">
+    <div class="flex flex-center gap-2">
+      <button class="btn btn-ghost btn-sm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="font-medium">April 6, 2026 (Sunday)</span>
+      <button class="btn btn-ghost btn-sm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <select class="form-select" style="width: 200px;">
+      <option>All Stores</option>
+      <option>Main Street</option>
+      <option>Downtown</option>
+      <option>Westside</option>
+    </select>
+  </div>
+
+  <div class="grid-1 gap-4">
+    <!-- Main Street — Submitted -->
+    <div class="card">
+      <div class="card-header">
+        <div class="flex flex-between flex-center w-full">
+          <h3 class="card-title">Main Street</h3>
+          <span class="badge badge-success">Submitted</span>
+        </div>
+      </div>
+      <div class="card-body" style="padding: 20px;">
+        <div class="grid-4 gap-4">
+          <div class="stat-card">
+            <div class="stat-value">$4,250</div>
+            <div class="stat-label">Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">187</div>
+            <div class="stat-label">Customers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">8</div>
+            <div class="stat-label">Staff on Duty</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Issues</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Downtown — Pending -->
+    <div class="card">
+      <div class="card-header">
+        <div class="flex flex-between flex-center w-full">
+          <h3 class="card-title">Downtown</h3>
+          <span class="badge badge-warning">Pending</span>
+        </div>
+      </div>
+      <div class="card-body" style="padding: 20px;">
+        <div class="empty-state" style="padding: 24px 0;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <p class="text-secondary text-sm">Not yet submitted</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Westside — Overdue -->
+    <div class="card">
+      <div class="card-header">
+        <div class="flex flex-between flex-center w-full">
+          <h3 class="card-title">Westside</h3>
+          <span class="badge badge-danger">Overdue</span>
+        </div>
+      </div>
+      <div class="card-body" style="padding: 20px;">
+        <div class="empty-state" style="padding: 24px 0;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <p class="text-secondary text-sm">Not yet submitted</p>
+          <p class="text-danger text-xs font-medium">Due by 10:00 PM today</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 20: EVALUATIONS ==================== -->
+<div id="page-evaluations" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Evaluations</h1>
+    </div>
+    <div class="flex gap-2">
+      <select class="form-select" style="width: 160px;">
+        <option selected>Q1 2026</option>
+        <option>Q4 2025</option>
+        <option>Q3 2025</option>
+        <option>Q2 2025</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Store</th>
+            <th>Period</th>
+            <th>Score</th>
+            <th>Grade</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="flex flex-center gap-2">
+                <div class="avatar avatar-sm">SK</div>
+                <span class="font-medium">Sarah Kim</span>
+              </div>
+            </td>
+            <td>Main Street</td>
+            <td>Q1 2026</td>
+            <td class="font-medium">92</td>
+            <td><span class="badge badge-accent">S</span></td>
+            <td><span class="badge badge-success">Completed</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="flex flex-center gap-2">
+                <div class="avatar avatar-sm">ML</div>
+                <span class="font-medium">Mike Lee</span>
+              </div>
+            </td>
+            <td>Main Street</td>
+            <td>Q1 2026</td>
+            <td class="font-medium">85</td>
+            <td><span class="badge badge-info">A</span></td>
+            <td><span class="badge badge-success">Completed</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="flex flex-center gap-2">
+                <div class="avatar avatar-sm">JP</div>
+                <span class="font-medium">James Park</span>
+              </div>
+            </td>
+            <td>Downtown</td>
+            <td>Q1 2026</td>
+            <td class="font-medium">78</td>
+            <td><span class="badge badge-warning">B</span></td>
+            <td><span class="badge badge-warning">In Review</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="flex flex-center gap-2">
+                <div class="avatar avatar-sm">EC</div>
+                <span class="font-medium">Emily Chen</span>
+              </div>
+            </td>
+            <td>Main Street</td>
+            <td>Q1 2026</td>
+            <td class="font-medium">72</td>
+            <td><span class="badge badge-neutral">C</span></td>
+            <td><span class="badge badge-warning">In Review</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="flex flex-center gap-2">
+                <div class="avatar avatar-sm">CH</div>
+                <span class="font-medium">Chris Han</span>
+              </div>
+            </td>
+            <td>Downtown</td>
+            <td>Q1 2026</td>
+            <td class="text-secondary">&mdash;</td>
+            <td class="text-secondary">&mdash;</td>
+            <td><span class="badge badge-neutral">Not Started</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 21: INVENTORY ==================== -->
+<div id="page-inventory" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Inventory</h1>
+    </div>
+  </div>
+
+  <div class="tab-group mb-4">
+    <button class="tab active">Products</button>
+    <button class="tab">Categories</button>
+    <button class="tab">Transactions</button>
+    <button class="tab">Audits</button>
+    <button class="tab">By Store</button>
+  </div>
+
+  <div class="flex gap-3 mb-4">
+    <div style="flex: 1;">
+      <input type="text" class="form-input" placeholder="Search products...">
+    </div>
+    <select class="form-select" style="width: 180px;">
+      <option>All Categories</option>
+      <option>Beverages</option>
+      <option>Dairy</option>
+      <option>Supplies</option>
+    </select>
+  </div>
+
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Current Stock</th>
+            <th>Min Stock</th>
+            <th>Unit</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="font-medium">Coffee Beans (Arabica)</td>
+            <td class="text-secondary">Beverages</td>
+            <td>45</td>
+            <td class="text-secondary">20</td>
+            <td class="text-secondary">kg</td>
+            <td><span class="badge badge-success">Normal</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Whole Milk</td>
+            <td class="text-secondary">Dairy</td>
+            <td class="text-danger font-medium">12</td>
+            <td class="text-secondary">15</td>
+            <td class="text-secondary">gallon</td>
+            <td><span class="badge badge-danger">Low</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Paper Cups (12oz)</td>
+            <td class="text-secondary">Supplies</td>
+            <td>500</td>
+            <td class="text-secondary">200</td>
+            <td class="text-secondary">pcs</td>
+            <td><span class="badge badge-success">Normal</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Vanilla Syrup</td>
+            <td class="text-secondary">Beverages</td>
+            <td class="text-danger font-medium">8</td>
+            <td class="text-secondary">10</td>
+            <td class="text-secondary">bottle</td>
+            <td><span class="badge badge-danger">Low</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Napkins</td>
+            <td class="text-secondary">Supplies</td>
+            <td>2,000</td>
+            <td class="text-secondary">500</td>
+            <td class="text-secondary">pcs</td>
+            <td><span class="badge badge-warning">Excess</span></td>
+          </tr>
+          <tr>
+            <td class="font-medium">Oat Milk</td>
+            <td class="text-secondary">Dairy</td>
+            <td>18</td>
+            <td class="text-secondary">10</td>
+            <td class="text-secondary">carton</td>
+            <td><span class="badge badge-success">Normal</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 22: NOTIFICATIONS ==================== -->
+<div id="page-notifications" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Alerts</h1>
+    </div>
+  </div>
+
+  <div class="filter-tabs mb-4">
+    <button class="tab active">All</button>
+    <button class="tab">Unread <span class="badge badge-accent" style="margin-left: 4px;">3</span></button>
+  </div>
+
+  <div class="grid-1 gap-2">
+    <!-- Unread 1: Schedule -->
+    <div class="card" style="border-left: 3px solid var(--color-primary); background: var(--bg-primary);">
+      <div class="card-body" style="padding: 16px 20px;">
+        <div class="flex gap-3">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--color-primary-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="flex flex-between flex-center">
+              <span class="font-medium text-sm">Schedule change requested</span>
+              <span class="text-secondary text-xs">2 min ago</span>
+            </div>
+            <p class="text-secondary text-sm mt-1">Mike Lee requested a shift swap for Apr 8</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unread 2: Late arrival -->
+    <div class="card" style="border-left: 3px solid var(--color-primary); background: var(--bg-primary);">
+      <div class="card-body" style="padding: 16px 20px;">
+        <div class="flex gap-3">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--color-danger-light, #fef2f2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="flex flex-between flex-center">
+              <span class="font-medium text-sm">Late arrival</span>
+              <span class="text-secondary text-xs">15 min ago</span>
+            </div>
+            <p class="text-secondary text-sm mt-1">Chris Han clocked in 23 min late at Downtown</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unread 3: Task overdue -->
+    <div class="card" style="border-left: 3px solid var(--color-primary); background: var(--bg-primary);">
+      <div class="card-body" style="padding: 16px 20px;">
+        <div class="flex gap-3">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--color-warning-light, #fffbeb); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-warning)" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="flex flex-between flex-center">
+              <span class="font-medium text-sm">Task overdue</span>
+              <span class="text-secondary text-xs">1 hour ago</span>
+            </div>
+            <p class="text-secondary text-sm mt-1">Fix front door lock is past due date</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read 4: Checklist completed -->
+    <div class="card">
+      <div class="card-body" style="padding: 16px 20px;">
+        <div class="flex gap-3">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="flex flex-between flex-center">
+              <span class="font-medium text-sm">Checklist completed</span>
+              <span class="text-secondary text-xs">2 hours ago</span>
+            </div>
+            <p class="text-secondary text-sm mt-1">Sarah Kim completed Opening Checklist at Main Street</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read 5: Schedule approved -->
+    <div class="card">
+      <div class="card-body" style="padding: 16px 20px;">
+        <div class="flex gap-3">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="flex flex-between flex-center">
+              <span class="font-medium text-sm">Schedule approved</span>
+              <span class="text-secondary text-xs">3 hours ago</span>
+            </div>
+            <p class="text-secondary text-sm mt-1">All schedules for Week 1 have been approved</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read 6: New notice posted -->
+    <div class="card">
+      <div class="card-body" style="padding: 16px 20px;">
+        <div class="flex gap-3">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="flex flex-between flex-center">
+              <span class="font-medium text-sm">New notice posted</span>
+              <span class="text-secondary text-xs">5 hours ago</span>
+            </div>
+            <p class="text-secondary text-sm mt-1">April System Maintenance notice published</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read 7: New staff member -->
+    <div class="card">
+      <div class="card-body" style="padding: 16px 20px;">
+        <div class="flex gap-3">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="flex flex-between flex-center">
+              <span class="font-medium text-sm">New staff member</span>
+              <span class="text-secondary text-xs">Yesterday</span>
+            </div>
+            <p class="text-secondary text-sm mt-1">Alex Yun has been added to Main Street</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read 8: Overtime alert -->
+    <div class="card">
+      <div class="card-body" style="padding: 16px 20px;">
+        <div class="flex gap-3">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div class="flex flex-between flex-center">
+              <span class="font-medium text-sm">Overtime alert</span>
+              <span class="text-secondary text-xs">Yesterday</span>
+            </div>
+            <p class="text-secondary text-sm mt-1">James Park worked 10.5 hours on Saturday</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 23: SETTINGS ==================== -->
+<div id="page-settings" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Settings</h1>
+    </div>
+  </div>
+
+  <div class="grid-1 gap-4">
+    <!-- Organization -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Organization</h3>
+      </div>
+      <div class="card-body" style="padding: 20px;">
+        <div class="grid-2 gap-4">
+          <div class="form-group">
+            <label class="form-label">Company Name</label>
+            <input type="text" class="form-input" value="Tigers Plus Inc." readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Company Code</label>
+            <div class="flex gap-2">
+              <input type="text" class="form-input" value="EU0JKF" readonly style="font-family: monospace; letter-spacing: 2px; font-weight: 600;">
+              <button class="btn btn-ghost btn-sm" title="Copy code">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Plan</label>
+            <div class="flex flex-center gap-2">
+              <span class="badge badge-accent">Pro</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Notifications</h3>
+      </div>
+      <div class="card-body" style="padding: 8px 20px;">
+        <div style="display: flex; flex-direction: column;">
+          <div class="flex flex-between flex-center" style="padding: 14px 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="font-medium text-sm">Schedule changes</div>
+              <div class="text-secondary text-xs">Get notified when schedules are modified or swap requests come in</div>
+            </div>
+            <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
+              <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+              <span style="position: absolute; inset: 0; background: var(--color-primary); border-radius: 12px; transition: 0.2s;"></span>
+              <span style="position: absolute; top: 2px; left: 22px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></span>
+            </label>
+          </div>
+          <div class="flex flex-between flex-center" style="padding: 14px 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="font-medium text-sm">Attendance alerts</div>
+              <div class="text-secondary text-xs">Get notified for late arrivals, absences, and early departures</div>
+            </div>
+            <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
+              <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+              <span style="position: absolute; inset: 0; background: var(--color-primary); border-radius: 12px; transition: 0.2s;"></span>
+              <span style="position: absolute; top: 2px; left: 22px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></span>
+            </label>
+          </div>
+          <div class="flex flex-between flex-center" style="padding: 14px 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="font-medium text-sm">Task updates</div>
+              <div class="text-secondary text-xs">Get notified when tasks are completed, overdue, or reassigned</div>
+            </div>
+            <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
+              <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+              <span style="position: absolute; inset: 0; background: var(--color-primary); border-radius: 12px; transition: 0.2s;"></span>
+              <span style="position: absolute; top: 2px; left: 22px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></span>
+            </label>
+          </div>
+          <div class="flex flex-between flex-center" style="padding: 14px 0;">
+            <div>
+              <div class="font-medium text-sm">Overtime warnings</div>
+              <div class="text-secondary text-xs">Get notified when staff approach or exceed overtime thresholds</div>
+            </div>
+            <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
+              <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+              <span style="position: absolute; inset: 0; background: var(--border-color); border-radius: 12px; transition: 0.2s;"></span>
+              <span style="position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Security</h3>
+      </div>
+      <div class="card-body" style="padding: 20px;">
+        <div class="grid-2 gap-4">
+          <div class="form-group">
+            <label class="form-label">Session Timeout</label>
+            <select class="form-select">
+              <option>15 minutes</option>
+              <option selected>30 minutes</option>
+              <option>1 hour</option>
+              <option>4 hours</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Two-Factor Authentication</label>
+            <div class="flex flex-center gap-3" style="height: 40px;">
+              <label style="position: relative; display: inline-block; width: 44px; height: 24px; cursor: pointer;">
+                <input type="checkbox" style="opacity: 0; width: 0; height: 0;">
+                <span style="position: absolute; inset: 0; background: var(--border-color); border-radius: 12px; transition: 0.2s;"></span>
+                <span style="position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></span>
+              </label>
+              <span class="text-secondary text-sm">Off</span>
+            </div>
+          </div>
+        </div>
+        <div class="mt-3" style="padding: 12px 16px; background: var(--bg-secondary); border-radius: 8px;">
+          <p class="text-secondary text-sm">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Passwords must be at least 8 characters and include uppercase, lowercase, and a number.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appearance -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Appearance</h3>
+      </div>
+      <div class="card-body" style="padding: 20px;">
+        <div class="form-group">
+          <label class="form-label">Theme</label>
+          <div class="flex gap-2">
+            <button class="btn btn-primary btn-sm">Light</button>
+            <button class="btn btn-ghost btn-sm">Dark</button>
+            <button class="btn btn-ghost btn-sm">System</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE 24: QR DISPLAY ==================== -->
+<div id="page-qr-display" class="page" style="display: none; position: fixed; inset: 0; z-index: 9999; background: white;">
+  <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; gap: 24px; padding: 40px;">
+    <h1 style="font-size: 28px; font-weight: 700; color: var(--text-primary);">Main Street</h1>
+
+    <div style="width: 280px; height: 280px; border: 3px dashed var(--border-color); border-radius: 16px; display: flex; align-items: center; justify-content: center; background: var(--bg-secondary);">
+      <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1">
+        <rect x="2" y="2" width="6" height="6" rx="1"/>
+        <rect x="16" y="2" width="6" height="6" rx="1"/>
+        <rect x="2" y="16" width="6" height="6" rx="1"/>
+        <rect x="10" y="2" width="4" height="4"/>
+        <rect x="2" y="10" width="4" height="4"/>
+        <rect x="10" y="10" width="4" height="4"/>
+        <rect x="16" y="10" width="4" height="4"/>
+        <rect x="10" y="16" width="4" height="4"/>
+        <rect x="18" y="16" width="4" height="4"/>
+      </svg>
+    </div>
+
+    <div style="font-size: 48px; font-weight: 700; color: var(--text-primary); font-variant-numeric: tabular-nums;">
+      09:32 AM
+    </div>
+
+    <p style="font-size: 20px; font-weight: 500; color: var(--text-secondary);">Scan to Clock In</p>
+
+    <p style="font-size: 14px; color: var(--text-tertiary);">QR refreshes every 30 seconds</p>
+
+    <a href="#" onclick="navigateTo('page-dashboard'); return false;" style="margin-top: 24px; color: var(--color-primary); font-size: 14px; text-decoration: none;">
+      Back to Admin
+    </a>
+  </div>
+</div>
+
+<!-- ==================== PAGE 25: UI STATES ==================== -->
+<div id="page-ui-states" class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">UI Components & States</h1>
+    </div>
+  </div>
+
+  <div class="grid-1 gap-6">
+    <!-- Empty States -->
+    <div>
+      <h2 class="font-medium text-lg mb-3">Empty States</h2>
+      <div class="card">
+        <div class="empty-state" style="padding: 48px 24px;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          <h3 class="font-medium mt-3">No data found</h3>
+          <p class="text-secondary text-sm mt-1">There are no items yet. Create one to get started.</p>
+          <button class="btn btn-primary mt-3">Create New</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div>
+      <h2 class="font-medium text-lg mb-3">Loading</h2>
+      <div class="card">
+        <div class="loading-state" style="padding: 48px 24px; text-align: center;">
+          <div class="spinner"></div>
+          <p class="text-secondary text-sm mt-3">Loading...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div>
+      <h2 class="font-medium text-lg mb-3">Error</h2>
+      <div class="card">
+        <div class="error-state" style="padding: 48px 24px; text-align: center;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="1.5">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          <h3 class="font-medium mt-3">Something went wrong</h3>
+          <p class="text-secondary text-sm mt-1">Failed to load data. Please try again.</p>
+          <button class="btn btn-secondary mt-3">Retry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toasts -->
+    <div>
+      <h2 class="font-medium text-lg mb-3">Toasts</h2>
+      <div style="display: flex; flex-direction: column; gap: 8px; max-width: 400px;">
+        <div class="toast toast-success">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Saved successfully
+        </div>
+        <div class="toast toast-error">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          Failed to save
+        </div>
+        <div class="toast toast-info">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          New notification received
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <div>
+      <h2 class="font-medium text-lg mb-3">Modals</h2>
+      <div class="flex gap-2" style="flex-wrap: wrap;">
+        <button class="btn btn-secondary" onclick="toggleModal('modal-create-store')">Add Store</button>
+        <button class="btn btn-secondary" onclick="toggleModal('modal-create-schedule')">Add Schedule</button>
+        <button class="btn btn-secondary" onclick="toggleModal('modal-create-task')">Create Task</button>
+        <button class="btn btn-secondary" onclick="toggleModal('modal-create-user')">Add Staff</button>
+        <button class="btn btn-danger" onclick="toggleModal('modal-confirm-delete')">Confirm Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</main>
+
+<!-- MODALS -->
+<!-- ==================== MODAL: CREATE STORE ==================== -->
+<div id="modal-create-store" class="modal-overlay" onclick="toggleModal('modal-create-store')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="font-semibold text-lg">Add Store</h2>
+      <button class="btn btn-ghost btn-sm" onclick="toggleModal('modal-create-store')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Store Name *</label>
+        <input type="text" class="form-input" placeholder="e.g., Uptown Branch">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Address *</label>
+        <input type="text" class="form-input" placeholder="123 Main St, City, State ZIP">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="tel" class="form-input" placeholder="(555) 000-0000">
+      </div>
+      <div class="grid-2 gap-3">
+        <div class="form-group">
+          <label class="form-label">Open Time</label>
+          <input type="time" class="form-input" value="07:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Close Time</label>
+          <input type="time" class="form-input" value="22:00">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Timezone</label>
+        <select class="form-select">
+          <option>US/Eastern</option>
+          <option>US/Central</option>
+          <option>US/Mountain</option>
+          <option>US/Pacific</option>
+          <option>US/Hawaii</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="toggleModal('modal-create-store')">Cancel</button>
+      <button class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: CREATE SCHEDULE ==================== -->
+<div id="modal-create-schedule" class="modal-overlay" onclick="toggleModal('modal-create-schedule')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="font-semibold text-lg">Add Schedule</h2>
+      <button class="btn btn-ghost btn-sm" onclick="toggleModal('modal-create-schedule')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Store *</label>
+        <select class="form-select">
+          <option value="">Select store...</option>
+          <option>Main Street</option>
+          <option>Downtown</option>
+          <option>Westside</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Employee *</label>
+        <select class="form-select">
+          <option value="">Select employee...</option>
+          <option>Sarah Kim</option>
+          <option>Mike Lee</option>
+          <option>James Park</option>
+          <option>Emily Chen</option>
+          <option>Chris Han</option>
+        </select>
+        <div class="flex gap-1 mt-2" style="flex-wrap: wrap;">
+          <span class="badge badge-accent" style="display: inline-flex; align-items: center; gap: 4px;">Sarah Kim <span style="cursor: pointer; font-size: 14px;">&times;</span></span>
+          <span class="badge badge-accent" style="display: inline-flex; align-items: center; gap: 4px;">Mike Lee <span style="cursor: pointer; font-size: 14px;">&times;</span></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date *</label>
+        <input type="date" class="form-input" value="2026-04-08">
+      </div>
+      <div class="grid-2 gap-3">
+        <div class="form-group">
+          <label class="form-label">Start Time *</label>
+          <input type="time" class="form-input" value="09:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">End Time *</label>
+          <input type="time" class="form-input" value="17:00">
+        </div>
+      </div>
+      <div class="grid-2 gap-3">
+        <div class="form-group">
+          <label class="form-label">Shift</label>
+          <select class="form-select">
+            <option value="">Select shift...</option>
+            <option>Morning</option>
+            <option>Afternoon</option>
+            <option>Evening</option>
+            <option>Full Day</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Position</label>
+          <select class="form-select">
+            <option value="">Select position...</option>
+            <option>Barista</option>
+            <option>Cashier</option>
+            <option>Supervisor</option>
+            <option>Kitchen</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" rows="3" placeholder="Optional notes for this schedule..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="toggleModal('modal-create-schedule')">Cancel</button>
+      <button class="btn btn-primary">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: CREATE TASK ==================== -->
+<div id="modal-create-task" class="modal-overlay" onclick="toggleModal('modal-create-task')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="font-semibold text-lg">Create Task</h2>
+      <button class="btn btn-ghost btn-sm" onclick="toggleModal('modal-create-task')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Title *</label>
+        <input type="text" class="form-input" placeholder="e.g., Fix espresso machine">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Store *</label>
+        <select class="form-select">
+          <option value="">Select store...</option>
+          <option>Main Street</option>
+          <option>Downtown</option>
+          <option>Westside</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Priority *</label>
+        <div class="flex gap-4 mt-1">
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="radio" name="task-priority" value="urgent">
+            <span class="badge badge-danger">Urgent</span>
+          </label>
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="radio" name="task-priority" value="normal" checked>
+            <span class="badge badge-warning">Normal</span>
+          </label>
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="radio" name="task-priority" value="low">
+            <span class="badge badge-success">Low</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due Date *</label>
+        <input type="date" class="form-input" value="2026-04-10">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" rows="3" placeholder="Describe the task in detail..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Assignees</label>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="checkbox"> <span class="text-sm">Sarah Kim</span>
+          </label>
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="checkbox"> <span class="text-sm">Mike Lee</span>
+          </label>
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="checkbox"> <span class="text-sm">James Park</span>
+          </label>
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="checkbox"> <span class="text-sm">Emily Chen</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="toggleModal('modal-create-task')">Cancel</button>
+      <button class="btn btn-primary">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: CREATE USER ==================== -->
+<div id="modal-create-user" class="modal-overlay" onclick="toggleModal('modal-create-user')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 class="font-semibold text-lg">Add Staff</h2>
+      <button class="btn btn-ghost btn-sm" onclick="toggleModal('modal-create-user')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="grid-2 gap-3">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-input" placeholder="e.g., John Smith">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Username *</label>
+          <input type="text" class="form-input" placeholder="e.g., john.smith">
+        </div>
+      </div>
+      <div class="grid-2 gap-3">
+        <div class="form-group">
+          <label class="form-label">Email *</label>
+          <input type="email" class="form-input" placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone</label>
+          <input type="tel" class="form-input" placeholder="(555) 000-0000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role *</label>
+        <select class="form-select">
+          <option value="">Select role...</option>
+          <option>Owner</option>
+          <option>GM</option>
+          <option>SV</option>
+          <option selected>Staff</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Store Assignment</label>
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="checkbox" checked> <span class="text-sm">Main Street</span>
+          </label>
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="checkbox"> <span class="text-sm">Downtown</span>
+          </label>
+          <label class="flex flex-center gap-2" style="cursor: pointer;">
+            <input type="checkbox"> <span class="text-sm">Westside</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Hourly Rate</label>
+        <div class="flex flex-center gap-1">
+          <span class="text-secondary">$</span>
+          <input type="number" class="form-input" placeholder="0.00" step="0.01" style="width: 140px;">
+          <span class="text-secondary text-sm">/ hr</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="toggleModal('modal-create-user')">Cancel</button>
+      <button class="btn btn-primary">Add Staff</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: CONFIRM DELETE ==================== -->
+<div id="modal-confirm-delete" class="modal-overlay" onclick="toggleModal('modal-confirm-delete')">
+  <div class="modal" onclick="event.stopPropagation()" style="max-width: 420px;">
+    <div class="modal-body" style="padding: 32px; text-align: center;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--color-danger-light, #fef2f2); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h2 class="font-semibold text-lg mb-2">Confirm Delete</h2>
+      <p class="text-secondary text-sm">Are you sure you want to delete this item? This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer" style="justify-content: center;">
+      <button class="btn btn-ghost" onclick="toggleModal('modal-confirm-delete')">Cancel</button>
+      <button class="btn btn-danger">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER (for demo) -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- SCRIPTS -->
+<script>
+// Page navigation
+function navigateTo(pageId) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Show target
+  const page = document.getElementById(pageId);
+  if (page) page.classList.add('active');
+
+  // Update sidebar active state
+  document.querySelectorAll('.nav-item, .nav-child').forEach(n => n.classList.remove('active'));
+  const navItem = document.querySelector(`[data-page="${pageId}"]`);
+  if (navItem) navItem.classList.add('active');
+
+  // Update guide bar tabs
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page-tab').forEach(t => {
+    if (t.getAttribute('onclick')?.includes(pageId)) t.classList.add('active');
+  });
+
+  // Handle fullscreen pages (login, qr-display)
+  const sidebar = document.getElementById('sidebar');
+  const guideBar = document.querySelector('.guide-bar');
+  const mainContent = document.querySelector('.main-content');
+  if (pageId === 'page-login' || pageId === 'page-qr-display') {
+    sidebar.style.display = 'none';
+    mainContent.style.marginLeft = '0';
+  } else {
+    sidebar.style.display = '';
+    mainContent.style.marginLeft = '';
+  }
+
+  // Auto-open parent submenu for child pages
+  const parentMap = {
+    'page-schedules': 'sub-schedules',
+    'page-schedule-list': 'sub-schedules',
+    'page-schedule-settings': 'sub-schedules',
+    'page-attendances': 'sub-attendance',
+    'page-attendance-detail': 'sub-attendance',
+    'page-attendance-summary': 'sub-attendance',
+    'page-checklists': 'sub-checklists',
+    'page-checklist-progress': 'sub-checklists',
+  };
+  if (parentMap[pageId]) {
+    document.getElementById(parentMap[pageId])?.classList.remove('hidden');
+  }
+
+  // Scroll to top
+  mainContent.scrollTop = 0;
+}
+
+// Modal toggle
+function toggleModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.toggle('open');
+}
+
+// Close modal on backdrop click
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('open')) {
+    e.target.classList.remove('open');
+  }
+});
+
+// Submenu toggle
+function toggleSubmenu(id) {
+  const sub = document.getElementById(id);
+  if (sub) sub.classList.toggle('hidden');
+}
+
+// Show toast demo
+function showToast(type, message) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.innerHTML = `<span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Init: show dashboard
+navigateTo('page-dashboard');
+</script>
+
+<!-- Shared modules -->
+<link rel="stylesheet" href="../shared/feedback.css">
+<script src="../shared/feedback.js"></script>
+<script src="../shared/history.js"></script>
+
+</body>
+</html>
