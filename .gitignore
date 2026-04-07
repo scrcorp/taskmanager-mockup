@@ -12,6 +12,9 @@ email-verification/
 inactive-users/
 password-management/
 
+# React source (build outputs go to date-prefixed folders)
+_react/
+
 # General
 .DS_Store
 *.zip
